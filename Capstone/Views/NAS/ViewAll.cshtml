@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "NAS View All";
+    ViewBag.activeNav = 2;
+}
+
+<div class="container" style="margin-bottom: 10px;">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <th>
+                <td>
+                    <b>ID</b>
+                </td>
+                <td>
+                    <b>Birth Weight</b>
+                </td>
+                <td>
+                    <b>Birth Date</b>
+                </td>
+                <td>
+                    <b>NAS?</b>
+                </td>
+                <td>
+                    <b>NAS Score</b>
+                </td>
+                <td>
+                    <b>Total LOS</b>
+                </td>
+            </th>
+        </thead>
+        <tbody>
+        @{
+            foreach(System.Data.DataRow dtRow in ViewBag.NASData.Rows) {
+                <tr>
+                    <td><a href="/NAS/Edit/@dtRow["nas_form_id"].ToString()">Edit</a></td>
+                    <td>@dtRow["nas_form_id"]</td>
+                    <td>@(Math.Round(float.Parse(dtRow["birth_weight"].ToString()), 2))</td>
+                    <td>@dtRow["birth_date"]</td>
+                    <td>@dtRow["nas_bool"]</td>
+                    <td>@dtRow["nas_score"]</td>
+                    <td>@dtRow["total_los"]</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>

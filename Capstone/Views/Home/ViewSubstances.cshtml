@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "View All Substances";
+}
+
+<div class="container" style="margin-bottom: 10px;">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <td>Substance ID</td>
+                <td>Substance Name</td>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach(System.Data.DataRow dtRow in ViewBag.SubData.Rows) {
+                    <tr>
+                        <td>@dtRow["sub_id"]</td>
+                        <td>@dtRow["sub_name"]</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

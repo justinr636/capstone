@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Box Plot Chart";
+    ViewBag.activeNav = 3;
+}
+
+<style type="text/css">
+    .chart-container { margin-left: auto; margin-right: auto; }
+</style>
+
+
+<div class="container" style="margin-bottom: 10px;">
+
+    <div class="chart-container">
+        <h3>(D3 Box Plot) Birth Weight vs NAS Score</h3>
+    	<div class="chartDiv"></div>
+    </div>
+</div>
+
+<script src="../../Scripts/Chart.js" type="text/javascript"></script>
+<script src="../../Scripts/d3.js" type="text/javascript"></script>
+<script src="../../Scripts/box.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        function drawBoxPlot(data) {
+            var labels = true;
+
+            var margin = { top: 30, right: 50, bottom: 70, left: 50 };
+            var width = 800 - margin.left - margin.right;
+            var height = 400 - margin.top - margin.bottom;
+
+            var min = Infinity;
+            var max = -Infinity;
+
+            // Parse through data
+            // Convert all to integers Math.floor()
+            // Determine Max/Min of every Row and override the infinities
+
+            //var chart = d3.box()
+
+        }
+
+        function drawScatterPlot(margin, width, height, xData, yData) {
+            var x = d3.scale.linear().domain([0, d3.max(xData)]).range([0, width]);
+            var y = d3.scale.linear().domain([0, d3.max(yData)]).range([height, 0]);
+
+            var chart = d3.select('div.chartDiv')
+                .append('svg:svg')
+            	.attr('width', width + margin.left + margin.right)
+            	.attr('height', height + margin.top + margin.bottom)
+            	.attr('class', 'chart');
+
+            var main = chart.append('g')
+                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+            	.attr('width', width)
+            	.attr('height', height)
+            	.attr('class', 'main');
+
+            var xAxis = d3.svg.axis().scale(x).orient('bottom');
+            main.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+            	.attr('class', 'main axis date')
+            	.call(xAxis);
+
+            var yAxis = d3.svg.axis().scale(y).orient('left');
+            main.append('g')
+                .attr('transform', 'translate(0, 0)')
+            	.attr('class', 'main axis date')
+            	.call(yAxis);
+
+            var g = main.append('svg:g');
+
+            g.selectAll("scatter-dots")
+                .data(yData)
+            	.enter().append('svg:circle')
+                    .attr("cy", function (d) { return y(d); })
+                	.attr("cx", function (d, i) { return x(xData[i]); })
+                	.attr("r", 10)
+                	.style("opacity", 0.6);
+        }
+
+        var margin = { top: 20, right: 15, bottom: 20, left: 60 };
+        var width = 960 - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+    });
+</script>

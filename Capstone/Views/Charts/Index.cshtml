@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "Charts Index";
+    ViewBag.activeNav = 3;
+}
+
+<style type="text/css">
+    .chart-container { margin-left: auto; margin-right: auto; }
+</style>
+
+
+<div class="container" style="margin-bottom: 10px;">
+
+    <div class="chart-container">
+        <h3>(D3 Scatter Plot) Birth Weight vs NAS Score</h3>
+    	<div class="chartDiv"></div>
+    </div>
+
+    <div class="chart-container">
+        <h3>Avg Length Of Stay vs Infant Pharmacology Agents</h3>
+    	<canvas id="barChart1" width="800" height="400"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Avg Length Of Stay vs Infant Formulas</h3>
+    	<canvas id="barChart2" width="800" height="400"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h3>Avg Length Of Stay vs Mother Substances</h3>
+    	<canvas id="barChart3" width="800" height="400"></canvas>
+    </div>
+
+</div>
+
+<script src="../../Scripts/Chart.js" type="text/javascript"></script>
+<script src="../../Scripts/d3.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        function drawBoxPlot(data) {
+            var labels = true;
+
+            var margin = { top: 30, right: 50, bottom: 70, left: 50 };
+            var width = 800 - margin.left - margin.right;
+            var height = 400 - margin.top - margin.bottom;
+
+            var min = Infinity;
+            var max = -Infinity;
+
+
+        }
+
+        function drawScatterPlot(margin, width, height, xData, yData) {
+            var x = d3.scale.linear().domain([0, d3.max(xData)]).range([0, width]);
+            var y = d3.scale.linear().domain([0, d3.max(yData)]).range([height, 0]);
+
+            var chart = d3.select('div.chartDiv')
+                .append('svg:svg')
+            	.attr('width', width + margin.left + margin.right)
+            	.attr('height', height + margin.top + margin.bottom)
+            	.attr('class', 'chart');
+
+            var main = chart.append('g')
+                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+            	.attr('width', width)
+            	.attr('height', height)
+            	.attr('class', 'main');
+
+            var xAxis = d3.svg.axis().scale(x).orient('bottom');
+            main.append('g')
+                .attr('transform', 'translate(0,' + height + ')')
+            	.attr('class', 'main axis date')
+            	.call(xAxis);
+
+            var yAxis = d3.svg.axis().scale(y).orient('left');
+            main.append('g')
+                .attr('transform', 'translate(0, 0)')
+            	.attr('class', 'main axis date')
+            	.call(yAxis);
+
+            var g = main.append('svg:g');
+
+            g.selectAll("scatter-dots")
+                .data(yData)
+            	.enter().append('svg:circle')
+                    .attr("cy", function (d) { return y(d); })
+                	.attr("cx", function (d, i) { return x(xData[i]); })
+                	.attr("r", 10)
+                	.style("opacity", 0.6);
+        }
+
+        //var xData = [11, 55, 73, 58];
+        //var yData = [3, 5, 7, 9];
+
+        var margin = { top: 20, right: 15, bottom: 20, left: 60 };
+        var width = 960 - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+        // Birth Weight vs NAS Score
+        $.ajax({
+            type: "POST",
+            url: "/Charts/GetChartData1/",
+            dataType: "json",
+            success: function (data) {
+                console.log("ajax call success!");
+                console.log(data);
+
+                if ((data.xData.length > 0) && (data.yData.length > 0)) {
+                    //xData = data.xData;
+                    //yData = data.yData;
+                    console.log("drawing scatter plot");
+                    drawScatterPlot(margin, width, height, data.xData, data.yData);
+                }
+            },
+            error: function (data) {
+                console.log("d3 ajax call errored :(");
+                console.log(data);
+            }
+        });
+
+        var ctx = $('#barChart1').get(0).getContext("2d");
+        var ctx2 = $('#barChart2').get(0).getContext("2d");
+        var ctx3 = $('#barChart3').get(0).getContext("2d");
+
+        function cData(lbls, dta, dLabel) {
+            this.labels = lbls;
+            this.datasets = [
+                {
+                    label: dLabel,
+                    fillColor: "rgba(151,187,205,0.5)",
+                    strokeColor: "rgba(151,187,205,0.8)",
+                    highlightFill: "rgba(151,187,205,0.75)",
+                    highlightStroke: "rgba(151,187,205,1)",
+                    data: dta
+                }
+            ];
+        }
+
+        var chartData = {
+            labels: [""],
+            datasets: [
+                {
+                    label: "LoS",
+                    fillColor: "rgba(151,187,205,0.5)",
+                    strokeColor: "rgba(151,187,205,0.8)",
+                    highlightFill: "rgba(151,187,205,0.75)",
+                    highlightStroke: "rgba(151,187,205,1)",
+                    data: [0]
+                }
+            ]
+        };
+
+        // Avg LoS vs Infant Pharmacology Agents
+        $.ajax({
+            type: "POST",
+            url: "/Charts/GetChartData2",
+            dataType: "json",
+            success: function (d) {
+                console.log("SUCCESS!");
+                console.log(d);
+
+                chartData.labels = d.xData;
+                chartData.datasets[0].data = d.yData;
+
+                //var options = { scaleBeginAtZero: true };
+                var options = {};
+
+                var newBarChart = new Chart(ctx).Bar(chartData, options);
+
+                console.log("chartData = ", chartData);
+                console.log("newBarChart = ", newBarChart);
+
+                //newBarChart.update();
+            },
+            error: function (d) {
+                console.log("chart js ajax call errored");
+                console.log(d);
+            }
+        });
+
+        // Avg LoS vs Infant Formulas
+        $.ajax({
+            type: "POST",
+            url: "/Charts/GetChartData3",
+            dataType: "json",
+            success: function (d) {
+                console.log("SUCCESS!");
+                console.log(d);
+
+                var cd2 = new cData(d.xData, d.yData, "LoS");
+                console.log("chart data 2 = ", cd2);
+
+                var options = {};
+
+                var newBarChart2 = new Chart(ctx2).Bar(cd2, options);
+
+                console.log("chartData = ", cd2);
+                console.log("newBarChart = ", newBarChart2);
+            },
+            error: function (d) {
+                console.log("second chart js ajax call errored");
+                console.log(d);
+            }
+        });
+
+        // Avg LoS vs Mother Substances
+        $.ajax({
+            type: "POST",
+            url: "/Charts/GetChartData4",
+            dataType: "json",
+            success: function (d) {
+                console.log("SUCCESS!");
+                console.log(d);
+
+                var cd3 = new cData(d.xData, d.yData, "LoS");
+                console.log("chart data 3 = ", cd3);
+
+                var options = {};
+
+                var newBarChart3 = new Chart(ctx3).Bar(cd3, options);
+
+                console.log("chartData = ", cd3);
+                console.log("newBarChart = ", newBarChart3);
+            },
+            error: function (d) {
+                console.log("3rd chart js ajax call errored");
+                console.log(d);
+            }
+        });
+
+        //var data = {
+        //    labels: ["January", "February", "March", "April", "May", "June", "July"],
+        //    datasets: [
+        //        {
+        //            label: "My First dataset",
+        //            fillColor: "rgba(220,220,220,0.2)",
+        //            strokeColor: "rgba(220,220,220,1)",
+        //            pointColor: "rgba(220,220,220,1)",
+        //            pointStrokeColor: "#fff",
+        //            pointHighlightFill: "#fff",
+        //            pointHighlightStroke: "rgba(220,220,220,1)",
+        //            data: [65, 59, 80, 81, 56, 55, 40]
+        //        },
+        //    	{
+        //    	    label: "My Second dataset",
+        //    	    fillColor: "rgba(151,187,205,0.2)",
+        //    	    strokeColor: "rgba(151,187,205,1)",
+        //    	    pointColor: "rgba(151,187,205,1)",
+        //    	    pointStrokeColor: "#fff",
+        //    	    pointHighlightFill: "#fff",
+        //    	    pointHighlightStroke: "rgba(151,187,205,1)",
+        //    	    data: [28, 48, 40, 19, 86, 27, 90]
+        //    	}
+        //    ]
+        //};
+
+        //var options = {};
+
+        //var myNewChart = new Chart(ctx).Line(data, options);
+    });
+</script>

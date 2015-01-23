@@ -1,0 +1,416 @@
+﻿@{
+    ViewBag.Title = "NAS New";
+    ViewBag.activeNav = 1;
+
+    int curYear = DateTime.Now.Year;
+}
+
+	<div class="container" style="margin-bottom: 10px;">
+	  <form action="/NAS/NewNASForm" method="POST">
+		<h4>NAS Input Form</h4>
+		<table class="table table-hover table-bordered">
+			<tr>
+				<td>Birth Weight:</td>
+				<td>
+                    <input class="form-control check-float" type="text" name="birthWeightText" size="6" /> grams
+                </td>
+			</tr>
+			<tr>
+				<td>Gestational Age:</td>
+				<td>
+					<input class="form-control check-int" type="text" name="gestAgeWeeksText" size="4" /> weeks
+					<input class="form-control check-int" type="text" name="gestAgeDaysText" size="4" /> days 
+				</td>
+			</tr>
+            <tr>
+                <td>Birth Date:</td>
+                <td>
+                    <select class="form-control" name="birthDayDrop">
+                                <option value="Select Day">Select Day</option>
+                        @{
+                            for(int i = 1; i < 32; i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        }
+                    </select>
+					<select class="form-control" name="birthMonthDrop">
+                        <option value="Select Month">Select Month</option>
+						<option value="1">January</option>
+						<option value="2">February</option>
+						<option value="3">March</option>
+						<option value="4">April</option>
+						<option value="5">May</option>
+						<option value="6">June</option>
+						<option value="7">July</option>
+						<option value="8">August</option>
+						<option value="9">September</option>
+						<option value="10">October</option>
+						<option value="11">November</option>
+						<option value="12">December</option>
+					</select>
+                    <select class="form-control" name="birthYearDrop">
+                                <option value="Select Year">Select Year</option>
+                        @{
+                            for(int i = curYear; i >= 1960; i--)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                         }
+                    </select>
+                </td>
+            </tr>
+			<tr>
+				<td>
+					Birth Location
+				</td>
+				<td>
+					<input type="radio" name="birthLocationRadio" value="1" /> Inborn
+					<input type="radio" name="birthLocationRadio" value="2" /> Outborn
+				</td>
+			</tr>
+            <tr>
+                <td>
+					If outborn, how many days old was the infant when admitted to your hospital?
+                </td>
+                <td>
+					<input class="form-control" type="text" name="birthLocationAgeText" size="4" /> days
+                </td>
+            </tr>
+			<tr>
+				<td>Was there an antenatal consult with pediatrics or neonatology?</td>
+				<td>
+					<input type="radio" name="consultRadio" value="1" /> Yes
+					<input type="radio" name="consultRadio" value="0" /> No
+					<input type="radio" name="consultRadio" value="2" /> Unknown
+				</td>
+			</tr>
+			<tr>
+				<td>What substances/medications was mother taking during pregnancy, documented either by history or toxicology screen? Check all that apply.</td>
+				<td>
+					<input type="checkbox" name="drugCheck" value="3" /> Methadone
+                    <br />
+					<input type="checkbox" name="drugCheck" value="4" /> Buprenorphine (Subutex)
+                    <br />
+					<input type="checkbox" name="drugCheck" value="5" /> Buprenorphine/Naloxone (Suboxone)
+                    <br />
+					<input type="checkbox" name="drugCheck" value="6" /> Oxycodone (Percocet, Oxycontin)
+                    <br />
+					<input type="checkbox" name="drugCheck" value="7" /> Codeine			
+                    <br />
+					<input type="checkbox" name="drugCheck" value="8" /> Hydrocodone			
+                    <br />
+					<input type="checkbox" name="drugCheck" value="9" /> Other Opiate			
+                    <br />
+					<input type="checkbox" name="drugCheck" value="10" /> SSRI			
+                    <br />
+					<input type="checkbox" name="drugCheck" value="11" /> Other Psychiatric Medication	
+                    <br />
+					<input type="checkbox" name="drugCheck" value="12" /> Heroin
+                    <br />
+					<input type="checkbox" name="drugCheck" value="13" /> Cocaine
+                    <br />
+					<input type="checkbox" name="drugCheck" value="14" /> Marijuana
+                    <br />
+					<input type="checkbox" name="drugCheck" value="15" /> Alcohol
+                    <br />
+					<input type="checkbox" name="drugCheck" value="16" /> Other Substance of Abuse
+                    <br />
+					<input type="checkbox" name="drugCheck" value="17" /> Other Medication
+                    <br />
+					<input type="checkbox" name="drugCheck" value="1" /> None
+                    <br />
+					<input type="checkbox" name="drugCheck" value="2" /> Unknown
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Did mother have toxicology screening (urine or serum) performed during the pregnancy?
+					<br />
+					If yes, what were the results of toxicology screens?
+				</td>
+				<td>
+					<input type="radio" name="momToxRadio" value="1" /> Yes
+					<input type="radio" name="momToxRadio" value="0" /> No
+					<input type="radio" name="momToxRadio" value="2" /> Unknown
+					<br />
+					<input type="radio" name="momToxResultsRadio" value="true" /> Any Positive 
+					<input type="radio" name="momToxResultsRadio" value="false" /> All Negative
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Did infant have toxicology screening (urine, meconium, hair, or cord) performed?
+					<br />
+					If yes, what were the results of the infant toxicology screens?
+				</td>
+				<td>
+					<input type="radio" name="infantToxRadio" value="1" /> Yes
+					<input type="radio" name="infantToxRadio" value="0" /> No
+					<input type="radio" name="infantToxRadio" value="2" /> Unknown
+					<br />
+					<input type="radio" name="infantToxResultsRadio" value="true" /> Any Positive 
+					<input type="radio" name="infantToxResultsRadio" value="false" /> All Negative
+				</td>
+			</tr>
+			<tr>
+				<td>
+                    Was infant scored for NAS at any time during hospitalization?
+                    <br />
+                    If yes, what was the score?
+                </td>
+				<td>
+					<input type="radio" name="nasRadio" value="true" /> Yes
+					<input type="radio" name="nasRadio" value="false" /> No
+                    <br />
+                    <input type="text" class="form-control" name="nasScoreText" />
+				</td>
+			</tr>
+			<tr>
+				<td>Did infant receive pharmacologic agents for treatment of NAS? Check all that apply.</td>
+				<td>
+					<input type="radio" name="infantDrugRadio" value="true" /> Yes 
+					<input type="radio" name="infantDrugRadio" value="false" /> No
+					<br />
+					<input type="checkbox" name="infantDrugCheck" value="18" /> Morphine
+					<input type="checkbox" name="infantDrugCheck" value="3" /> Methadone
+					<input type="checkbox" name="infantDrugCheck" value="4" /> Buprenorphine
+					<input type="checkbox" name="infantDrugCheck" value="19" /> Clonidine
+					<input type="checkbox" name="infantDrugCheck" value="20" /> Phenobarbital
+					<input type="checkbox" name="infantDrugCheck" value="21" /> Diluted Tincture of Opium (DTO)
+					<input type="checkbox" name="infantDrugCheck" value="22" /> Paragoric
+					<input type="checkbox" name="infantDrugCheck" value="17" /> Other
+				</td>
+			</tr>
+			<tr>
+				<td>What was the total duration of pharmacologic treatment for NAS?</td>
+				<td>
+					<input class="form-control" type="text" name="nasPharmTreatLengthText" maxlength="4" /> days
+				</td>
+			</tr>
+			<tr>
+				<td>What was the interval between last dose of pharmacologic agent for NAS and discharge?</td>
+				<td>
+					<input class="form-control" type="text" name="nasIntervalText" maxlength="4" /> days
+				</td>
+			</tr>
+			<tr>
+				<td>
+					At time of discharge from your hospital, was the infant receiving medications for NAS?
+					<br />
+					If yes, what medication was infant receiving at the time of discharge?
+				</td>
+				<td>
+					<input type="radio" name="infantMedRadio" value="true" /> Yes 
+					<input type="radio" name="infantMedRadio" value="false" /> No
+					<br />
+					<input type="checkbox" name="infantMedCheck" value="18" /> Morphine
+					<input type="checkbox" name="infantMedCheck" value="3" /> Methadone
+					<input type="checkbox" name="infantMedCheck" value="4" /> Buprenorphine
+					<input type="checkbox" name="infantMedCheck" value="19" /> Clonidine
+					<input type="checkbox" name="infantMedCheck" value="20" /> Phenobarbital
+					<input type="checkbox" name="infantMedCheck" value="21" /> Diluted Tincture of Opium (DTO)
+					<input type="checkbox" name="infantMedCheck" value="22" /> Paragoric
+					<input type="checkbox" name="infantMedCheck" value="17" /> Other
+				</td>
+			</tr>
+			<tr>
+				<td>
+					At time of discharge from your hospital, was the infant receiving medications other than for explicit treatment of NAS?
+					<br />
+					If yes, what medications?
+				</td>
+				<td>
+					<input type="radio" name="infantOtherMedRadio" value="true" /> Yes 
+					<input type="radio" name="infantOtherMedRadio" value="false" /> No
+					<br />
+					<input class="form-control" type="text" name="infantOtherMedText" maxlength="200" size="20" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Did the infant receive any of his/her mother's milk at any time during hopsitalization?
+				</td>
+				<td>
+					<input type="radio" name="momMilkDuringRadio" value="1" /> Yes
+					<input type="radio" name="momMilkDuringRadio" value="0" /> No
+					<input type="radio" name="momMilkDuringRadio" value="2" /> Unknown
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Did the infant receive any of his/her mother's milk in the 24 hours before dicharge?
+				</td>
+				<td>
+					<input type="radio" name="momMilkDischargeRadio" value="1" /> Yes
+					<input type="radio" name="momMilkDischargeRadio" value="0" /> No
+					<input type="radio" name="momMilkDischargeRadio" value="2" /> Unknown
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Did the infant receive any formula during hospitalization?
+				</td>
+				<td>
+					<input type="radio" name="formulaRadio" value="1" /> Yes
+					<input type="radio" name="formulaRadio" value="0" /> No
+					<input type="radio" name="formulaRadio" value="2" /> Unknown
+				</td>
+			</tr>
+            <tr>
+                <td>
+					If yes, what types of formula? Check all that apply.
+                </td>
+                <td>
+					<input type="checkbox" name="formulaTypeCheck" value="1"> Standard term newborn formula, 20 cal/oz with iron (i.e. Similac Advance, Enfamil)
+					<br />
+					<input type="checkbox" name="formulaTypeCheck" value="2"> Term newborn formula supplemented to 22 cal/oz
+					<br />
+					<input type="checkbox" name="formulaTypeCheck" value="3"> Preterm transitional formula, 22 cal/oz (i.e., Neosure 22, Enfacare 22)
+					<br />
+					<input type="checkbox" name="formulaTypeCheck" value="4"> Term or preterm formula at 24 cal/oz or greater
+					<br />
+					<input type="checkbox" name="formulaTypeCheck" value="5"> Easier to digest formula (i.e., Similac Sensitive, Enfamil Gentlease)
+					<br />
+					<input type="checkbox" name="formulaTypeCheck" value="6"> Pre-digested formula (ie. Alimentum, Progestimil, Nutramigen)
+					<br />
+					<input type="checkbox" name="formulaTypeCheck" value="7"> Other
+                </td>
+            </tr>
+			<tr>
+				<td>
+					Where was the infant managed during hospitalization at your center? 
+                    <br />
+                    Check all that apply.
+				</td>
+				<td>
+					<input type="checkbox" name="hospLocationCheck" value="1"> Regular Nursery
+                    <br />
+					<input type="checkbox" name="hospLocationCheck" value="2"> Special Care Nursery
+                    <br />
+					<input type="checkbox" name="hospLocationCheck" value="3"> Neonatal Intensive Care Unit
+                    <br />
+					<input type="checkbox" name="hospLocationCheck" value="4"> Pediatric Ward
+                    <br />
+					<input type="checkbox" name="hospLocationCheck" value="5"> Other
+				</td>
+			</tr>
+			<tr>
+				<td>
+					What was the total length of stay at your hospital from admission until discharge?
+				</td>
+				<td>
+					<input class="form-control" type="text" name="totalLengthOfStayText" size="5" /> days
+				</td>
+			</tr>
+            <tr>
+                <td>
+					If infant spent time in the regular nursery, whas was the total length of stay in the nursery?
+                </td>
+                <td>
+					<input class="form-control" type="text" name="nurseryLengthOfStayText" size="5" /> days
+                </td>
+            </tr>
+            <tr>
+                <td>
+					If infant spent time in the SCN, whas was the total length of stay in the SCN?
+                </td>
+                <td>
+					<input class="form-control" type="text" name="scnLengthOfStayText" size="5" /> days
+                </td>
+            </tr>
+            <tr>
+                <td>
+					If infant spent time in the NICU, whas was the total length of stay in the NICU?
+                </td>
+                <td>
+					<input class="form-control" type="text" name="nicuLengthOfStayText" size="5" /> days
+                </td>
+            </tr>
+            <tr>
+                <td>
+					If infant spent time in the pediatric ward, whas was the total length of stay in the ward?
+                </td>
+                <td>
+					<input class="form-control" type="text" name="pedLengthOfStayText" size="5" /> days
+                </td>
+            </tr>
+			<tr>
+				<td>
+					By the time of discharge from your hospital, was Early Intervention referral made?
+				</td>
+				<td>
+					<input type="radio" name="earlyInterventionRadio" value="1" /> Yes
+					<input type="radio" name="earlyInterventionRadio" value="0" /> No
+					<input type="radio" name="earlyInterventionRadio" value="2" /> Unknown
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Was 51A filed?
+				</td>
+				<td>
+					<input type="radio" name="fiveOneARadio" value="1" /> Yes
+					<input type="radio" name="fiveOneARadio" value="0" /> No
+					<input type="radio" name="fiveOneARadio" value="2" /> Unknown
+				</td>
+			</tr>
+            <tr>
+                <td>
+					If yes, what was the result of DCF evaluation at time of hospital discharge? Select one.
+                </td>
+                <td>
+					<input type="radio" name="dcfRadio" value="0" /> 51A closed, custody retained by biological parent.
+					<br />
+					<input type="radio" name="dcfRadio" value="1" /> 51A open, physical custody retained by biological parent.
+					<br />
+					<input type="radio" name="dcfRadio" value="2" /> Legal custody assigned to DCF, physical custody retained by biological parent.
+					<br />
+					<input type="radio" name="dcfRadio" value="3" /> Custody assigned to alternate guardian or foster parent.
+					<br />
+					<input type="radio" name="dcfRadio" value="4" /> Other
+                </td>
+            </tr>
+			<tr>
+				<td>
+					Where was the infant discharged to? Select one.
+				</td>
+				<td>
+					<input type="radio" name="dischargeRadio" value="0" /> Home with biological parent.
+					<br />
+					<input type="radio" name="dischargeRadio" value="1" /> Home with guardian or foster parent.
+					<br />
+					<input type="radio" name="dischargeRadio" value="2" /> Transferred to another hospital.
+					<br />
+					<input type="radio" name="dischargeRadio" value="3" /> Other
+				</td>
+			</tr>
+			<tr>
+				<td>
+					If the infant was transferred, do you know the final date of discharge to home from that hospital?
+				</td>
+				<td>
+					<input type="radio" name="transferRadio" value="true" /> Yes
+					<input type="radio" name="transferRadio" value="false" /> No
+				</td>
+			</tr>
+            <tr>
+                <td>
+					If yes, what was the total length of stay at that hospital from transfer to discharge home?
+                </td>
+                <td>
+					<input class="form-control" type="text" name="transferLengthText" size="5" /> days
+                </td>
+            </tr>
+		</table>
+		<button class="form-control" name="subFormBtn">Submit Form</button>
+	  </form>
+	</div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.check-int').keyup(function () {
+                var t = $(this).val();
+            });
+        });
+    </script>
