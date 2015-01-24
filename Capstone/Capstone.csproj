@@ -244,6 +244,7 @@
     <Content Include="Scripts\box.js" />
     <Content Include="Scripts\Chart.js" />
     <Content Include="Scripts\d3.js" />
+    <Content Include="Scripts\d3.v3.js" />
     <Content Include="Scripts\jquery-1.7.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
     <Content Include="Scripts\jquery-1.7.1.min.js" />

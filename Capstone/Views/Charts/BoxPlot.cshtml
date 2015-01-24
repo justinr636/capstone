@@ -5,39 +5,159 @@
 
 <style type="text/css">
     .chart-container { margin-left: auto; margin-right: auto; }
+
+    .box {
+	  font: 10px sans-serif;
+	}
+
+	.box line,
+	.box rect,
+	.box circle {
+	  fill: steelblue;
+	  stroke: #000;
+	  stroke-width: 1px;
+	}
+
+	.box .center {
+	  stroke-dasharray: 3,3;
+	}
+
+	.box .outlier {
+	  fill: none;
+	  stroke: #000;
+	}
+
+	.axis {
+	  font: 12px sans-serif;
+	}
+	 
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+	 
+	.x.axis path { 
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
 </style>
 
 
 <div class="container" style="margin-bottom: 10px;">
 
     <div class="chart-container">
-        <h3>(D3 Box Plot) Birth Weight vs NAS Score</h3>
+        <h3>(D3 Box Plot)</h3>
     	<div class="chartDiv"></div>
     </div>
 </div>
 
 <script src="../../Scripts/Chart.js" type="text/javascript"></script>
-<script src="../../Scripts/d3.js" type="text/javascript"></script>
+<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
 <script src="../../Scripts/box.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     $(document).ready(function () {
 
-        function drawBoxPlot(data) {
+        // returns a function to compute the interquartile range
+        function iqr(k) {
+            return function (d, i) {
+                var q1 = d.quartiles[0];
+                var q3 = d.quartiles[2];
+                var iqr = (q3 - q1) * k;
+                var i = -1;
+                var j = d.length;
+
+                while (d[++i] < q1 - iqr);
+                while (d[--j] > q3 + iqr);
+
+                return [i, j];
+            }
+        }
+
+        function drawBoxPlot(data, min, max) {
             var labels = true;
 
             var margin = { top: 30, right: 50, bottom: 70, left: 50 };
-            var width = 800 - margin.left - margin.right;
-            var height = 400 - margin.top - margin.bottom;
-
-            var min = Infinity;
-            var max = -Infinity;
+            var width = 960 - margin.left - margin.right;
+            var height = 500 - margin.top - margin.bottom;
 
             // Parse through data
             // Convert all to integers Math.floor()
             // Determine Max/Min of every Row and override the infinities
 
-            //var chart = d3.box()
+            var chart = d3.box()
+                .whiskers(iqr(1.5))
+                .height(height)
+                .domain([min, max])
+                .showLabels(labels);
+
+            var svg = d3.select('div.chartDiv')
+                        .append("svg")
+                        .attr('width', width + margin.left + margin.right)
+                        .attr('height', height + margin.top + margin.bottom)
+                        .attr('class', 'box')
+                        .append('g')
+                        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+            var x = d3.scale.ordinal()
+                            .domain(data.map(function (d) { console.log(d); return d[0] }))
+                            .rangeRoundBands([0, width], 0.7, 0.3);
+
+            var xAxis = d3.svg.axis()
+                              .scale(x)
+                              .orient('bottom')
+
+            var y = d3.scale.linear()
+                            .domain([min, max])
+                            .range([height + margin.top, 0 + margin.top]);
+
+            var yAxis = d3.svg.axis()
+                              .scale(y)
+                              .orient('left');
+
+            // draw box plots
+            svg.selectAll('.box')
+                    .data(data)
+                    .enter()
+                    .append('g')
+                    .attr("transform", function (d) { return "translate(" + x(d[0]) + "," + margin.top + ")"; })
+                    .call(chart.width(x.rangeBand()));
+
+            // draw title
+            svg.append('text')
+                    .attr("x", width / 2)
+                    .attr("y", 0 + (margin.top / 2))
+                    .attr("text-anchor", "middle")
+                    .style("font-size", '18px')
+                    .text("Length of Stay vs. Mother's Substances");
+
+            // draw y-axis
+            svg.append('g')
+                    .attr('class', 'y axis')
+                    .call(yAxis)
+                    .append('text')
+                    .attr('transform', 'rotate(-90)')
+                    .attr('y', 6)
+                    .attr('dy', '.71em')
+                    .style('text-anchor', 'end')
+                    .style('font-size', '16px')
+                    .text('Length of Stay');
+
+            // draw x-axis
+            svg.append('g')
+                    .attr('class', 'x axis')
+                    .attr('transform', 'translate(0,' + (height + margin.top + 10) + ')')
+                    .call(xAxis)
+                    .append('text')
+                    .attr('x', width / 2)
+                    .attr('y', 20)
+                    .attr('dy', '.71em')
+                    .style('text-anchor', 'middle')
+                    .style('font-size', '16px')
+                    .text('Substances');
 
         }
 
@@ -80,9 +200,166 @@
                 	.style("opacity", 0.6);
         }
 
-        var margin = { top: 20, right: 15, bottom: 20, left: 60 };
-        var width = 960 - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
+        ///var margin = { top: 20, right: 15, bottom: 20, left: 60 };
+        ///var width = 960 - margin.left - margin.right;
+        ///var height = 500 - margin.top - margin.bottom;
+
+        $.ajax({
+            type: "POST",
+            url: "/Charts/GetBoxPlotData",
+            dataType: "json",
+            success: function (d) {
+                console.log("Successful geting box plot data.");
+                console.log(d);
+
+                var min = Infinity;
+                var max = -Infinity;
+
+
+                var bpData = [];
+                bpData[0] = [];
+                bpData[1] = [];
+                bpData[2] = [];
+                bpData[3] = [];
+                bpData[4] = [];
+                bpData[5] = [];
+                bpData[6] = [];
+                bpData[7] = [];
+                bpData[8] = [];
+                bpData[9] = [];
+                bpData[10] = [];
+                bpData[11] = [];
+                bpData[12] = [];
+                bpData[13] = [];
+                bpData[14] = [];
+                bpData[15] = [];
+
+                bpData[0][0] = "Alcohol";
+                bpData[1][0] = "Subutex";
+                bpData[2][0] = "Suboxone";
+                bpData[3][0] = "Cocaine";
+                bpData[4][0] = "Codeine";
+                bpData[5][0] = "Heroin";
+                bpData[6][0] = "Hydrocodone";
+                bpData[7][0] = "Marijuana";
+                bpData[8][0] = "Methadone";
+                bpData[9][0] = "Other Meds";
+                bpData[10][0] = "Other Opiates";
+                bpData[11][0] = "Psych Meds";
+                bpData[12][0] = "Other";
+                bpData[13][0] = "Oxycodone";
+                bpData[14][0] = "SSRI";
+                bpData[15][0] = "Unknown";
+
+                bpData[0][1] = [];
+                bpData[1][1] = [];
+                bpData[2][1] = [];
+                bpData[3][1] = [];
+                bpData[4][1] = [];
+                bpData[5][1] = [];
+                bpData[6][1] = [];
+                bpData[7][1] = [];
+                bpData[8][1] = [];
+                bpData[9][1] = [];
+                bpData[10][1] = [];
+                bpData[11][1] = [];
+                bpData[12][1] = [];
+                bpData[13][1] = [];
+                bpData[14][1] = [];
+                bpData[15][1] = [];
+
+                var len = d.xData.length;
+                //var alcIndex = 0, subutexIndex = 0, subuxoneIndex = 0, cocaineIndex = 0,
+                //    codeineIndex = 0, heroinIndex = 0, hydroIndex = 0, marijIndex = 0,
+                //    methIndex = 0, oMedIndex = 0, oOpiateIndex = 0, psychIndex = 0,
+                //    otherIndex = 0, oxyIndex = 0, ssriIndex = 0, unknownIndex = 0;
+
+                for (var i = 0; i < len; ++i) {
+                    switch (d.xData[i]) {
+                        case "Alcohol":
+                            //alcIndex = i;
+                            bpData[0][1].push(d.yData[i]);
+                            break;
+                        case "Buprenorphine (Subutex)":
+                            //subutexIndex = i;
+                            bpData[1][1].push(d.yData[i]);
+                            break;
+                        case "Buprenorphine/Naloxone (Suboxone)":
+                            //subuxoneIndex = i;
+                            bpData[2][1].push(d.yData[i]);
+                            break;
+                        case "Cocaine":
+                            //cocaineIndex = i;
+                            bpData[3][1].push(d.yData[i]);
+                            break;
+                        case "Codeine":
+                            //codeineIndex = i;
+                            bpData[4][1].push(d.yData[i]);
+                            break;
+                        case "Heroin":
+                            //heroinIndex = i;
+                            bpData[5][1].push(d.yData[i]);
+                            break;
+                        case "Hydrocodone":
+                            //hydroIndex = i;
+                            bpData[6][1].push(d.yData[i]);
+                            break;
+                        case "Marijuana":
+                            //marijIndex = i;
+                            bpData[7][1].push(d.yData[i]);
+                            break;
+                        case "Methadone":
+                            //methIndex = i;
+                            bpData[8][1].push(d.yData[i]);
+                            break;
+                        case "Other Medication":
+                            //oMedIndex = i;
+                            bpData[9][1].push(d.yData[i]);
+                            break;
+                        case "Other Opiate":
+                            //oOpiateIndex = i;
+                            bpData[10][1].push(d.yData[i]);
+                            break;
+                        case "Other Psychiatric Medication":
+                            //psychIndex = i;
+                            bpData[11][1].push(d.yData[i]);
+                            break;
+                        case "Other Substance of Abuse":
+                            //otherIndex = i;
+                            bpData[12][1].push(d.yData[i]);
+                            break;
+                        case "Oxycodone (Percocet, Oxycontin)":
+                            //oxyIndex = i;
+                            bpData[13][1].push(d.yData[i]);
+                            break;
+                        case "SSRI":
+                            //ssriIndex = i;
+                            bpData[14][1].push(d.yData[i]);
+                            break;
+                        case "Unknown":
+                            //unknownIndex = i;
+                            bpData[15][1].push(d.yData[i]);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    var rowMax = Math.max(d.yData[i], max);
+                    var rowMin = Math.min(d.yData[i], min);
+
+                    if (rowMax > max) max = rowMax;
+                    if (rowMin < min) min = rowMin;
+                }
+
+                console.log("bpData = ", bpData);
+
+                drawBoxPlot(bpData, min, max);
+            },
+            error: function (e) {
+                console.log("Failed to get box plot data");
+                console.log(e);
+            }
+        });
 
     });
 </script>

@@ -95,9 +95,35 @@ namespace Capstone.Models
                         "FROM nas_form n " +
                       	"LEFT OUTER JOIN mother_subs ms ON ms.nas_form_id = n.nas_form_id " +
                       	"LEFT OUTER JOIN substances s ON s.sub_id = ms.sub_id " +
-                      	"WHERE ms.sub_id IS NOT NULL " +
+                      	"WHERE ms.sub_id IS NOT NULL AND n.total_los IS NOT NULL " +
                       	"GROUP BY ms.sub_id, s.sub_name " +
                       	"ORDER BY s.sub_name";
+
+                using (SqlCommand cmd = new SqlCommand(qry, conn))
+                {
+                    conn.Open();
+                    dt.Load(cmd.ExecuteReader());
+                    conn.Close();
+                }
+            }
+
+            return dt;
+        }
+
+        // Length Of Stay vs Mother's Substances
+        public static DataTable LosVsMotherSubs()
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(dbUtil.ConnectionString))
+            {
+                string qry =
+                      "SELECT n.nas_form_id, ms.sub_id, s.sub_name, n.total_los " +
+                      "FROM nas_form n  " +
+                      "LEFT OUTER JOIN mother_subs ms ON ms.nas_form_id = n.nas_form_id  " +
+                      "LEFT OUTER JOIN substances s ON s.sub_id = ms.sub_id  " +
+                      "WHERE ms.sub_id IS NOT NULL AND n.total_los IS NOT NULL " +
+                      "ORDER BY s.sub_name ";
 
                 using (SqlCommand cmd = new SqlCommand(qry, conn))
                 {

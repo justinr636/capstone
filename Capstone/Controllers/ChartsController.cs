@@ -103,6 +103,23 @@ namespace Capstone.Controllers
         }
 
         [HttpPost()]
+        public ActionResult GetBoxPlotData()
+        {
+            List<string> xAxisData = new List<string>();
+            List<int> yAxisData = new List<int>();
+
+            DataTable dt = ChartModels.LosVsMotherSubs();
+
+            foreach (DataRow dtRow in dt.Rows)
+            {
+                xAxisData.Add(dtRow["sub_name"].ToString());
+                yAxisData.Add(Convert.ToInt32(dtRow["total_los"].ToString()));
+            }
+
+            return Json(new { xData = xAxisData, yData = yAxisData });
+        }
+
+        [HttpPost()]
         public ActionResult GetChartIntvsInt(string col1, string col2)
         {
             List<int> xAxisData = new List<int>();
