@@ -43,6 +43,10 @@
 	  stroke: #000;
 	  shape-rendering: crispEdges;
 	}
+
+    svg:not(:root) {
+        overflow: visible;
+    }
 </style>
 
 
@@ -80,13 +84,12 @@
         function drawBoxPlot(data, min, max) {
             var labels = true;
 
-            var margin = { top: 30, right: 50, bottom: 70, left: 50 };
+            var margin = { top: 30, right: 50, bottom: 90, left: 50 };
             var width = 960 - margin.left - margin.right;
             var height = 500 - margin.top - margin.bottom;
 
             // Parse through data
             // Convert all to integers Math.floor()
-            // Determine Max/Min of every Row and override the infinities
 
             var chart = d3.box()
                 .whiskers(iqr(1.5))
@@ -140,7 +143,8 @@
                     .call(yAxis)
                     .append('text')
                     .attr('transform', 'rotate(-90)')
-                    .attr('y', 6)
+                    .attr('y', -50)
+                    .attr('x', -(height / 2))
                     .attr('dy', '.71em')
                     .style('text-anchor', 'end')
                     .style('font-size', '16px')
@@ -149,15 +153,33 @@
             // draw x-axis
             svg.append('g')
                     .attr('class', 'x axis')
-                    .attr('transform', 'translate(0,' + (height + margin.top + 10) + ')')
+                    .attr('transform', 'translate(0,' + (height + margin.top + 15) + ')')
                     .call(xAxis)
                     .append('text')
                     .attr('x', width / 2)
-                    .attr('y', 20)
+                    .attr('y', 85)
                     .attr('dy', '.71em')
                     .style('text-anchor', 'middle')
                     .style('font-size', '16px')
                     .text('Substances');
+
+
+            $("g.x g.tick text").map(function () {
+                // translation formula:
+                // y = 0.4932x + 11.422
+                var translation = $(this).width() * 0.4932 + 11.422;
+                $(this).attr("transform", "rotate(90), translate(" + translation + ", -15)");
+
+                console.log("translation = ", translation);
+
+                return;
+            });
+
+            //var xLabelsArray = $("g.x g.tick text").map(function () { return $(this).width(); }).get();
+            //var len = xLabelsArray.length;
+            //var xLabelTransform = [];
+
+            //$("g.x g.tick text").attr("transform", "rotate(90), translate(" + val + ", -15)");
 
         }
 
@@ -212,6 +234,21 @@
                 console.log("Successful geting box plot data.");
                 console.log(d);
 
+                var len = d.headers.length;
+                var data = [];
+
+                for (var i = 0; i < len; i++) {
+                    data[i] = [];
+                    data[i][0] = d.headers[i];
+                    data[i][1] = d.data[i];
+                }
+
+                console.log("full data = ");
+                console.log(data);
+
+                drawBoxPlot(data, d.min, d.max);
+
+                /*
                 var min = Infinity;
                 var max = -Infinity;
 
@@ -275,85 +312,86 @@
                 //    otherIndex = 0, oxyIndex = 0, ssriIndex = 0, unknownIndex = 0;
 
                 for (var i = 0; i < len; ++i) {
-                    switch (d.xData[i]) {
-                        case "Alcohol":
-                            //alcIndex = i;
-                            bpData[0][1].push(d.yData[i]);
-                            break;
-                        case "Buprenorphine (Subutex)":
-                            //subutexIndex = i;
-                            bpData[1][1].push(d.yData[i]);
-                            break;
-                        case "Buprenorphine/Naloxone (Suboxone)":
-                            //subuxoneIndex = i;
-                            bpData[2][1].push(d.yData[i]);
-                            break;
-                        case "Cocaine":
-                            //cocaineIndex = i;
-                            bpData[3][1].push(d.yData[i]);
-                            break;
-                        case "Codeine":
-                            //codeineIndex = i;
-                            bpData[4][1].push(d.yData[i]);
-                            break;
-                        case "Heroin":
-                            //heroinIndex = i;
-                            bpData[5][1].push(d.yData[i]);
-                            break;
-                        case "Hydrocodone":
-                            //hydroIndex = i;
-                            bpData[6][1].push(d.yData[i]);
-                            break;
-                        case "Marijuana":
-                            //marijIndex = i;
-                            bpData[7][1].push(d.yData[i]);
-                            break;
-                        case "Methadone":
-                            //methIndex = i;
-                            bpData[8][1].push(d.yData[i]);
-                            break;
-                        case "Other Medication":
-                            //oMedIndex = i;
-                            bpData[9][1].push(d.yData[i]);
-                            break;
-                        case "Other Opiate":
-                            //oOpiateIndex = i;
-                            bpData[10][1].push(d.yData[i]);
-                            break;
-                        case "Other Psychiatric Medication":
-                            //psychIndex = i;
-                            bpData[11][1].push(d.yData[i]);
-                            break;
-                        case "Other Substance of Abuse":
-                            //otherIndex = i;
-                            bpData[12][1].push(d.yData[i]);
-                            break;
-                        case "Oxycodone (Percocet, Oxycontin)":
-                            //oxyIndex = i;
-                            bpData[13][1].push(d.yData[i]);
-                            break;
-                        case "SSRI":
-                            //ssriIndex = i;
-                            bpData[14][1].push(d.yData[i]);
-                            break;
-                        case "Unknown":
-                            //unknownIndex = i;
-                            bpData[15][1].push(d.yData[i]);
-                            break;
-                        default:
-                            break;
-                    }
+                switch (d.xData[i]) {
+                case "Alcohol":
+                //alcIndex = i;
+                bpData[0][1].push(d.yData[i]);
+                break;
+                case "Buprenorphine (Subutex)":
+                //subutexIndex = i;
+                bpData[1][1].push(d.yData[i]);
+                break;
+                case "Buprenorphine/Naloxone (Suboxone)":
+                //subuxoneIndex = i;
+                bpData[2][1].push(d.yData[i]);
+                break;
+                case "Cocaine":
+                //cocaineIndex = i;
+                bpData[3][1].push(d.yData[i]);
+                break;
+                case "Codeine":
+                //codeineIndex = i;
+                bpData[4][1].push(d.yData[i]);
+                break;
+                case "Heroin":
+                //heroinIndex = i;
+                bpData[5][1].push(d.yData[i]);
+                break;
+                case "Hydrocodone":
+                //hydroIndex = i;
+                bpData[6][1].push(d.yData[i]);
+                break;
+                case "Marijuana":
+                //marijIndex = i;
+                bpData[7][1].push(d.yData[i]);
+                break;
+                case "Methadone":
+                //methIndex = i;
+                bpData[8][1].push(d.yData[i]);
+                break;
+                case "Other Medication":
+                //oMedIndex = i;
+                bpData[9][1].push(d.yData[i]);
+                break;
+                case "Other Opiate":
+                //oOpiateIndex = i;
+                bpData[10][1].push(d.yData[i]);
+                break;
+                case "Other Psychiatric Medication":
+                //psychIndex = i;
+                bpData[11][1].push(d.yData[i]);
+                break;
+                case "Other Substance of Abuse":
+                //otherIndex = i;
+                bpData[12][1].push(d.yData[i]);
+                break;
+                case "Oxycodone (Percocet, Oxycontin)":
+                //oxyIndex = i;
+                bpData[13][1].push(d.yData[i]);
+                break;
+                case "SSRI":
+                //ssriIndex = i;
+                bpData[14][1].push(d.yData[i]);
+                break;
+                case "Unknown":
+                //unknownIndex = i;
+                bpData[15][1].push(d.yData[i]);
+                break;
+                default:
+                break;
+                }
 
-                    var rowMax = Math.max(d.yData[i], max);
-                    var rowMin = Math.min(d.yData[i], min);
+                var rowMax = Math.max(d.yData[i], max);
+                var rowMin = Math.min(d.yData[i], min);
 
-                    if (rowMax > max) max = rowMax;
-                    if (rowMin < min) min = rowMin;
+                if (rowMax > max) max = rowMax;
+                if (rowMin < min) min = rowMin;
                 }
 
                 console.log("bpData = ", bpData);
+                */
 
-                drawBoxPlot(bpData, min, max);
+                //drawBoxPlot(bpData, min, max);
             },
             error: function (e) {
                 console.log("Failed to get box plot data");

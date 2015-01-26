@@ -105,18 +105,56 @@ namespace Capstone.Controllers
         [HttpPost()]
         public ActionResult GetBoxPlotData()
         {
-            List<string> xAxisData = new List<string>();
-            List<int> yAxisData = new List<int>();
+            //List<string> xAxisData = new List<string>();
+            //List<int> yAxisData = new List<int>();
+
+            List<string> keys = new List<string>();
+            List<List<int>> values = new List<List<int>>();
 
             DataTable dt = ChartModels.LosVsMotherSubs();
 
+            string currentSub = dt.Rows[0]["sub_name"].ToString();
+            keys.Add(currentSub);
+            //string currentSub = "";
+
+            List<int> currentValues = new List<int>();
+
+            int min = int.MaxValue;
+            int max = int.MinValue;
+
             foreach (DataRow dtRow in dt.Rows)
             {
-                xAxisData.Add(dtRow["sub_name"].ToString());
-                yAxisData.Add(Convert.ToInt32(dtRow["total_los"].ToString()));
+                string sub = dtRow["sub_name"].ToString();
+                int val = Convert.ToInt32(dtRow["total_los"]);
+
+                if (sub == currentSub)
+                {
+                    currentValues.Add(val);
+
+                    if (val > max)
+                        max = val;
+
+                    if (val < min)
+                        min = val;
+                }
+                else
+                {
+                    currentSub = sub;
+                    keys.Add(sub);
+
+                    values.Add(new List<int>(currentValues));
+                    currentValues.Clear();
+                    currentValues.Add(val);
+                }
+
+                //xAxisData.Add(dtRow["sub_name"].ToString());
+                //yAxisData.Add(Convert.ToInt32(dtRow["total_los"].ToString()));
             }
 
-            return Json(new { xData = xAxisData, yData = yAxisData });
+            values.Add(new List<int>(currentValues));
+
+            //return Json(new { xData = xAxisData, yData = yAxisData });
+            return Json(new { headers = keys, data = values, max = max, min = min });
         }
 
         [HttpPost()]
