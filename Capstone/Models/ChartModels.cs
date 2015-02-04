@@ -136,6 +136,28 @@ namespace Capstone.Models
             return dt;
         }
 
+        public static DataTable LosVsTime()
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(dbUtil.ConnectionString))
+            {
+                string qry =  "SELECT birth_date, total_los "
+                            + "FROM nas_form "
+                            + "WHERE birth_date IS NOT NULL AND total_los IS NOT NULL "
+                            + "ORDER BY birth_date";
+
+                using (SqlCommand cmd = new SqlCommand(qry, conn))
+                {
+                    conn.Open();
+                    dt.Load(cmd.ExecuteReader());
+                    conn.Close();
+                }
+            }
+
+            return dt;
+        }
+
         public static DataTable IntVsInt(string col1, string col2)
         {
             DataTable dt = new DataTable();
