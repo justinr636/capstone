@@ -2,34 +2,50 @@
     ViewBag.Title = "Customizable Charts";
     ViewBag.activeNav = 4;
 }
+<style>
+.line {
+  fill: none;
+  stroke: #4682b4;
+  stroke-width: 1.5px;
+}
+
+.limit-line {
+  stroke: #000;
+  stroke-width: 1px;
+  stroke-dasharray: 5, 5;
+}
+</style>
 
 
 <div class="container" style="margin-bottom: 10px;">
     <div style="display: inline;">
         <div style="display: inline-block;">
-            <select>
-                <option value="0">Birth Weight</option>
-                <option value="1">Gestational Age</option>
-                <option value="2">Birth Date</option>
-                <option value="3">Birth Location</option>
-                <option value="4">Outborn Days</option>
-                <option value="5">Antenatal Consult</option>
-                <option value="6">Pregnancy Substances</option>
-                <option value="7">Mother Toxicology Screen</option>
-                <option value="8">Mother Toxicology Results</option>
-                <option value="9">Infant Toxicology Screen</option>
-                <option value="10">Infant Toxicology Results</option>
-                <option value="11">NAS Diagnosis</option>
-                <option value="12">NAS Score</option>
-                <option value="13">Infant Pharmacology Agents</option>
-                <option value="14">Total Pharmacology Length</option>
-                <option value="15">Pharmacology Last Dose Interval</option>
-                <option value="16">Infant Discharge Meds?</option>
-                <option value="17">Infant Discharge Medications</option>
-                <!-- ^^ infant med check -->
+            <select id="chartType" class="form-control">
+                <option value="0">Run Chart</option>
+                <option value="1">Box Plot</option>
             </select>
         </div>
-        <div style="display: inline-block;"></div>
+        <div style="display: inline-block;">
+            <select id="data" class="form-control">
+                <option value="0">Birth Weight</option>
+                <option value="1">Length Of Stay</option>
+                <option value="2">Outborn Days</option>
+                <option value="3">NAS Score</option>
+                <option value="4">Total Pharmacology Length</option>
+                <option value="5">Pharmacology Last Dose Interval</option>
+            </select>
+        </div>
+        <div style="display: inline-block;">
+            <input id="subBtn" type="button" value="Submit" />
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <div class="chart-container">
+        <h3>D3 Run Chart</h3>
+        <div id="chartDiv"></div>
     </div>
 </div>
 
@@ -37,4 +53,146 @@
 <script src="../../Scripts/d3.js" type="text/javascript"></script>
 
 <script type="text/javascript">
+    $(document).ready(function () {
+        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+        var width = 960 - margin.left - margin.right;
+        var height = 500 - margin.top - margin.bottom;
+
+        var Y_AXIS_LABEL = "Length Of Stay";
+
+        //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
+        var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
+
+        //var Y_DATA_PARSE = vida.number;
+        var Y_DATA_PARSE = 0;
+
+        // This is the key in the data object passed to draw function
+        var X_AXIS_COLUMN = "date";
+
+        // This is the key in the data object passed to draw function
+        var Y_AXIS_COLUMN = "dta";
+
+        var x = d3.time.scale()
+                  .range([0, width]);
+
+        var y = d3.scale.linear()
+                  .range([height, 0]);
+
+        var xAxis = d3.svg.axis()
+                      .scale(x)
+    				  .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+                      .scale(y)
+    				  .orient("left");
+
+        var line = d3.svg.line()
+                     .interpolate("basis")
+    				 .x(function (d) { return x(d.x_axis); })
+    				 .y(function (d) { return y(d.y_axis); });
+
+        var svg = d3.select("div#chartDiv").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+    				.attr("height", height + margin.top + margin.bottom)
+    				.append("g")
+    				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var drawD3Document = function (data, ucl, lcl) {
+            data.forEach(function (d) {
+                d.x_axis = X_DATA_PARSE(d[X_AXIS_COLUMN]);
+
+                //d.y_axis = Y_DATA_PARSE(d[Y_AXIS_COLUMN]);
+                d.y_axis = d[Y_AXIS_COLUMN] + 0;
+            });
+
+            // create another data variable to include ucl and lcl in domains
+            x.domain(d3.extent(data, function (d) { return d.x_axis; }));
+            y.domain(d3.extent(data, function (d) { return d.y_axis; }));
+
+            //var yMinDom = y.domain()[0];
+            //var yMaxDom = y.domain()[1];
+
+            //console.log("min domain: ", yMinDom);
+            //console.log("max domain: ", yMaxDom);
+
+            //if (yMinDom > lcl) {
+            //    y.domain()[0] = lcl;
+            //}
+            //if (yMaxDom < ucl) {
+            //    y.domain()[1] = ucl;
+            //}
+
+            //console.log("y domain 2 = ", y.domain());
+
+            svg.append("g")
+               .attr("class", "x axis")
+        	   .attr("transform", "translate(0," + height + ")")
+        	   .call(xAxis);
+
+            svg.append("g")
+               .attr("class", "y axis")
+      		   .call(yAxis)
+               .append("text")
+               .attr("transform", "rotate(-90)")
+      		   .attr("y", 6)
+      		   .attr("dy", ".71em")
+      		   .style("text-anchor", "end")
+      		   .text(Y_AXIS_LABEL);
+
+            svg.append("path")
+               .datum(data)
+      		   .attr("class", "line")
+      		   .attr("d", line);
+
+            // upper limit line
+            //var upper_limit = 15;
+            var upper_limit = ucl;
+            svg.append("line")
+               .attr("class", "limit-line")
+    		   .attr({ x1: 0, y1: y(upper_limit), x2: width, y2: y(upper_limit) });
+            svg.append("text")
+               .attr({ x: width + 5, y: y(upper_limit) + 4 })
+    		   .text("Upper Limit");
+
+            // lower limit line
+            //var lower_limit = 6;
+            var lower_limit = lcl;
+            svg.append("line")
+               .attr("class", "limit-line")
+    		   .attr({ x1: 0, y1: y(lower_limit), x2: width, y2: y(lower_limit) });
+            svg.append("text")
+               .attr({ x: width + 5, y: y(lower_limit) + 4 })
+    		   .text("Lower Limit");
+        };
+
+        $('#subBtn').click(function (e) {
+            e.preventDefault();
+
+            $("#chartDiv > svg > g").empty();
+
+            var d = {
+                data: parseInt($("#data").val())
+            };
+
+            console.log("data being passed. d = ", d);
+
+            $.ajax({
+                type: "POST",
+                data: d,
+                url: "/Charts/CustomizeRunChart/",
+                dataType: "json",
+                success: function (data) {
+                    console.log("got run chart data!");
+                    console.log(data);
+
+                    drawD3Document(data.list, data.ucl, data.lcl);
+                },
+                error: function (e) {
+                    console.log("error getting data.");
+                    console.log(e);
+                }
+            });
+        });
+
+    });
 </script>

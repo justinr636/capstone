@@ -163,12 +163,173 @@ namespace Capstone.Controllers
         }
 
         [HttpPost()]
+        public ActionResult CustomizeRunChart(int data)
+        {
+            bool intBool = true;
+
+            int uclInt, lclInt;
+            double avg, variance, stdev;
+            double UCL, LCL; 
+
+            List<string> x_data = new List<string>();
+            List<int> y_data_int = new List<int>();
+            List<double> y_data_double = new List<double>();
+
+            DataTable dt;
+
+            switch (data)
+            {
+                case 0:     // Birth Weight
+                    dt = ChartModels.RunChartVsTime("birth_weight");
+                    x_data = ChartModels.CreateXData_Date(dt);
+                    y_data_double = ChartModels.CreateYData_Double(dt);
+
+                    avg = y_data_double.Average();
+            		variance = y_data_double.Select(val => (val - avg) * (val - avg)).Sum();
+            		stdev = Math.Sqrt(variance / y_data_double.Count);
+
+            		UCL = avg + (3 * stdev);
+            		LCL = avg - (3 * stdev);
+
+            		uclInt = Convert.ToInt32(Math.Round(UCL));
+            		lclInt = Convert.ToInt32(Math.Round(LCL));
+
+                    intBool = false;
+
+                    break;
+                case 1:     // Length of Stay
+                    dt = ChartModels.RunChartVsTime("total_los");
+                    x_data = ChartModels.CreateXData_Date(dt);
+                    y_data_int = ChartModels.CreateYData_Int(dt);
+
+                    avg = y_data_int.Average();
+            		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
+            		stdev = Math.Sqrt(variance / y_data_int.Count);
+
+            		UCL = avg + (3 * stdev);
+            		LCL = avg - (3 * stdev);
+
+            		uclInt = Convert.ToInt32(Math.Round(UCL));
+            		lclInt = Convert.ToInt32(Math.Round(LCL));
+
+                    break;
+                case 2:     // Outborn Days
+                    dt = ChartModels.RunChartVsTime("outborn_days");
+                    x_data = ChartModels.CreateXData_Date(dt);
+                    y_data_int = ChartModels.CreateYData_Int(dt);
+
+                    avg = y_data_int.Average();
+            		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
+            		stdev = Math.Sqrt(variance / y_data_int.Count);
+
+            		UCL = avg + (3 * stdev);
+            		LCL = avg - (3 * stdev);
+
+            		uclInt = Convert.ToInt32(Math.Round(UCL));
+            		lclInt = Convert.ToInt32(Math.Round(LCL));
+
+                    break;
+                case 3:     // NAS Score
+                    dt = ChartModels.RunChartVsTime("nas_score");
+                    x_data = ChartModels.CreateXData_Date(dt);
+                    y_data_int = ChartModels.CreateYData_Int(dt);
+
+                    avg = y_data_int.Average();
+            		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
+            		stdev = Math.Sqrt(variance / y_data_int.Count);
+
+            		UCL = avg + (3 * stdev);
+            		LCL = avg - (3 * stdev);
+
+            		uclInt = Convert.ToInt32(Math.Round(UCL));
+            		lclInt = Convert.ToInt32(Math.Round(LCL));
+
+                    break;
+                case 4:     // Total Pharmacology Length
+                    dt = ChartModels.RunChartVsTime("pharm_length");
+                    x_data = ChartModels.CreateXData_Date(dt);
+                    y_data_int = ChartModels.CreateYData_Int(dt);
+
+                    avg = y_data_int.Average();
+            		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
+            		stdev = Math.Sqrt(variance / y_data_int.Count);
+
+            		UCL = avg + (3 * stdev);
+            		LCL = avg - (3 * stdev);
+
+            		uclInt = Convert.ToInt32(Math.Round(UCL));
+            		lclInt = Convert.ToInt32(Math.Round(LCL));
+
+                    break;
+                case 5:     // Pharmacology Last Dose Interval
+                    dt = ChartModels.RunChartVsTime("pharm_interval");
+                    x_data = ChartModels.CreateXData_Date(dt);
+                    y_data_int = ChartModels.CreateYData_Int(dt);
+
+                    avg = y_data_int.Average();
+            		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
+            		stdev = Math.Sqrt(variance / y_data_int.Count);
+
+            		UCL = avg + (3 * stdev);
+            		LCL = avg - (3 * stdev);
+
+            		uclInt = Convert.ToInt32(Math.Round(UCL));
+            		lclInt = Convert.ToInt32(Math.Round(LCL));
+
+                    break;
+                default:
+                    lclInt = 0;
+                    uclInt = 0;
+                    /*
+                    double avg = y_data.Average();
+            		double variance = y_data.Select(val => (val - avg) * (val - avg)).Sum();
+            		double stdev = Math.Sqrt(variance / y_data.Count);
+
+            		double ucl = avg + (3 * stdev);
+            		double lcl = avg - (3 * stdev);
+
+            		int uclInt = Convert.ToInt32(Math.Round(ucl));
+            		int lclInt = Convert.ToInt32(Math.Round(lcl));
+
+            		if (lclInt < 0)
+            		    lclInt = 0;
+            		        break;
+                    */
+                    break;
+            }
+
+            if (lclInt < 0)
+                lclInt = 0;
+
+            if (intBool)
+            {
+                var list = new[] { new { date = "", dta = 1 } }.ToList();
+
+                for (int i = 0; i < x_data.Count; i++)
+                    list.Add(new { date = x_data[i], dta = y_data_int[i] });
+
+                list.RemoveAt(0);
+
+                return Json(new { list = list, ucl = uclInt, lcl = lclInt });
+            }
+            else
+            {
+                var list = new[] { new { date = "", dta = 1.0 } }.ToList();
+
+                for (int i = 0; i < x_data.Count; i++)
+                    list.Add(new { date = x_data[i], dta = y_data_double[i] });
+
+                list.RemoveAt(0);
+
+                return Json(new { list = list, ucl = uclInt, lcl = lclInt });
+            }
+        }
+
+        [HttpPost()]
         public ActionResult GetRunChartData()
         {
             DataTable dt = ChartModels.LosVsTime();
 
-            // Try returning the data in one object d.x_axis and d.y_axis
-            // debug in console.log javascript to see what X_DATA_PARSE does.
             List<int> y_data = new List<int>();
             List<string> x_data = new List<string>();
 

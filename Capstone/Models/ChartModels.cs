@@ -136,6 +136,63 @@ namespace Capstone.Models
             return dt;
         }
 
+        public static DataTable RunChartVsTime(string col)
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(dbUtil.ConnectionString))
+            {
+                string qry =  string.Format("SELECT birth_date, {0} "
+                            + "FROM nas_form "
+                            + "WHERE birth_date IS NOT NULL AND {0} IS NOT NULL "
+                            + "ORDER BY birth_date", col);
+
+                using (SqlCommand cmd = new SqlCommand(qry, conn))
+                {
+                    conn.Open();
+                    dt.Load(cmd.ExecuteReader());
+                    conn.Close();
+                }
+            }
+
+            return dt;
+        }
+
+        public static List<string> CreateXData_Date(DataTable dt)
+        {
+            List<string> x_data = new List<string>();
+
+            foreach (DataRow dtRow in dt.Rows)
+            {
+                DateTime dateT = Convert.ToDateTime(dtRow[0].ToString());
+                string dateStr = dateT.Date.ToString("MM/dd/yyyy");
+
+                x_data.Add(dateStr);
+            }
+
+            return x_data;
+        }
+
+        public static List<int> CreateYData_Int(DataTable dt)
+        {
+            List<int> y_data = new List<int>();
+
+            foreach (DataRow dtRow in dt.Rows)
+                y_data.Add(Convert.ToInt32(dtRow[1]));
+
+            return y_data;
+        }
+
+        public static List<double> CreateYData_Double(DataTable dt)
+        {
+            List<double> y_data = new List<double>();
+
+            foreach (DataRow dtRow in dt.Rows)
+                y_data.Add(Convert.ToDouble(dtRow[1]));
+
+            return y_data;
+        }
+
         public static DataTable LosVsTime()
         {
             DataTable dt = new DataTable();
@@ -146,6 +203,30 @@ namespace Capstone.Models
                             + "FROM nas_form "
                             + "WHERE birth_date IS NOT NULL AND total_los IS NOT NULL "
                             + "ORDER BY birth_date";
+
+                using (SqlCommand cmd = new SqlCommand(qry, conn))
+                {
+                    conn.Open();
+                    dt.Load(cmd.ExecuteReader());
+                    conn.Close();
+                }
+            }
+
+            return dt;
+        }
+
+        public static DataTable PercentInfantPharm()
+        {
+            DataTable dt = new DataTable();
+
+            using (SqlConnection conn = new SqlConnection(dbUtil.ConnectionString))
+            {
+                string qry = 
+                    "SELECT birth_date, infant_pharm_bool  "
+                    + "FROM nas_form "
+					+ "WHERE birth_date IS NOT NULL "
+					    + "AND infant_pharm_bool IS NOT NULL "
+					+ "ORDER BY birth_date";
 
                 using (SqlCommand cmd = new SqlCommand(qry, conn))
                 {
