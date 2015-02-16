@@ -185,18 +185,7 @@ namespace Capstone.Models
             	          "ORDER BY s.sub_name",
                             col);
             	    break;
-            	case 1:     // Infant Subs
-                    title += "Infant's Substances";
-            	    qry = string.Format(
-            	          "SELECT n.nas_form_id, iss.sub_id, s.sub_name, n.{0} " +
-            	          "FROM nas_form n  " +
-            	          "LEFT OUTER JOIN infant_subs iss ON iss.nas_form_id = n.nas_form_id  " +
-            	          "LEFT OUTER JOIN substances s ON s.sub_id = iss.sub_id  " +
-            	          "WHERE iss.sub_id IS NOT NULL AND n.{0} IS NOT NULL " +
-            	          "ORDER BY s.sub_name",
-                             col);
-                    break;
-                case 2:     // Infant Discharge Meds
+                case 1:     // Infant Discharge Meds
                     title += "Infant's Discharge Medications";
                     qry = string.Format(
                         "SELECT n.nas_form_id, idm.sub_id, s.sub_name, n.{0} " +
@@ -207,7 +196,7 @@ namespace Capstone.Models
 						"ORDER BY s.sub_name",
                            col);
                     break;
-                case 3:     // Infant Pharmacology Agents 
+                case 2:     // Infant Pharmacology Agents 
                     title += "Infant's Pharmacology Agents";
                     qry = string.Format(
                         "SELECT n.nas_form_id, ipa.sub_id, s.sub_name, n.{0} " + 
@@ -218,7 +207,7 @@ namespace Capstone.Models
 						"ORDER BY s.sub_name",
                            col);
                     break;
-                case 4:     // Infant Formulas
+                case 3:     // Infant Formulas
                     title += "Infant's Formulas";
                     qry = string.Format(
                         "SELECT n.nas_form_id, ifm.formula_id, f.formula_name, n.{0} " +
@@ -229,7 +218,7 @@ namespace Capstone.Models
 						"ORDER BY f.formula_name",
                            col);
                     break;
-                case 5:     // Infant Locations
+                case 4:     // Infant Locations
                     title += "Infant's Hospital Ward Locations";
                     qry = string.Format(
                         "SELECT n.nas_form_id, il.hosp_ward_id, h.hosp_ward_name, n.{0} " + 

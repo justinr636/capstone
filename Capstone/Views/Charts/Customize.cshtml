@@ -107,12 +107,19 @@
         	</div>
             <select id="data2" class="form-control">
                 <option value="a">X-Axis</option>
+                <!--
                 <option value="0">Mother Substances</option>
                 <option value="1">Infant Substances</option>
                 <option value="2">Infant Discharge Medications</option>
                 <option value="3">Infant Pharmacology Agents</option>
                 <option value="4">Infant Formulas</option>
                 <option value="5">Infant Locations</option>
+                -->
+                <option value="0">Mother Substances</option>
+                <option value="1">Infant Discharge Medications</option>
+                <option value="2">Infant Pharmacology Agents</option>
+                <option value="3">Infant Formulas</option>
+                <option value="4">Infant Locations</option>
             </select>
             <select id="time" disabled="disabled" class="form-control">
                 <option value="0">Time</option>
@@ -440,7 +447,7 @@
                 if (!(yData >= 0 && yData <= 5)) {
                     $dataAlert.show();
                 }
-                else if (!(xData >= 0 && xData <= 5)) {
+                else if (!(xData >= 0 && xData <= 4)) {
                     $data2Alert.show();
                 }
                 else {
