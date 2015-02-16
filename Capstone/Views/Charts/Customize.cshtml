@@ -146,47 +146,47 @@
         var width = 960 - margin.left - margin.right;
         var height = 500 - margin.top - margin.bottom;
 
-        //var Y_AXIS_LABEL = "Length Of Stay";
-
-        //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
-        var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
-
-        //var Y_DATA_PARSE = vida.number;
-        var Y_DATA_PARSE = 0;
-
-        // This is the key in the data object passed to draw function
-        var X_AXIS_COLUMN = "date";
-
-        // This is the key in the data object passed to draw function
-        var Y_AXIS_COLUMN = "dta";
-
-        var x = d3.time.scale()
-                  .range([0, width]);
-
-        var y = d3.scale.linear()
-                  .range([height, 0]);
-
-        var xAxis = d3.svg.axis()
-                      .scale(x)
-    				  .orient("bottom");
-
-        var yAxis = d3.svg.axis()
-                      .scale(y)
-    				  .orient("left");
-
-        var line = d3.svg.line()
-                     .interpolate("basis")
-    				 .x(function (d) { return x(d.x_axis); })
-    				 .y(function (d) { return y(d.y_axis); });
-
-        var svg = d3.select("div#chartDiv").append("svg")
-                    .attr("width", width + margin.left + margin.right)
-    				.attr("height", height + margin.top + margin.bottom)
-    				.append("g")
-    				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
         // Draw Run Chart Function - passed data and control limits
         var drawD3Document = function (data, ucl, lcl, label) {
+           //var Y_AXIS_LABEL = "Length Of Stay";
+
+     	   //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
+     	   var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
+
+     	   //var Y_DATA_PARSE = vida.number;
+     	   var Y_DATA_PARSE = 0;
+
+     	   // This is the key in the data object passed to draw function
+     	   var X_AXIS_COLUMN = "date";
+
+     	   // This is the key in the data object passed to draw function
+     	   var Y_AXIS_COLUMN = "dta";
+
+     	   var x = d3.time.scale()
+     	             .range([0, width]);
+
+     	   var y = d3.scale.linear()
+     	             .range([height, 0]);
+
+     	   var xAxis = d3.svg.axis()
+     	                 .scale(x)
+     	   			  .orient("bottom");
+
+     	   var yAxis = d3.svg.axis()
+     	                 .scale(y)
+     	   			  .orient("left");
+
+     	   var line = d3.svg.line()
+     	                .interpolate("basis")
+     	   			 .x(function (d) { return x(d.x_axis); })
+     	   			 .y(function (d) { return y(d.y_axis); });
+
+     	   var svg = d3.select("div#chartDiv").append("svg")
+     	               .attr("width", width + margin.left + margin.right)
+     	   			.attr("height", height + margin.top + margin.bottom)
+     	   			.append("g")
+     	   			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
             data.forEach(function (d) {
                 d.x_axis = X_DATA_PARSE(d[X_AXIS_COLUMN]);
 
@@ -195,23 +195,17 @@
             });
 
             // create another data variable to include ucl and lcl in domains
+            var dataCopy = data.slice(0);
+            console.log("ucl = ", ucl);
+
+            dataCopy.push({ x_axis: "", y_axis: ucl + 0 });
+            dataCopy.push({ x_axis: "", y_axis: lcl + 0 });
+
+            //console.log("data copy = ", dataCopy);
+
             x.domain(d3.extent(data, function (d) { return d.x_axis; }));
-            y.domain(d3.extent(data, function (d) { return d.y_axis; }));
-
-            //var yMinDom = y.domain()[0];
-            //var yMaxDom = y.domain()[1];
-
-            //console.log("min domain: ", yMinDom);
-            //console.log("max domain: ", yMaxDom);
-
-            //if (yMinDom > lcl) {
-            //    y.domain()[0] = lcl;
-            //}
-            //if (yMaxDom < ucl) {
-            //    y.domain()[1] = ucl;
-            //}
-
-            //console.log("y domain 2 = ", y.domain());
+            //y.domain(d3.extent(data, function (d) { return d.y_axis; }));
+            y.domain(d3.extent(dataCopy, function (d) { return d.y_axis; }));
 
             svg.append("g")
                .attr("class", "x axis")
@@ -235,6 +229,7 @@
 
             // upper limit line
             //var upper_limit = 15;
+            //console.log("ucl = ", ucl);
             var upper_limit = ucl;
             svg.append("line")
                .attr("class", "limit-line")
@@ -274,7 +269,7 @@
         function drawBoxPlot(data, min, max, title) {
             var labels = true;
 
-            console.log(" GOT UP TO DRAWING BOX PLOTS");
+            //console.log(" GOT UP TO DRAWING BOX PLOTS");
 
             //var margin = { top: 30, right: 50, bottom: 90, left: 50 };
             //var width = 960 - margin.left - margin.right;
@@ -362,7 +357,7 @@
                 var translation = $(this).width() * 0.4932 + 11.422;
                 $(this).attr("transform", "rotate(90), translate(" + translation + ", -15)");
 
-                console.log("translation = ", translation);
+                //console.log("translation = ", translation);
 
                 return;
             });
@@ -406,7 +401,9 @@
 
                 var yData = parseInt($("#data").val());
                 if (yData >= 0 && yData <= 5) {
-                    $("#chartDiv > svg > g").empty();
+
+                    //$("#chartDiv > svg > g").empty();
+                    $("#chartDiv").empty();
 
                     var d = {
                         data: parseInt($("#data").val())
@@ -455,7 +452,8 @@
                         data2: xData
                     };
 
-                    $("#chartDiv > svg > g").empty();
+                    //$("#chartDiv > svg > g").empty();
+                    $("#chartDiv").empty();
 
                     $.ajax({
                         type: "POST",
@@ -463,7 +461,7 @@
                         url: "/Charts/CustomizeBoxPlot/",
                         dataType: "json",
                         success: function (d) {
-                            console.log("d = ", d);
+                            //console.log("d = ", d);
 
                             var len = d.headers.length;
                             var formattedData = [];
@@ -474,7 +472,7 @@
                                 formattedData[i][1] = d.data[i];
                             }
 
-                            console.log("formattedData = ", formattedData);
+                            //console.log("formattedData = ", formattedData);
 
                             drawBoxPlot(formattedData, d.min, d.max, d.title);
                         },
