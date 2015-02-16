@@ -110,6 +110,10 @@ namespace Capstone.Controllers
         [HttpPost()]
         public ActionResult GetBoxPlotData()
         {
+            // Box Plots to Create
+            // Mother Subs vs LoS - already existing
+            // Breast Milk vs LoS
+
             //List<string> xAxisData = new List<string>();
             //List<int> yAxisData = new List<int>();
 
@@ -163,9 +167,60 @@ namespace Capstone.Controllers
         }
 
         [HttpPost()]
+        public ActionResult CustomizeBoxPlot(int data, int data2)
+        {
+            string title = "";
+
+            bool intBool = true;
+
+            int minInt = int.MaxValue;
+            int maxInt = int.MinValue;
+
+            double minDouble = double.MaxValue;
+            double maxDouble = double.MinValue;
+
+            List<string> keys = new List<string>();
+            List<List<int>> intValues = new List<List<int>>();
+            List<List<double>> doubleValues = new List<List<double>>();
+
+            DataTable dt = ChartModels.GetBoxPlotData(data, data2, ref title);
+
+            switch (data)
+            {
+                case 0:     // Birth Weight
+                    intBool = false;
+                    ChartModels.FormatBoxPlotData_Double(dt, 2, 3, ref keys, ref doubleValues, ref minDouble, ref maxDouble);
+                    break;
+                case 1:     // Length of Stay
+                    ChartModels.FormatBoxPlotData_Int(dt, 2, 3, ref keys, ref intValues, ref minInt, ref maxInt);
+                    break;
+                case 2:     // Outborn Days
+                    ChartModels.FormatBoxPlotData_Int(dt, 2, 3, ref keys, ref intValues, ref minInt, ref maxInt);
+                    break;
+                case 3:     // NAS Score
+                    ChartModels.FormatBoxPlotData_Int(dt, 2, 3, ref keys, ref intValues, ref minInt, ref maxInt);
+                    break;
+                case 4:     // Total Pharmacology Length
+                    ChartModels.FormatBoxPlotData_Int(dt, 2, 3, ref keys, ref intValues, ref minInt, ref maxInt);
+                    break;
+                case 5:     // Pharmacology Last Dose Interval
+                    ChartModels.FormatBoxPlotData_Int(dt, 2, 3, ref keys, ref intValues, ref minInt, ref maxInt);
+                    break;
+                default:
+                    break;
+            }
+
+            if (intBool)
+                return Json(new { title = title, headers = keys, data = intValues, max = maxInt, min = minInt });
+            else
+                return Json(new { title = title, headers = keys, data = doubleValues, max = maxDouble, min = minDouble });
+        }
+
+        [HttpPost()]
         public ActionResult CustomizeRunChart(int data)
         {
             bool intBool = true;
+            string yLabel = "";
 
             int uclInt, lclInt;
             double avg, variance, stdev;
@@ -180,9 +235,11 @@ namespace Capstone.Controllers
             switch (data)
             {
                 case 0:     // Birth Weight
+                    yLabel = "Birth Weight";
+
                     dt = ChartModels.RunChartVsTime("birth_weight");
-                    x_data = ChartModels.CreateXData_Date(dt);
-                    y_data_double = ChartModels.CreateYData_Double(dt);
+                    x_data = ChartModels.CreateXData_Date(dt, 0);
+                    y_data_double = ChartModels.CreateYData_Double(dt, 1);
 
                     avg = y_data_double.Average();
             		variance = y_data_double.Select(val => (val - avg) * (val - avg)).Sum();
@@ -198,9 +255,11 @@ namespace Capstone.Controllers
 
                     break;
                 case 1:     // Length of Stay
+                    yLabel = "Length Of Stay";
+
                     dt = ChartModels.RunChartVsTime("total_los");
-                    x_data = ChartModels.CreateXData_Date(dt);
-                    y_data_int = ChartModels.CreateYData_Int(dt);
+                    x_data = ChartModels.CreateXData_Date(dt, 0);
+                    y_data_int = ChartModels.CreateYData_Int(dt, 1);
 
                     avg = y_data_int.Average();
             		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
@@ -214,9 +273,11 @@ namespace Capstone.Controllers
 
                     break;
                 case 2:     // Outborn Days
+                    yLabel = "Outborn Days";
+
                     dt = ChartModels.RunChartVsTime("outborn_days");
-                    x_data = ChartModels.CreateXData_Date(dt);
-                    y_data_int = ChartModels.CreateYData_Int(dt);
+                    x_data = ChartModels.CreateXData_Date(dt, 0);
+                    y_data_int = ChartModels.CreateYData_Int(dt, 1);
 
                     avg = y_data_int.Average();
             		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
@@ -230,9 +291,11 @@ namespace Capstone.Controllers
 
                     break;
                 case 3:     // NAS Score
+                    yLabel = "NAS Score";
+
                     dt = ChartModels.RunChartVsTime("nas_score");
-                    x_data = ChartModels.CreateXData_Date(dt);
-                    y_data_int = ChartModels.CreateYData_Int(dt);
+                    x_data = ChartModels.CreateXData_Date(dt, 0);
+                    y_data_int = ChartModels.CreateYData_Int(dt, 1);
 
                     avg = y_data_int.Average();
             		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
@@ -246,9 +309,11 @@ namespace Capstone.Controllers
 
                     break;
                 case 4:     // Total Pharmacology Length
+                    yLabel = "Total Pharmacology Length";
+
                     dt = ChartModels.RunChartVsTime("pharm_length");
-                    x_data = ChartModels.CreateXData_Date(dt);
-                    y_data_int = ChartModels.CreateYData_Int(dt);
+                    x_data = ChartModels.CreateXData_Date(dt, 0);
+                    y_data_int = ChartModels.CreateYData_Int(dt, 1);
 
                     avg = y_data_int.Average();
             		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
@@ -262,9 +327,11 @@ namespace Capstone.Controllers
 
                     break;
                 case 5:     // Pharmacology Last Dose Interval
+                    yLabel = "Last Dose Interval";
+
                     dt = ChartModels.RunChartVsTime("pharm_interval");
-                    x_data = ChartModels.CreateXData_Date(dt);
-                    y_data_int = ChartModels.CreateYData_Int(dt);
+                    x_data = ChartModels.CreateXData_Date(dt, 0);
+                    y_data_int = ChartModels.CreateYData_Int(dt, 1);
 
                     avg = y_data_int.Average();
             		variance = y_data_int.Select(val => (val - avg) * (val - avg)).Sum();
@@ -310,7 +377,7 @@ namespace Capstone.Controllers
 
                 list.RemoveAt(0);
 
-                return Json(new { list = list, ucl = uclInt, lcl = lclInt });
+                return Json(new { list = list, ucl = uclInt, lcl = lclInt, label = yLabel });
             }
             else
             {
@@ -321,7 +388,7 @@ namespace Capstone.Controllers
 
                 list.RemoveAt(0);
 
-                return Json(new { list = list, ucl = uclInt, lcl = lclInt });
+                return Json(new { list = list, ucl = uclInt, lcl = lclInt, label = yLabel });
             }
         }
 
