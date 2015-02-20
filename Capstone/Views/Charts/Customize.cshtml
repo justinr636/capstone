@@ -139,7 +139,7 @@ body { height: 100%; }
     <br />
 
     <div class="chart-container">
-        <h3>D3 Run Chart</h3>
+        <h3 id="chartTitle"></h3>
         <div id="chartDiv"></div>
     </div>
 </div>
@@ -159,40 +159,40 @@ body { height: 100%; }
 
         // Draw Run Chart Function - passed data and control limits
         var drawD3Document = function (data, ucl, lcl, label) {
-           //var Y_AXIS_LABEL = "Length Of Stay";
+            //var Y_AXIS_LABEL = "Length Of Stay";
 
-     	   //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
-     	   var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
+            //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
+            var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
 
-     	   //var Y_DATA_PARSE = vida.number;
-     	   var Y_DATA_PARSE = 0;
+            //var Y_DATA_PARSE = vida.number;
+            var Y_DATA_PARSE = 0;
 
-     	   // This is the key in the data object passed to draw function
-     	   var X_AXIS_COLUMN = "date";
+            // This is the key in the data object passed to draw function
+            var X_AXIS_COLUMN = "date";
 
-     	   // This is the key in the data object passed to draw function
-     	   var Y_AXIS_COLUMN = "dta";
+            // This is the key in the data object passed to draw function
+            var Y_AXIS_COLUMN = "dta";
 
-     	   var x = d3.time.scale()
+            var x = d3.time.scale()
      	             .range([0, width]);
 
-     	   var y = d3.scale.linear()
+            var y = d3.scale.linear()
      	             .range([height, 0]);
 
-     	   var xAxis = d3.svg.axis()
+            var xAxis = d3.svg.axis()
      	                 .scale(x)
      	   			  .orient("bottom");
 
-     	   var yAxis = d3.svg.axis()
+            var yAxis = d3.svg.axis()
      	                 .scale(y)
      	   			  .orient("left");
 
-     	   var line = d3.svg.line()
+            var line = d3.svg.line()
      	                .interpolate("basis")
      	   			 .x(function (d) { return x(d.x_axis); })
      	   			 .y(function (d) { return y(d.y_axis); });
 
-     	   var svg = d3.select("div#chartDiv").append("svg")
+            var svg = d3.select("div#chartDiv").append("svg")
      	               .attr("width", width + margin.left + margin.right)
      	   			.attr("height", height + margin.top + margin.bottom)
      	   			.append("g")
@@ -381,6 +381,11 @@ body { height: 100%; }
 
         }
 
+        var $chartTitle = $("#chartTitle");
+        var $chartDiv = $("#chartDiv");
+        var $body = $("body");
+        var bodyHeight = $body.height();
+
         var $chartType = $("#chartType");
         var $data = $("#data");
         var $data2 = $("#data2");
@@ -431,6 +436,11 @@ body { height: 100%; }
                             //console.log("got run chart data!");
                             //console.log(data);
                             drawD3Document(data.list, data.ucl, data.lcl, data.label);
+
+                            $chartTitle.text("XMR Chart");
+
+                            //var chartHeight = $chartDiv.height();
+                            $body.height(bodyHeight);
                         },
                         error: function (e) {
                             console.log("error getting data.");
@@ -486,6 +496,11 @@ body { height: 100%; }
                             //console.log("formattedData = ", formattedData);
 
                             drawBoxPlot(formattedData, d.min, d.max, d.title);
+
+                            $chartTitle.text("Box and Whisker Plot");
+
+                            var chartHeight = $chartDiv.height();
+                            $body.height(bodyHeight + (chartHeight / 2));
                         },
                         error: function (e) {
                             console.log("error getting data.");
