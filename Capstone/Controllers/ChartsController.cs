@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Data;
 using Capstone.Models;
+using System.IO;
+using Capstone.App_Start;
 
 namespace Capstone.Controllers
 {
@@ -31,6 +33,40 @@ namespace Capstone.Controllers
         public ActionResult RunChart()
         {
             return View();
+        }
+
+        public ActionResult StandardCharts()
+        {
+            return View();
+        }
+
+        [HttpPost()]
+        public ActionResult UploadCSV(HttpPostedFileBase file)
+        {
+            //string filePath = "";
+            //if (file.ContentLength > 0)
+            //{
+            //    string fileName = Path.GetFileName(file.FileName);
+            //    filePath = Path.Combine(Server.MapPath("~/App_Data/upload"), fileName);
+            //    file.SaveAs(filePath);
+            //}
+            // if fails should return to Redirect to error page
+
+            string fileSavePath = "";
+            var httpPostedFile = System.Web.HttpContext.Current.Request.Files["test"];
+
+            if (httpPostedFile != null)
+            {
+                fileSavePath = Path.Combine(Server.MapPath("~/App_Data/upload"), httpPostedFile.FileName);
+                httpPostedFile.SaveAs(fileSavePath);
+            }
+
+
+            //StreamReader reader = new StreamReader(file.InputStream);
+            //DataTable dt = dbUtil.GetDataTableFromCsv(filePath, true);
+            DataTable dt = dbUtil.GetDataTableFromCsv(fileSavePath, true);
+
+            return Json(new { });
         }
 
         [HttpPost()]

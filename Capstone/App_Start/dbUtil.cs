@@ -4,6 +4,10 @@ using System.Linq;
 using System.Web;
 using System.Data.SqlClient;
 using System.Data;
+using System.Data.OleDb;
+using System.IO;
+using System.Globalization;
+//using GenericParsing;
 
 namespace Capstone.App_Start
 {
@@ -32,6 +36,28 @@ namespace Capstone.App_Start
                 return Convert.ToInt32(dt.Rows[0][0]);
             else
                 return 0;
+        }
+
+        public static DataTable GetDataTableFromCsv(string path, bool isFirstRowHeader)
+        {
+            string header = isFirstRowHeader ? "Yes" : "No";
+
+            string pathOnly = Path.GetDirectoryName(path);
+            string fileName = Path.GetFileName(path);
+
+            string sql = @"SELECT * FROM [" + fileName + "]";
+
+            using (OleDbConnection connection = new OleDbConnection(
+                      @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + pathOnly +
+                      ";Extended Properties=\"Text;HDR=" + header + "\""))
+            using (OleDbCommand command = new OleDbCommand(sql, connection))
+            using (OleDbDataAdapter adapter = new OleDbDataAdapter(command))
+            {
+                DataTable dataTable = new DataTable();
+                dataTable.Locale = CultureInfo.CurrentCulture;
+                adapter.Fill(dataTable);
+                return dataTable;
+            }
         }
     }
 }
