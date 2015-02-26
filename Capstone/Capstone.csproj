@@ -241,6 +241,10 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="Images\NeoQIC_centered_300_78.jpg" />
+    <Content Include="Images\NeoQIC_icon_126_59.gif" />
+    <Content Include="Images\NeoQIC_left_300_77.jpg" />
+    <Content Include="Images\neoQIC_web_banner_2.jpg" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\box.js" />
     <Content Include="Scripts\Chart.js" />
@@ -348,6 +352,7 @@
     <None Include="fonts\glyphicons-halflings-regular.ttf" />
     <None Include="fonts\glyphicons-halflings-regular.woff" />
     <None Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Views\Charts\MyHospital.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
