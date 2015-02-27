@@ -13,22 +13,32 @@ namespace Capstone.Controllers
         //
         // GET: /Charts/
 
+        // GET: /Charts/Index
         public ActionResult Index()
         {
             return View();
         }
 
+        // GET: /Charts/Customize
         public ActionResult Customize()
         {
             return View();
         }
 
+        // GET: /Charts/BoxPlot
         public ActionResult BoxPlot()
         {
             return View();
         }
 
+        // GET: /Charts/RunChart
         public ActionResult RunChart()
+        {
+            return View();
+        }
+
+        // GET: /Charts/MyHospital
+        public ActionResult MyHospital()
         {
             return View();
         }

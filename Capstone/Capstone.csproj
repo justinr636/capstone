@@ -267,6 +267,7 @@
     <Content Include="Scripts\modernizr-2.5.3.js" />
     <Content Include="StyleSheets\bootstrap-theme.css" />
     <Content Include="StyleSheets\bootstrap.css" />
+    <Content Include="StyleSheets\charts.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
