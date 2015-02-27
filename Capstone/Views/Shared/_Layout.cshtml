@@ -42,16 +42,14 @@
                     </a>
                     <ul id="navbar-items" class="nav navbar-nav">
                         <li class=@(ViewBag.activeNav == 0 ? "selected" : "")><a href="/Home/Index">Home</a></li>
-                        <li class=@(ViewBag.activeNav == 1 ? "selected" : "")><a href="/NAS/New/">New</a></li>
-                        <li class=@(ViewBag.activeNav == 2 ? "selected" : "")><a href="/NAS/ViewAll/">View/Edit Data</a></li>
+                        <li class=@(ViewBag.activeNav == 1 ? "selected" : "")><a href="/Charts/MyHospital/">My Hospital Report</a></li>
+                        <li class=@(ViewBag.activeNav == 2 ? "selected" : "")><a href="#">Massachussets Hospital Reports</a></li>
                         <li class=@(ViewBag.activeNav == 3 ? "selected" : "")><a href="/Charts/Index/">Standard Charts</a></li>
                         <li class=@(ViewBag.activeNav == 4 ? "selected" : "")><a href="/Charts/Customize/">Customizable Charts</a></li>
-                        <li class=@(ViewBag.activeNav == 5 ? "selected" : "")><a href="#">Contact Us</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            @Html.Partial("_LoginPartial")
-                        </li>
+                        @* <li> @Html.Partial("_LoginPartial") </li> *@
+                        <li class=@(ViewBag.activeNav == 5 ? "selected" : "")><a href="/NAS/ViewAll/">View/Edit Data</a></li>
                     </ul>
                 </div> @* collapse *@
             </div>     @* container-fluid *@

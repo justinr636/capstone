@@ -50,4 +50,3 @@ C:\Users\J\documents\visual studio 2010\Projects\Capstone\Capstone\bin\DotNetOpe
 C:\Users\J\documents\visual studio 2010\Projects\Capstone\Capstone\bin\DotNetOpenAuth.OpenId.RelyingParty.xml
 C:\Users\J\documents\visual studio 2010\Projects\Capstone\Capstone\obj\Debug\Capstone.dll
 C:\Users\J\documents\visual studio 2010\Projects\Capstone\Capstone\obj\Debug\Capstone.pdb
-C:\Users\J\documents\visual studio 2010\Projects\Capstone\Capstone\obj\Debug\Capstone.csprojResolveAssemblyReference.cache

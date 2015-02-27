@@ -9,13 +9,13 @@ using Capstone.App_Start;
 
 namespace Capstone.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class NASController : Controller
     {
         //
         // GET: /NAS/
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public ActionResult Index()
         {
             return View();
@@ -26,7 +26,7 @@ namespace Capstone.Controllers
             return View();
         }
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public ActionResult ViewAll()
         {
             ViewBag.NASData = NASFormModels.SelectAll();
