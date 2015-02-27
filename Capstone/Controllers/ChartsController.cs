@@ -43,6 +43,12 @@ namespace Capstone.Controllers
             return View();
         }
 
+        // GET: /Charts/MassHospitals
+        public ActionResult MassHospitals()
+        {
+            return View();
+        }
+
         [HttpPost()]
         // Birth Weight vs NAS Score
         public ActionResult GetChartData1()
