@@ -97,7 +97,7 @@
 
 	            data.forEach(function (d) {
 	                d.x_axis = X_DATA_PARSE(d[X_AXIS_COLUMN]);  // Converts string to d3 time format
-	                d.y_axis = d[Y_AXIS_COLUMN] + 0;            // Converts string to int
+	                d.y_axis = d[Y_AXIS_COLUMN] + Y_DATA_PARSE;            // Converts string to int
 	            });
 
 	            // create another data variable to include ucl and lcl in domains
@@ -149,6 +149,10 @@
 	            svg.append("text")
 	               .attr({ x: width + 5, y: y(lcl) + 4 })
 	    		   .text("Lower Limit");
+
+	            // Adjust height of chart div
+	            var $chartDiv = $("#chartDiv" + chartIndex);
+                $chartDiv.height( $chartDiv.height() + (height/10));
 	        };
 
 	        // Function to Calculate Error Bars?
@@ -257,6 +261,10 @@
 
 	                return;
 	            });
+
+	            // Adjust height of chart div
+	            var $chartDiv = $("#chartDiv" + chartIndex);
+                $chartDiv.height( $chartDiv.height() + (height/2));
 	        }
 
 	        var $chartTitle = $(".chartTitle");
