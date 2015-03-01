@@ -241,10 +241,18 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="Images\95confidence.png" />
+    <Content Include="Images\99confidence.png" />
+    <Content Include="Images\graph-istock.jpg" />
+    <Content Include="Images\graphpaper.jpg" />
+    <Content Include="Images\graphpaper2.jpg" />
+    <Content Include="Images\graphpaper3.jpg" />
+    <Content Include="Images\mean.png" />
     <Content Include="Images\NeoQIC_centered_300_78.jpg" />
     <Content Include="Images\NeoQIC_icon_126_59.gif" />
     <Content Include="Images\NeoQIC_left_300_77.jpg" />
     <Content Include="Images\neoQIC_web_banner_2.jpg" />
+    <Content Include="Scripts\bootstrap-tab.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\box.js" />
     <Content Include="Scripts\Chart.js" />
@@ -255,6 +263,7 @@
     <Content Include="Scripts\jquery-1.7.1.min.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.min.js" />
+    <Content Include="Scripts\jquery.csv-0.6.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate-vsdoc.js" />
@@ -265,9 +274,14 @@
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
+    <Content Include="Scripts\plot.js" />
+    <Content Include="Scripts\underscore.js" />
+    <Content Include="Scripts\underscore.math.js" />
+    <Content Include="StyleSheets\bootstrap-responsive.min.css" />
     <Content Include="StyleSheets\bootstrap-theme.css" />
     <Content Include="StyleSheets\bootstrap.css" />
     <Content Include="StyleSheets\charts.css" />
+    <Content Include="StyleSheets\plot.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -349,12 +363,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App_Data\data.csv" />
+    <None Include="App_Data\surgery-referrals.csv" />
+    <None Include="App_Data\vascular.csv" />
     <None Include="fonts\glyphicons-halflings-regular.eot" />
     <None Include="fonts\glyphicons-halflings-regular.ttf" />
     <None Include="fonts\glyphicons-halflings-regular.woff" />
     <None Include="fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="Views\Charts\MyHospital.cshtml" />
     <Content Include="Views\Charts\MassHospitals.cshtml" />
+    <Content Include="Views\Charts\FunnelPlot.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

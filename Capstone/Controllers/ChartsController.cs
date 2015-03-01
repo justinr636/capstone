@@ -37,6 +37,12 @@ namespace Capstone.Controllers
             return View();
         }
 
+        // GET: /Charts/FunnelPlot
+        public ActionResult FunnelPlot()
+        {
+            return View();
+        }
+
         // GET: /Charts/MyHospital
         public ActionResult MyHospital()
         {
