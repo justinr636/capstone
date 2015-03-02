@@ -18,27 +18,40 @@
 }
 
 <div id="main" class="container" style="margin-bottom: 10px;">
-
-    <div class="chart-container">
-        <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
-    	<div id="chartDiv1" class="chartDiv"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+    		    <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
+    			<div id="chartDiv1" class="chartDiv"></div>
+    		</div>
+        </div>
+        <div class="col-md-6">
+    		<div class="chart-container">
+    		    <h3 class="chartTitle">XMR Chart - Percent Needing Pharmacology Treatment</h3>
+    			<div id="chartDiv2" class="chartDiv"></div>
+    		</div>
+        </div>
     </div>
 
-    <div class="chart-container">
-        <h3 class="chartTitle">Bar Chart - Feeding Method vs Length Of Stay</h3>
-    	<div id="chartDiv2" class="chartDiv"></div>
+    <div class="row">
+        <br />
+        <br />
     </div>
 
-    <div class="chart-container">
-        <h3 class="chartTitle">XMR Chart - Percent Receiving Breast Milk</h3>
-    	<div id="chartDiv3" class="chartDiv"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+    		    <h3 class="chartTitle">XMR Chart - Percent Receiving Breast Milk</h3>
+    			<div id="chartDiv3" class="chartDiv"></div>
+    		</div>
+        </div>
+        <div class="col-md-6">
+    	    <div class="chart-container">
+    		    <h3 class="chartTitle">Bar Chart - Feeding Method vs Length Of Stay</h3>
+    			<div id="chartDiv4" class="chartDiv"></div>
+    		</div>
+        </div>
     </div>
-
-    <div class="chart-container">
-        <h3 class="chartTitle">XMR Chart - Percent Needing Pharmacology Treatment</h3>
-    	<div id="chartDiv4" class="chartDiv"></div>
-    </div>
-
 </div>
 
 @section jsSection {
@@ -50,8 +63,8 @@
 	    $(document).ready(function () {
 
 	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
-	        var width = 960 - margin.left - margin.right;
-	        var height = 500 - margin.top - margin.bottom;
+	        var width = (960 / 2) - margin.left - margin.right;
+	        var height = (500 / 2) - margin.top - margin.bottom;
 
 	        // Draw Run Chart Function - passed data and control limits
 	        var drawRunChart = function (data, ucl, lcl, label, chartIndex) {
@@ -152,7 +165,7 @@
 
 	            // Adjust height of chart div
 	            var $chartDiv = $("#chartDiv" + chartIndex);
-                $chartDiv.height( $chartDiv.height() + (height/10));
+	            $chartDiv.height($chartDiv.height() + (height / 10));
 	        };
 
 	        // Function to Calculate Error Bars?
@@ -264,11 +277,12 @@
 
 	            // Adjust height of chart div
 	            var $chartDiv = $("#chartDiv" + chartIndex);
-                $chartDiv.height( $chartDiv.height() + (height/2));
+	            $chartDiv.height($chartDiv.height() + (height / 2));
 	        }
 
 	        var $chartTitle = $(".chartTitle");
 	        var $body = $("body");
+	        var chartIndex = 1;
 
 	        // Chart 1 - Length of Stay XMR
 	        var data1 = { data: 1 };
@@ -288,26 +302,17 @@
 	            }
 	        });
 
-	        // Chart 2 - Feeding Method Vs Length Of Stay
-	        var data2 = { data: 1, data2: 3 };
+	        // Chart 2 - Percent Needing Pharm Treatment XMR
+	        var data2 = { data: 2 };
 	        $.ajax({
 	            type: "POST",
 	            data: data2,
-	            url: "/Charts/CustomizeBoxPlot/",
+	            url: "/Charts/CustomizeRunChart/",
 	            dataType: "json",
-	            success: function (d) {
-	                var len = d.headers.length;
-	                var formattedData = [];
+	            success: function (data) {
+	                drawRunChart(data.list, data.ucl, data.lcl, data.label, 2);
 
-	                for (var i = 0; i < len; i++) {
-	                    formattedData[i] = [];
-	                    formattedData[i][0] = d.headers[i];
-	                    formattedData[i][1] = d.data[i];
-	                }
-
-	                drawBoxPlot(formattedData, d.min, d.max, d.title, 2);
-
-	                //$chartTitle[3].text("Box and Whisker Plot");
+	                //$chartTitle[1].text("% Infants Needing Pharmacology Treatment (monthly) --- NEED TO MAKE CHART");
 	            },
 	            error: function (e) {
 	                // Show error And refresh Icons
@@ -333,23 +338,33 @@
 	            }
 	        });
 
-	        // Chart 4 - Percent Needing Pharm Treatment XMR
-	        var data4 = { data: 4 };
+	        // Chart 4 - Feeding Method Vs Length Of Stay
+	        var data4 = { data: 1, data2: 3 };
 	        $.ajax({
 	            type: "POST",
 	            data: data4,
-	            url: "/Charts/CustomizeRunChart/",
+	            url: "/Charts/CustomizeBoxPlot/",
 	            dataType: "json",
-	            success: function (data) {
-	                drawRunChart(data.list, data.ucl, data.lcl, data.label, 4);
+	            success: function (d) {
+	                var len = d.headers.length;
+	                var formattedData = [];
 
-	                //$chartTitle[1].text("% Infants Needing Pharmacology Treatment (monthly) --- NEED TO MAKE CHART");
+	                for (var i = 0; i < len; i++) {
+	                    formattedData[i] = [];
+	                    formattedData[i][0] = d.headers[i];
+	                    formattedData[i][1] = d.data[i];
+	                }
+
+	                drawBoxPlot(formattedData, d.min, d.max, d.title, 4);
+
+	                //$chartTitle[3].text("Box and Whisker Plot");
 	            },
 	            error: function (e) {
 	                // Show error And refresh Icons
 	                console.log("error getting data.", e);
 	            }
 	        });
+
 
 	    });
 	</script>
