@@ -21,75 +21,58 @@
 
 
 <div id="main" class="container" style="margin-bottom: 10px;">
-    <div style="display: inline;">
-        <div style="display: inline-block;">
-            <div id="chartAlert" class="alert alert-danger" role="alert">
-        	    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        	    <span class="sr-only">Error:</span>
-        	    Please select a correct chart type.
-        	</div>
-            <select id="chartType" class="form-control">
-                <option value="a">Select One</option>
-                <option value="0">Run Chart</option>
-                <option value="1">Box Plot</option>
-            </select>
-        </div>
-        &emsp;
-        :
-        &emsp;
-        <div style="display: inline-block;">
-            <div id="dataAlert" class="alert alert-danger" role="alert">
-        	    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        	    <span class="sr-only">Error:</span>
-        	    Please select a correct data type.
-        	</div>
-            <select id="data" class="form-control">
-                <option value="a">Y-Axis</option>
-                <option value="0">Birth Weight</option>
-                <option value="1">Length Of Stay</option>
-                <option value="2">Outborn Days</option>
-                <option value="3">NAS Score</option>
-                <option value="4">Total Pharmacology Length</option>
-                <option value="5">Pharmacology Last Dose Interval</option>
-            </select>
-        </div>
-        <div style="display: inline-block;">
-            <h4>&emsp;VS.&emsp;</h4>
-        </div>
-        <div style="display: inline-block;">
-            <div id="data2Alert" class="alert alert-danger" role="alert">
-        	    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-        	    <span class="sr-only">Error:</span>
-        	    Please select a correct data type.
-        	</div>
-            <select id="data2" class="form-control">
-                <option value="a">X-Axis</option>
-                <option value="0">Mother Substances</option>
-                <option value="1">Infant Discharge Medications</option>
-                <option value="2">Infant Pharmacology Agents</option>
-                <option value="3">Infant Formulas</option>
-                <option value="4">Infant Locations</option>
-            </select>
-            <select id="time" disabled="disabled" class="form-control">
-                <option value="0">Time</option>
-            </select>
-        </div>
-        &emsp;
-        <div style="display: inline-block;">
-            <input id="subBtn" class="form-control" type="button" value="Submit" />
+    <div class="row">
+        <div class="col-md-12">
+            Choose CSV File <input type="file" id="csvfile" />
         </div>
     </div>
-
-    <br />
-    <br />
-
-    <div class="chart-container">
-        <h3 id="chartTitle"></h3>
-        <div id="chartDiv"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <br />
+            <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            Select Chart Type:
+        </div>
+        <div class="col-md-3">
+            Select Variable 1 (Y-Axis)
+        </div>
+        <div class="col-md-3">
+            Select Variable 2 (X-Axis)
+        </div>
+        <div class="col-md-3">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <select id="chartTypeDrop" class="form-control">
+                <option value="0">Select One</option>
+                <option value="1">Run Chart</option>
+                <option value="2">Box Plot</option>
+                <option value="3">Funnel Chart</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="yDataDrop" class="form-control dataDrop">
+                <option value="0">Select One</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="xDataDrop" class="form-control dataDrop">
+                <option value="0">Select One</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="submit" id="submitBtn" />
+        </div>
     </div>
 </div>
 
 @section jsSection {
+    <script src="../../Scripts/underscore.js" type="text/javascript"></script>
+    <script src="../../Scripts/underscore.math.js" type="text/javascript"></script>
     <script src="../../Scripts/Chart.js" type="text/javascript"></script>
 	<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
 	<script src="../../Scripts/box.js" type="text/javascript"></script>
@@ -235,7 +218,7 @@
 	                .showLabels(labels);
 
 	            d3.csv(csvData, function (csv) {
-                    
+
 	            });
 
 	            var svg = d3.select('div#chartDiv')
@@ -324,172 +307,32 @@
 
 	        }
 
-	        var $chartTitle = $("#chartTitle");
-	        var $chartDiv = $("#chartDiv");
 	        var $body = $("body");
 	        var bodyHeight = $body.height();
 
-	        var $chartType = $("#chartType");
-	        var $data = $("#data");
-	        var $data2 = $("#data2");
+	        $("#csvfile").change(function (e) {
+	            if (e.target.files != undefined) {
+	                var reader = new FileReader();
 
-	        var $chartAlert = $("#chartAlert");
-	        var $dataAlert = $("#dataAlert");
-	        var $data2Alert = $("#data2Alert");
-	        var $time = $("#time");
+	                reader.onload = function (e) {
+	                    var str = e.target.result;
+	                    var csvArray = d3.csv.parseRows(str);
 
-	        // Initialize form view
-	        $chartAlert.hide();
-	        $dataAlert.hide();
-	        $data2Alert.hide();
-	        $time.hide();
-
-	        $data.prop("disabled", true);
-	        $data2.prop("disabled", true);
-
-	        // Submit Button Event Handler
-	        $('#subBtn').click(function (e) {
-	            e.preventDefault();
-
-	            $dataAlert.hide();
-	            $data2Alert.hide();
-	            $chartAlert.hide();
-
-	            if (parseInt($("#chartType").val()) == 0) {
-	                // Draw Run Chart
-
-	                var yData = parseInt($("#data").val());
-	                if (yData >= 0 && yData <= 5) {
-
-	                    //$("#chartDiv > svg > g").empty();
-	                    $("#chartDiv").empty();
-
-	                    var d = {
-	                        data: parseInt($("#data").val())
-	                    };
-
-	                    //console.log("data being passed. d = ", d);
-
-	                    $.ajax({
-	                        type: "POST",
-	                        data: d,
-	                        url: "/Charts/CustomizeRunChart/",
-	                        dataType: "json",
-	                        success: function (data) {
-	                            //console.log("got run chart data!");
-	                            //console.log(data);
-	                            drawD3Document(data.list, data.ucl, data.lcl, data.label);
-
-	                            $chartTitle.text("XMR Chart");
-
-	                            //var chartHeight = $chartDiv.height();
-	                            $body.height(bodyHeight);
-	                        },
-	                        error: function (e) {
-	                            console.log("error getting data.");
-	                            console.log(e);
-	                        }
+	                    var titles = csvArray[0];
+	                    csvArray.splice(0, 1);
+	                    var title_html = '';
+	                    _.each(titles, function (item, i) {
+	                        console.log(item, i);
+	                        title_html += '<option value="' + i + '">' + item + '</option>';
 	                    });
-	                }
-	                else {
-	                    $dataAlert.show();
-	                }
-	            }
-	            else if (parseInt($("#chartType").val()) == 1) {
-	                // Draw Box Plot
+	                    console.log("title_html = ", title_html);
+	                    title_html = '<option value="">Select One</option>' + title_html;
+	                    console.log("title_html = ", title_html);
 
-	                var yData = parseInt($data.val());
-	                var xData = parseInt($data2.val());
+	                    $(".dataDrop").html(title_html);
+	                };
 
-	                if (!(yData >= 0 && yData <= 5)) {
-	                    $dataAlert.show();
-	                }
-	                else if (!(xData >= 0 && xData <= 4)) {
-	                    $data2Alert.show();
-	                }
-	                else {
-	                    $dataAlert.hide();
-	                    $data2Alert.hide();
-
-	                    var d = {
-	                        data: yData,
-	                        data2: xData
-	                    };
-
-	                    //$("#chartDiv > svg > g").empty();
-	                    $("#chartDiv").empty();
-
-	                    $.ajax({
-	                        type: "POST",
-	                        data: d,
-	                        url: "/Charts/CustomizeBoxPlot/",
-	                        dataType: "json",
-	                        success: function (d) {
-	                            //console.log("d = ", d);
-
-	                            var len = d.headers.length;
-	                            var formattedData = [];
-
-	                            for (var i = 0; i < len; i++) {
-	                                formattedData[i] = [];
-	                                formattedData[i][0] = d.headers[i];
-	                                formattedData[i][1] = d.data[i];
-	                            }
-
-	                            //console.log("formattedData = ", formattedData);
-
-	                            drawBoxPlot(formattedData, d.min, d.max, d.title);
-
-	                            //$chartTitle.text("Box and Whisker Plot");
-
-	                            var chartHeight = $chartDiv.height();
-	                            $body.height(bodyHeight + (chartHeight / 2));
-	                        },
-	                        error: function (e) {
-	                            console.log("error getting data.");
-	                            console.log(e);
-	                        }
-	                    });
-	                }
-	            }
-	            else {
-	            }
-	        });
-
-	        $chartType.change(function () {
-	            var v = parseInt($(this).val());
-
-	            if (v == 0) {
-	                $chartAlert.hide();
-
-	                $data2.hide();
-	                $time.show();
-
-	                $data.prop("disabled", false);
-	                //$data2.prop("disabled", false);
-	            }
-	            else if (v == 1) {
-	                $chartAlert.hide();
-
-	                $time.hide();
-	                $data2.show();
-
-	                $data.prop("disabled", false);
-	                $data2.prop("disabled", false);
-	            }
-	            else {
-	                //$chartAlert.show();
-	                $data.prop("disabled", true);
-	                $data2.prop("disabled", true);
-
-	                $time.hide();
-	                $data2.show();
-
-	                $dataAlert.hide();
-	                $data2Alert.hide();
-
-	                $data.val('a');
-	                $data2.val('a');
+	                reader.readAsText(e.target.files.item(0));
 	            }
 	        });
 
