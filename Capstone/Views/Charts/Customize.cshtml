@@ -384,8 +384,9 @@
 	                        url: "/Charts/CustomizeRunChart/",
 	                        dataType: "json",
 	                        success: function (data) {
-	                            //console.log("got run chart data!");
-	                            //console.log(data);
+	                            console.log("got run chart data!");
+	                            console.log(data);
+	                            console.log("data.list = ", data.list);
 	                            drawD3Document(data.list, data.ucl, data.lcl, data.label);
 
 	                            $chartTitle.text("XMR Chart");

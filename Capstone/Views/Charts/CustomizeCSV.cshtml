@@ -68,6 +68,11 @@
             <input type="submit" id="submitBtn" />
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="chartDiv"></div>
+        </div>
+    </div>
 </div>
 
 @section jsSection {
@@ -217,10 +222,6 @@
 	                .domain([min, max])
 	                .showLabels(labels);
 
-	            d3.csv(csvData, function (csv) {
-
-	            });
-
 	            var svg = d3.select('div#chartDiv')
 	                        .append("svg")
 	                        .attr('width', width + margin.left + margin.right)
@@ -309,6 +310,9 @@
 
 	        var $body = $("body");
 	        var bodyHeight = $body.height();
+	        var $chartDiv = $("#chartDiv");
+	        var csvArray = [];
+	        var titles = [];
 
 	        $("#csvfile").change(function (e) {
 	            if (e.target.files != undefined) {
@@ -316,16 +320,15 @@
 
 	                reader.onload = function (e) {
 	                    var str = e.target.result;
-	                    var csvArray = d3.csv.parseRows(str);
+	                    csvArray = d3.csv.parseRows(str);
 
-	                    var titles = csvArray[0];
+	                    titles = csvArray[0];
 	                    csvArray.splice(0, 1);
 	                    var title_html = '';
 	                    _.each(titles, function (item, i) {
 	                        console.log(item, i);
 	                        title_html += '<option value="' + i + '">' + item + '</option>';
 	                    });
-	                    console.log("title_html = ", title_html);
 	                    title_html = '<option value="">Select One</option>' + title_html;
 	                    console.log("title_html = ", title_html);
 
@@ -333,6 +336,19 @@
 	                };
 
 	                reader.readAsText(e.target.files.item(0));
+	            }
+	        });
+
+	        $("#submitBtn").click(function (e) {
+	            e.preventDefault();
+
+	            var chartType = parseInt($("#chartTypeDrop").val());
+
+	            if (chartType == 1) {           // Draw Run Chart
+	                $chartDiv.empty();
+
+	            } else if (chartType == 2) {    // Draw Box Plot 
+	            } else if (chartType == 3) {	// Draw Funnel Plot 
 	            }
 	        });
 
