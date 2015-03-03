@@ -1,0 +1,313 @@
+﻿@{
+    ViewBag.Title = "Funnel Plot";
+    ViewBag.activeNav = 3;
+}
+
+@section cssSection {
+    <link href="../../StyleSheets/charts.css" rel="stylesheet" type="text/css" />
+    <link href="../../StyleSheets/plot.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .in { display: inline; }
+        .inb { display: inline-block; }
+    </style>
+}
+
+<div class="container" style="margin-bottom: 10px;">
+    Choose CSV File<input type="file" id="csvfile" />
+    <br />
+    <br />
+    <div class="in">
+        <div class="inb"><select id="fpdd1" class="colSelect"></select></div>
+        <div class="inb"><select id="fpdd2" class="colSelect"></select></div>
+        <div class="inb"><select id="fpdd3" class="colSelect"></select></div>
+        <div class="inb"><input id="subBtn" type="submit" value="Submit" /></div>
+    </div>
+    <br />
+    <br />
+    Select a Data Point: <select id="select-entry"></select>
+
+    <div class="chart-container">
+        <h3>(D3 Funnel Plot)</h3>
+    	<div class="chartDiv"></div>
+        <div id="x-axis-label"></div>
+        <div id="y-axis-label"></div>
+    </div>
+</div>
+
+@section jsSection {
+	<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
+    <script src="../../Scripts/underscore.js" type="text/javascript"></script>
+    <script src="../../Scripts/underscore.math.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	    $(document).ready(function () {
+	        // Check browser type
+
+	        $("#csvfile").change(function (e) {
+	            if (e.target.files != undefined) {
+	                var reader = new FileReader();
+
+	                reader.onload = function (e) {
+	                    var str = e.target.result;
+	                    var csvArray = d3.csv.parseRows(str);
+
+	                    var titles = csvArray[0];
+	                    csvArray.splice(0, 1);
+	                    var title_html = '';
+	                    _.each(titles, function (item, i) {
+	                        console.log(item, i);
+	                        title_html += '<option value="' + i + '">' + item + '</option>';
+	                    });
+	                    console.log("title_html = ", title_html);
+
+	                    $(".colSelect").html(title_html);
+
+	                    $("#subBtn").click(function (e) {
+	                        e.preventDefault();
+
+	                        var X_COL = $('#fpdd1').val();
+	                        var X_NAME = $('#fpdd1 option:selected').text();
+	                        var Y_COL = $('#fpdd2').val();
+	                        var Y_NAME = $('#fpdd2 option:selected').text();
+	                        var NAME_COL = $('#fpdd3').val();
+	                        console.log(X_COL, Y_COL, NAME_COL, titles);
+
+	                        var dataset = [];
+	                        _.each(csvArray, function (item, i) {
+	                            if ((item[Y_COL] !== '') && (typeof item[Y_COL] !== "undefined") && (parseFloat(item[X_COL]) !== 0.0)) {
+	                                var data = {};
+	                                data['sample_size'] = parseFloat(item[X_COL].replace(',', ''));
+	                                data['indicator'] = parseFloat(item[Y_COL]);
+	                                data['ratio'] = data['indicator'] / data['sample_size'];
+	                                data['name'] = item[NAME_COL];
+	                                dataset.push(data);
+	                            }
+	                        });
+
+	                        // Reorder the dataset by population size (for drawing confidence intervals)
+	                        function compare(a, b) {
+	                            if (a.sample_size < b.sample_size)
+	                                return -1;
+	                            if (a.sample_size > b.sample_size)
+	                                return 1;
+	                            return 0;
+	                        }
+	                        dataset.sort(compare);
+
+	                        // Create an alphabetical list of names
+	                        var sorted_names = [];
+	                        $.each(dataset, function (i, v) {
+	                            sorted_names.push(v['name']);
+	                        });
+	                        sorted_names.sort();
+
+	                        // Calculate the mean incidence over the entire population
+	                        var total_population = 0.0, total_incidence = 0.0;
+	                        _.each(dataset, function (item) {
+	                            total_population += item["sample_size"];
+	                            total_incidence += item["indicator"];
+	                        });
+	                        var mean_incidence_rate = total_incidence / total_population;
+	                        var mean_incidence = total_incidence / dataset.length;
+	                        console.log(total_incidence, total_population, mean_incidence, mean_incidence_rate);
+
+	                        var sigma_squared = mean_incidence_rate * (1 - mean_incidence_rate);
+
+	                        // Now calculate the standard error for each value: SE = SD / root(n)
+	                        _.each(dataset, function (item) {
+	                            item['std_error'] = Math.sqrt(sigma_squared / item['sample_size']);
+	                            item['plus_2sd'] = mean_incidence_rate + (2 * item['std_error']);
+	                            item['minus_2sd'] = mean_incidence_rate - (2 * item['std_error']);
+	                            item['plus_3sd'] = mean_incidence_rate + (3 * item['std_error']);
+	                            item['minus_3sd'] = mean_incidence_rate - (3 * item['std_error']);
+	                        });
+	                        console.log(dataset);
+
+
+	                        // Draw the graph
+	                        $(".chartDiv").empty();
+	                        var w = 960;
+	                        var h = 500;
+	                        //var w = $(document).width();
+	                        //var h = $(document).height();
+	                        var padding = 30;
+	                        var svg = d3.select(".chartDiv").append("svg")
+                                        .attr("width", w)
+                                        .attr("height", h)
+	                        var tooltip = d3.select('body').append('div')
+                                        .attr('class', 'tooltip')
+                                        .style('opacity', 1e-6);
+	                        var max_x = d3.max(dataset, function (d) {
+	                            return d['sample_size'];
+	                        });
+	                        var min_x = d3.min(dataset, function (d) {
+	                            return d['sample_size'];
+	                        });
+
+	                        // Create scale functions
+	                        var xScale = d3.scale.linear()
+                                           .domain([0, max_x])
+                                           .range([padding, w - padding * 2]);
+	                        var yScale = d3.scale.linear()
+                                           .domain([0, d3.max(dataset, function (d) { return d3.max([d['ratio'], d['plus_3sd']]); })])
+                                           .range([h - padding, padding]);
+
+	                        // Draw axes and axis labels
+	                        var formatAsPercentage = d3.format("%");
+	                        var xAxis = d3.svg.axis()
+                                          .scale(xScale)
+                                          .orient("bottom")
+                                          .ticks(5)
+                                          .tickSize(4, 0, 0);
+	                        var yAxis = d3.svg.axis()
+                                          .scale(yScale)
+                                          .orient("left")
+                                          .ticks(5)
+                                          .tickSize(4, 0, 0)
+                                          .tickFormat(formatAsPercentage);
+	                        svg.append("g")
+                               .attr("class", "axis")
+                               .attr("transform", "translate(0," + (h - padding) + ")")
+                               .call(xAxis);
+	                        svg.append("g")
+                               .attr("class", "axis")
+                               .attr("transform", "translate(" + padding + ", 0)")
+                               .call(yAxis);
+
+	                        $("#x-axis-label").text(X_NAME);
+	                        $("#y-axis-label").text(Y_NAME);
+	                        $("#x-axis-label").css('top', (h - 10) + 'px').css('left', (w - 100) + 'px');
+
+	                        // Draw Confidence Intervals
+	                        var confidence3sd_lower = d3.svg.line()
+                                                        .x(function (d) { return xScale(d['sample_size']); })
+                                                        .y(function (d) {
+                                                            if (d['minus_3sd'] < 0.0) {
+                                                                return yScale(0);
+                                                            } else {
+                                                                return yScale(d['minus_3sd']);
+                                                            }
+                                                        })
+                                                        .interpolate("linear");
+	                        var confidence3sd_upper = d3.svg.line()
+                                                        .x(function (d) {
+                                                            return xScale(d['sample_size']);
+                                                        })
+                                                        .y(function (d) {
+                                                            return yScale(d['plus_3sd']);
+                                                        })
+                                                        .interpolate("linear");
+	                        var confidence2sd_lower = d3.svg.line()
+                                                        .x(function (d) {
+                                                            return xScale(d['sample_size']);
+                                                        })
+                                                        .y(function (d) {
+                                                            if (d['minus_2sd'] < 0.0) {
+                                                                return yScale(0);
+                                                            } else {
+                                                                return yScale(d['minus_2sd']);
+                                                            }
+                                                            //});
+                                                        })
+                                                        .interpolate("linear");
+	                        var confidence2sd_upper = d3.svg.line()
+                                                        .x(function (d) {
+                                                            return xScale(d['sample_size']);
+                                                        })
+                                                        .y(function (d) {
+                                                            return yScale(d['plus_2sd']);
+                                                        })
+                                                        .interpolate("linear");
+	                        svg.append("svg:path")
+                               .attr("d", confidence2sd_upper(dataset))
+                               .attr("class", "confidence95");
+	                        svg.append("svg:path")
+                               .attr("d", confidence2sd_lower(dataset))
+                               .attr("class", "confidence95");
+	                        svg.append("svg:path")
+                               .attr("d", confidence3sd_upper(dataset))
+                               .attr("class", "confidence99");
+	                        svg.append("svg:path")
+                               .attr("d", confidence3sd_lower(dataset))
+                               .attr("class", "confidence99");
+
+	                        //$("#confidence-label").css('left', (w - 100) + 'px');
+
+
+	                        // Draw line to indicate mean.
+	                        svg.append("svg:line")
+                               .attr("x1", xScale(min_x))
+                               .attr("y1", yScale(mean_incidence_rate))
+                               .attr("x2", xScale(max_x))
+                               .attr("y2", yScale(mean_incidence_rate))
+                               .style("stroke", "rgba(6, 120, 155, 0.6)")
+                               .style("stroke-width", 1)
+                               .on("mouseover", function (d, i) {
+                                   $('div.tooltip').show();
+                                   tooltip.transition().duration(100).style("opacity", 1);
+                               }).on("mousemove", function () {
+                                   var divHtml = '<h4>Mean Value</h4>';
+                                   var left_position = (d3.event.pageX - 2) + "px";
+                                   tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
+                               }).on("mouseout", function (d, i) {
+                                   tooltip.transition().duration(100).style("opacity", 1e-6);
+                               });
+
+	                        // Create Circles
+	                        svg.selectAll("circle")
+                               .data(dataset)
+                               .enter()
+                               .append("circle")
+                               .attr("fill", "rgba(22, 68, 81, 0.6)")
+                               .attr("cx", function (d) {
+                                   return xScale(d['sample_size']);
+                               })
+                               .attr("cy", function (d) {
+                                   return yScale(d['ratio']);
+                               })
+                               .attr("name", function (d) {
+                                   return $.inArray(d['name'], sorted_names);
+                               })
+                               .attr("r", 5)
+                               .on("mouseover", function (d, i) {
+                                   $("div.tooltip").show();
+                                   tooltip.transition().duration(100).style("opacity", 1);
+                               }).on("mousemove", function (d, i) {
+                                   var divHtml = '<h4>' + d['name'] + '</h4>';
+                                       divHtml += '<strong>Population: </strong> ' + d['sample_size'] + '<br/>';
+                                       divHtml += '<strong>Percentage: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
+
+                                   if ($(window).width() - d3.event.pageX < 160) {
+                                       var left_position = (d3.event.pageX - 155) + "px";
+                                   } else {
+                                       var left_position = (d3.event.pageX - 2) + "px";
+                                   }
+                                   tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
+                               }).on("mouseout", function (d, i) {
+                                   tooltip.transition().duration(100).style("opacity", 1e-6);
+                               });
+
+                               // Select DropDown
+                               var select_html = '<option value=""></option>';
+                               $.each(sorted_names, function (i, v) {
+                                   select_html += '<option value="' + i + '">' + v + '</option>';
+                               });
+                               $("#select-entry").html(select_html);
+                               $("#select-entry").change(function (e) {
+                                   // Clear Existing Circles
+                                   d3.select('circle').transition().transition(2).attr("r", 5);
+                                   // Highlight the circle with the same name val
+                                   var circle = d3.select('circle[name="' + $(this).val() + '"]');
+                                   circle.transition().duration(800).attr("r", 10);
+                               });
+
+                               // Show the graph
+	                    });
+	                };
+
+                    reader.readAsText(e.target.files.item(0));
+	            }
+	        });
+	    });
+	</script>
+}
