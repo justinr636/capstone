@@ -49,6 +49,12 @@ namespace Capstone.Controllers
             return View();
         }
 
+        // GET: /Charts/CustomizeCSV
+        public ActionResult CustomizeCSV()
+        {
+            return View();
+        }
+
         [HttpPost()]
         // Birth Weight vs NAS Score
         public ActionResult GetChartData1()

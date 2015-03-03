@@ -1,0 +1,498 @@
+﻿@{
+    ViewBag.Title = "Customizable Charts (CSV)";
+    ViewBag.activeNav = 4;
+}
+
+@section cssSection {
+    <link href="../../StyleSheets/charts.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+	    html { height: 100%; }
+		body { height: 100%; }
+		#main { height: 100%; }
+
+		.hidden { display: none; }
+
+		.chart-container { margin-left: auto; margin-right: auto; }
+
+		svg:not(:root) { overflow: visible; }
+	</style>
+}
+
+
+<div id="main" class="container" style="margin-bottom: 10px;">
+    <div style="display: inline;">
+        <div style="display: inline-block;">
+            <div id="chartAlert" class="alert alert-danger" role="alert">
+        	    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        	    <span class="sr-only">Error:</span>
+        	    Please select a correct chart type.
+        	</div>
+            <select id="chartType" class="form-control">
+                <option value="a">Select One</option>
+                <option value="0">Run Chart</option>
+                <option value="1">Box Plot</option>
+            </select>
+        </div>
+        &emsp;
+        :
+        &emsp;
+        <div style="display: inline-block;">
+            <div id="dataAlert" class="alert alert-danger" role="alert">
+        	    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        	    <span class="sr-only">Error:</span>
+        	    Please select a correct data type.
+        	</div>
+            <select id="data" class="form-control">
+                <option value="a">Y-Axis</option>
+                <option value="0">Birth Weight</option>
+                <option value="1">Length Of Stay</option>
+                <option value="2">Outborn Days</option>
+                <option value="3">NAS Score</option>
+                <option value="4">Total Pharmacology Length</option>
+                <option value="5">Pharmacology Last Dose Interval</option>
+            </select>
+        </div>
+        <div style="display: inline-block;">
+            <h4>&emsp;VS.&emsp;</h4>
+        </div>
+        <div style="display: inline-block;">
+            <div id="data2Alert" class="alert alert-danger" role="alert">
+        	    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        	    <span class="sr-only">Error:</span>
+        	    Please select a correct data type.
+        	</div>
+            <select id="data2" class="form-control">
+                <option value="a">X-Axis</option>
+                <option value="0">Mother Substances</option>
+                <option value="1">Infant Discharge Medications</option>
+                <option value="2">Infant Pharmacology Agents</option>
+                <option value="3">Infant Formulas</option>
+                <option value="4">Infant Locations</option>
+            </select>
+            <select id="time" disabled="disabled" class="form-control">
+                <option value="0">Time</option>
+            </select>
+        </div>
+        &emsp;
+        <div style="display: inline-block;">
+            <input id="subBtn" class="form-control" type="button" value="Submit" />
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <div class="chart-container">
+        <h3 id="chartTitle"></h3>
+        <div id="chartDiv"></div>
+    </div>
+</div>
+
+@section jsSection {
+    <script src="../../Scripts/Chart.js" type="text/javascript"></script>
+	<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
+	<script src="../../Scripts/box.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+	    $(document).ready(function () {
+	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+	        var width = 960 - margin.left - margin.right;
+	        var height = 500 - margin.top - margin.bottom;
+
+	        // Draw Run Chart Function - passed data and control limits
+	        var drawD3Document = function (data, ucl, lcl, label) {
+	            //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
+	            var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
+
+	            var Y_DATA_PARSE = 0;
+
+	            // This is the key in the data object passed to draw function
+	            var X_AXIS_COLUMN = "date";
+
+	            // This is the key in the data object passed to draw function
+	            var Y_AXIS_COLUMN = "dta";
+
+	            var x = d3.time.scale()
+	     	             .range([0, width]);
+
+	            var y = d3.scale.linear()
+	     	             .range([height, 0]);
+
+	            var xAxis = d3.svg.axis()
+	     	                 .scale(x)
+	     	   			  .orient("bottom");
+
+	            var yAxis = d3.svg.axis()
+	     	                 .scale(y)
+	     	   			  .orient("left");
+
+	            var line = d3.svg.line()
+	     	                .interpolate("basis")
+	     	   			 .x(function (d) { return x(d.x_axis); })
+	     	   			 .y(function (d) { return y(d.y_axis); });
+
+	            var svg = d3.select("div#chartDiv").append("svg")
+	     	               .attr("width", width + margin.left + margin.right)
+	     	   			.attr("height", height + margin.top + margin.bottom)
+	     	   			.append("g")
+	     	   			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	            data.forEach(function (d) {
+	                d.x_axis = X_DATA_PARSE(d[X_AXIS_COLUMN]);
+
+	                //d.y_axis = Y_DATA_PARSE(d[Y_AXIS_COLUMN]);
+	                d.y_axis = d[Y_AXIS_COLUMN] + 0;
+	            });
+
+	            // create another data variable to include ucl and lcl in domains
+	            var dataCopy = data.slice(0);
+	            console.log("ucl = ", ucl);
+
+	            dataCopy.push({ x_axis: "", y_axis: ucl + 0 });
+	            dataCopy.push({ x_axis: "", y_axis: lcl + 0 });
+
+	            //console.log("data copy = ", dataCopy);
+
+	            x.domain(d3.extent(data, function (d) { return d.x_axis; }));
+	            //y.domain(d3.extent(data, function (d) { return d.y_axis; }));
+	            y.domain(d3.extent(dataCopy, function (d) { return d.y_axis; }));
+
+	            svg.append("g")
+	               .attr("class", "x axis")
+	        	   .attr("transform", "translate(0," + height + ")")
+	        	   .call(xAxis);
+
+	            svg.append("g")
+	               .attr("class", "y axis")
+	      		   .call(yAxis)
+	               .append("text")
+	               .attr("transform", "rotate(-90)")
+	      		   .attr("y", 6)
+	      		   .attr("dy", ".71em")
+	      		   .style("text-anchor", "end")
+	      		   .text(label);
+
+	            svg.append("path")
+	               .datum(data)
+	      		   .attr("class", "line")
+	      		   .attr("d", line);
+
+	            // upper limit line
+	            //var upper_limit = 15;
+	            //console.log("ucl = ", ucl);
+	            var upper_limit = ucl;
+	            svg.append("line")
+	               .attr("class", "limit-line")
+	    		   .attr({ x1: 0, y1: y(upper_limit), x2: width, y2: y(upper_limit) });
+	            svg.append("text")
+	               .attr({ x: width + 5, y: y(upper_limit) + 4 })
+	    		   .text("Upper Limit");
+
+	            // lower limit line
+	            //var lower_limit = 6;
+	            var lower_limit = lcl;
+	            svg.append("line")
+	               .attr("class", "limit-line")
+	    		   .attr({ x1: 0, y1: y(lower_limit), x2: width, y2: y(lower_limit) });
+	            svg.append("text")
+	               .attr({ x: width + 5, y: y(lower_limit) + 4 })
+	    		   .text("Lower Limit");
+	        };
+
+	        // Function to Calculate Error Bars
+	        function iqr(k) {
+	            return function (d, i) {
+	                var q1 = d.quartiles[0];
+	                var q3 = d.quartiles[2];
+	                var iqr = (q3 - q1) * k;
+	                var i = -1;
+	                var j = d.length;
+
+	                while (d[++i] < q1 - iqr);
+	                while (d[--j] > q3 + iqr);
+	                return [i, j];
+	            }
+	        }
+
+	        // Draw Box Plot function - passed data
+	        function drawBoxPlot(data, min, max, title) {
+	            var labels = true;
+
+	            //console.log(" GOT UP TO DRAWING BOX PLOTS");
+
+	            //var margin = { top: 30, right: 50, bottom: 90, left: 50 };
+	            //var width = 960 - margin.left - margin.right;
+	            //var height = 500 - margin.top - margin.bottom;
+
+	            // Parse through data
+	            // Convert all to integers Math.floor()
+
+	            var chart = d3.box()
+	                .whiskers(iqr(1.5))
+	                .height(height)
+	                .domain([min, max])
+	                .showLabels(labels);
+
+	            d3.csv(csvData, function (csv) {
+                    
+	            });
+
+	            var svg = d3.select('div#chartDiv')
+	                        .append("svg")
+	                        .attr('width', width + margin.left + margin.right)
+	                        .attr('height', height + margin.top + margin.bottom)
+	                        .attr('class', 'box')
+	                        .append('g')
+	                        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+	            var x = d3.scale.ordinal()
+	                            .domain(data.map(function (d) { return d[0] }))
+	                            .rangeRoundBands([0, width], 0.7, 0.3);
+
+	            var xAxis = d3.svg.axis()
+	                              .scale(x)
+	                              .orient('bottom')
+
+	            var y = d3.scale.linear()
+	                            .domain([min, max])
+	                            .range([height + margin.top, 0 + margin.top]);
+
+	            var yAxis = d3.svg.axis()
+	                              .scale(y)
+	                              .orient('left');
+
+	            // draw box plots
+	            svg.selectAll('.box')
+	                    .data(data)
+	                    .enter()
+	                    .append('g')
+	                    .attr("transform", function (d) { return "translate(" + x(d[0]) + "," + margin.top + ")"; })
+	                    .call(chart.width(x.rangeBand()));
+
+	            // draw title
+	            svg.append('text')
+	                    .attr("x", width / 2)
+	                    .attr("y", 0 + (margin.top / 2))
+	                    .attr("text-anchor", "middle")
+	                    .style("font-size", '18px')
+	                    .text(title);
+
+	            // draw y-axis
+	            svg.append('g')
+	                    .attr('class', 'y axis')
+	                    .call(yAxis)
+	                    .append('text')
+	                    .attr('transform', 'rotate(-90)')
+	                    .attr('y', -50)
+	                    .attr('x', -(height / 2))
+	                    .attr('dy', '.71em')
+	                    .style('text-anchor', 'end')
+	                    .style('font-size', '16px')
+	                    .text('Length of Stay');
+
+	            // draw x-axis
+	            svg.append('g')
+	                    .attr('class', 'x axis')
+	                    .attr('transform', 'translate(0,' + (height + margin.top + 15) + ')')
+	                    .call(xAxis)
+	                    .append('text')
+	                    .attr('x', width / 2)
+	                    .attr('y', 85)
+	                    .attr('dy', '.71em')
+	                    .style('text-anchor', 'middle')
+	                    .style('font-size', '16px')
+	                    .text('Substances');
+
+
+	            $("g.x g.tick text").map(function () {
+	                // translation formula:
+	                // y = 0.4932x + 11.422
+	                var translation = $(this).width() * 0.4932 + 11.422;
+	                $(this).attr("transform", "rotate(90), translate(" + translation + ", -15)");
+
+	                //console.log("translation = ", translation);
+
+	                return;
+	            });
+
+	            //var xLabelsArray = $("g.x g.tick text").map(function () { return $(this).width(); }).get();
+	            //var len = xLabelsArray.length;
+	            //var xLabelTransform = [];
+
+	            //$("g.x g.tick text").attr("transform", "rotate(90), translate(" + val + ", -15)");
+
+	        }
+
+	        var $chartTitle = $("#chartTitle");
+	        var $chartDiv = $("#chartDiv");
+	        var $body = $("body");
+	        var bodyHeight = $body.height();
+
+	        var $chartType = $("#chartType");
+	        var $data = $("#data");
+	        var $data2 = $("#data2");
+
+	        var $chartAlert = $("#chartAlert");
+	        var $dataAlert = $("#dataAlert");
+	        var $data2Alert = $("#data2Alert");
+	        var $time = $("#time");
+
+	        // Initialize form view
+	        $chartAlert.hide();
+	        $dataAlert.hide();
+	        $data2Alert.hide();
+	        $time.hide();
+
+	        $data.prop("disabled", true);
+	        $data2.prop("disabled", true);
+
+	        // Submit Button Event Handler
+	        $('#subBtn').click(function (e) {
+	            e.preventDefault();
+
+	            $dataAlert.hide();
+	            $data2Alert.hide();
+	            $chartAlert.hide();
+
+	            if (parseInt($("#chartType").val()) == 0) {
+	                // Draw Run Chart
+
+	                var yData = parseInt($("#data").val());
+	                if (yData >= 0 && yData <= 5) {
+
+	                    //$("#chartDiv > svg > g").empty();
+	                    $("#chartDiv").empty();
+
+	                    var d = {
+	                        data: parseInt($("#data").val())
+	                    };
+
+	                    //console.log("data being passed. d = ", d);
+
+	                    $.ajax({
+	                        type: "POST",
+	                        data: d,
+	                        url: "/Charts/CustomizeRunChart/",
+	                        dataType: "json",
+	                        success: function (data) {
+	                            //console.log("got run chart data!");
+	                            //console.log(data);
+	                            drawD3Document(data.list, data.ucl, data.lcl, data.label);
+
+	                            $chartTitle.text("XMR Chart");
+
+	                            //var chartHeight = $chartDiv.height();
+	                            $body.height(bodyHeight);
+	                        },
+	                        error: function (e) {
+	                            console.log("error getting data.");
+	                            console.log(e);
+	                        }
+	                    });
+	                }
+	                else {
+	                    $dataAlert.show();
+	                }
+	            }
+	            else if (parseInt($("#chartType").val()) == 1) {
+	                // Draw Box Plot
+
+	                var yData = parseInt($data.val());
+	                var xData = parseInt($data2.val());
+
+	                if (!(yData >= 0 && yData <= 5)) {
+	                    $dataAlert.show();
+	                }
+	                else if (!(xData >= 0 && xData <= 4)) {
+	                    $data2Alert.show();
+	                }
+	                else {
+	                    $dataAlert.hide();
+	                    $data2Alert.hide();
+
+	                    var d = {
+	                        data: yData,
+	                        data2: xData
+	                    };
+
+	                    //$("#chartDiv > svg > g").empty();
+	                    $("#chartDiv").empty();
+
+	                    $.ajax({
+	                        type: "POST",
+	                        data: d,
+	                        url: "/Charts/CustomizeBoxPlot/",
+	                        dataType: "json",
+	                        success: function (d) {
+	                            //console.log("d = ", d);
+
+	                            var len = d.headers.length;
+	                            var formattedData = [];
+
+	                            for (var i = 0; i < len; i++) {
+	                                formattedData[i] = [];
+	                                formattedData[i][0] = d.headers[i];
+	                                formattedData[i][1] = d.data[i];
+	                            }
+
+	                            //console.log("formattedData = ", formattedData);
+
+	                            drawBoxPlot(formattedData, d.min, d.max, d.title);
+
+	                            //$chartTitle.text("Box and Whisker Plot");
+
+	                            var chartHeight = $chartDiv.height();
+	                            $body.height(bodyHeight + (chartHeight / 2));
+	                        },
+	                        error: function (e) {
+	                            console.log("error getting data.");
+	                            console.log(e);
+	                        }
+	                    });
+	                }
+	            }
+	            else {
+	            }
+	        });
+
+	        $chartType.change(function () {
+	            var v = parseInt($(this).val());
+
+	            if (v == 0) {
+	                $chartAlert.hide();
+
+	                $data2.hide();
+	                $time.show();
+
+	                $data.prop("disabled", false);
+	                //$data2.prop("disabled", false);
+	            }
+	            else if (v == 1) {
+	                $chartAlert.hide();
+
+	                $time.hide();
+	                $data2.show();
+
+	                $data.prop("disabled", false);
+	                $data2.prop("disabled", false);
+	            }
+	            else {
+	                //$chartAlert.show();
+	                $data.prop("disabled", true);
+	                $data2.prop("disabled", true);
+
+	                $time.hide();
+	                $data2.show();
+
+	                $dataAlert.hide();
+	                $data2Alert.hide();
+
+	                $data.val('a');
+	                $data2.val('a');
+	            }
+	        });
+
+	    });
+	</script>
+}
