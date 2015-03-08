@@ -372,6 +372,7 @@
     <Content Include="Views\Charts\MyHospital.cshtml" />
     <Content Include="Views\Charts\MassHospitals.cshtml" />
     <Content Include="Views\Charts\FunnelPlot.cshtml" />
+    <Content Include="Views\Charts\CustomizeCSV.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

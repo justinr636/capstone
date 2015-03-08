@@ -63,6 +63,8 @@
             <select id="xDataDrop" class="form-control dataDrop">
                 <option value="0">Select One</option>
             </select>
+            <select id="xDataDrop2" class="form-control dataDrop" multiple>
+            </select>
         </div>
         <div class="col-md-3">
             <input type="submit" id="submitBtn" />
@@ -89,7 +91,7 @@
 	        var height = 500 - margin.top - margin.bottom;
 
 	        // Draw Run Chart Function - passed data and control limits
-	        var drawD3Document = function (data, ucl, lcl, label) {
+	        function drawRunChart(data, ucl, lcl, label) {
 	            //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
 	            var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
 
@@ -135,7 +137,7 @@
 
 	            // create another data variable to include ucl and lcl in domains
 	            var dataCopy = data.slice(0);
-	            console.log("ucl = ", ucl);
+	            //console.log("ucl = ", ucl);
 
 	            dataCopy.push({ x_axis: "", y_axis: ucl + 0 });
 	            dataCopy.push({ x_axis: "", y_axis: lcl + 0 });
@@ -186,9 +188,9 @@
 	            svg.append("text")
 	               .attr({ x: width + 5, y: y(lower_limit) + 4 })
 	    		   .text("Lower Limit");
-	        };
+	        }
 
-	        // Function to Calculate Error Bars
+	        // Function to Calculate Error Bars for Box and Whisker Plot
 	        function iqr(k) {
 	            return function (d, i) {
 	                var q1 = d.quartiles[0];
@@ -206,8 +208,6 @@
 	        // Draw Box Plot function - passed data
 	        function drawBoxPlot(data, min, max, title) {
 	            var labels = true;
-
-	            //console.log(" GOT UP TO DRAWING BOX PLOTS");
 
 	            //var margin = { top: 30, right: 50, bottom: 90, left: 50 };
 	            //var width = 960 - margin.left - margin.right;
@@ -311,8 +311,20 @@
 	        var $body = $("body");
 	        var bodyHeight = $body.height();
 	        var $chartDiv = $("#chartDiv");
+
+	        var $chartTypeDrop = $("#chartTypeDrop");
+	        var $yDataDrop = $("#yDataDrop");
+	        var $xDataDrop = $("#xDataDrop");
+	        var $xDataDrop2 = $("#xDataDrop2");
+
 	        var csvArray = [];
 	        var titles = [];
+
+	        $chartTypeDrop.change(function () {
+	            // if selecting BoxPlot, show proper drop downs
+	            if ($(this).val() == 2) {
+	            }
+	        });
 
 	        $("#csvfile").change(function (e) {
 	            if (e.target.files != undefined) {
@@ -325,14 +337,17 @@
 	                    titles = csvArray[0];
 	                    csvArray.splice(0, 1);
 	                    var title_html = '';
+	                    var label_html = '';
 	                    _.each(titles, function (item, i) {
-	                        console.log(item, i);
+	                        //console.log(item, i);
 	                        title_html += '<option value="' + i + '">' + item + '</option>';
+	                        label_html += '<option value="' + item + '">' + item + '</option>';
 	                    });
 	                    title_html = '<option value="">Select One</option>' + title_html;
-	                    console.log("title_html = ", title_html);
+	                    //console.log("title_html = ", title_html);
 
 	                    $(".dataDrop").html(title_html);
+	                    $(".dataLabelDrop").html(label_html);
 	                };
 
 	                reader.readAsText(e.target.files.item(0));
@@ -342,12 +357,47 @@
 	        $("#submitBtn").click(function (e) {
 	            e.preventDefault();
 
-	            var chartType = parseInt($("#chartTypeDrop").val());
+	            var chartType = parseInt($chartTypeDrop.val());
+	            $chartDiv.empty();
 
 	            if (chartType == 1) {           // Draw Run Chart
-	                $chartDiv.empty();
-
 	            } else if (chartType == 2) {    // Draw Box Plot 
+
+	                var Y_COL = $yDataDrop.val();
+
+	                // Select All For Box Plot
+	                var X_COL = $xDataDrop2.val();
+
+	                var dataset = [];
+	                _.each(X_COL, function (item, i) {
+	                    dataset[i] = [];
+	                    dataset[i][0] = item;
+	                    dataset[i][1] = [];
+	                });
+
+	                var max = -Infinity;
+	                var min = Infinity;
+
+	                // format data
+	                _.each(csvArray, function (item, i) {
+	                    var num = parseInt(item[Y_COL]);
+	                    if ((num !== '') && (typeof num !== "undefined")) {
+	                        _.each(X_COL, function (header, i) {
+	                            if (item[header] == "Checked") {
+	                                dataset[i][1].push(num);
+	                                if (num > max) max = num;
+	                                if (num < min) min = num;
+	                            }
+	                        });
+	                    }
+	                });
+	                console.log("dataset = ", dataset);
+
+	                drawBoxPlot(dataset, min, max, "Box and Whisker Plot");
+
+	                var chartHeight = $chartDiv.height();
+	                $body.height(bodyHeight + (chartHeight / 2));
+
 	            } else if (chartType == 3) {	// Draw Funnel Plot 
 	            }
 	        });
