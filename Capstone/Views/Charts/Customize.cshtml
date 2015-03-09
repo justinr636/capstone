@@ -64,14 +64,6 @@
         	</div>
             <select id="data2" class="form-control">
                 <option value="a">X-Axis</option>
-                <!--
-                <option value="0">Mother Substances</option>
-                <option value="1">Infant Substances</option>
-                <option value="2">Infant Discharge Medications</option>
-                <option value="3">Infant Pharmacology Agents</option>
-                <option value="4">Infant Formulas</option>
-                <option value="5">Infant Locations</option>
-                -->
                 <option value="0">Mother Substances</option>
                 <option value="1">Infant Discharge Medications</option>
                 <option value="2">Infant Pharmacology Agents</option>
@@ -109,7 +101,7 @@
 	        var height = 500 - margin.top - margin.bottom;
 
 	        // Draw Run Chart Function - passed data and control limits
-	        var drawD3Document = function (data, ucl, lcl, label) {
+	        function drawRunChart (data, ucl, lcl, label) {
 	            //var Y_AXIS_LABEL = "Length Of Stay";
 
 	            //var X_DATA_PARSE = d3.time.format("%d-%b-%y").parse;
@@ -209,7 +201,7 @@
 	            svg.append("text")
 	               .attr({ x: width + 5, y: y(lower_limit) + 4 })
 	    		   .text("Lower Limit");
-	        };
+	        }
 
 	        // Function to Calculate Error Bars?
 	        function iqr(k) {
@@ -387,7 +379,7 @@
 	                            console.log("got run chart data!");
 	                            console.log(data);
 	                            console.log("data.list = ", data.list);
-	                            drawD3Document(data.list, data.ucl, data.lcl, data.label);
+                                drawRunChart(data.list, data.ucl, data.lcl, data.label);
 
 	                            $chartTitle.text("XMR Chart");
 

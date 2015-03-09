@@ -86,9 +86,24 @@
 
 	<script type="text/javascript">
 	    $(document).ready(function () {
-	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
-	        var width = 960 - margin.left - margin.right;
-	        var height = 500 - margin.top - margin.bottom;
+
+	        Math.mean = function (array) {
+	            return array.reduce(function (a, b) { return a + b; }) / array.length;
+	        };
+
+	        Math.stdev = function (array, opts) {
+	            var avg = 0.0;
+
+	            if (opts['avg']) {
+	                avg = parseFloat(opts['avg']);
+	            } else {
+	                avg = Math.mean(array);
+	            }
+
+	            var variance = array.map(function (itm) { return (itm - avg) * (itm - avg); });
+
+	            return Math.sqrt(variance.reduce(function (a, b) { return a + b; }) / array.length);
+	        };
 
 	        // Draw Run Chart Function - passed data and control limits
 	        function drawRunChart(data, ucl, lcl, label) {
@@ -101,7 +116,7 @@
 	            var X_AXIS_COLUMN = "date";
 
 	            // This is the key in the data object passed to draw function
-	            var Y_AXIS_COLUMN = "dta";
+	            var Y_AXIS_COLUMN = "val";
 
 	            var x = d3.time.scale()
 	     	             .range([0, width]);
@@ -260,7 +275,7 @@
 	                    .attr("y", 0 + (margin.top / 2))
 	                    .attr("text-anchor", "middle")
 	                    .style("font-size", '18px')
-	                    .text(title);
+	                    .text(title.yAxis + " vs. " + title.xAxis);
 
 	            // draw y-axis
 	            svg.append('g')
@@ -273,7 +288,7 @@
 	                    .attr('dy', '.71em')
 	                    .style('text-anchor', 'end')
 	                    .style('font-size', '16px')
-	                    .text('Length of Stay');
+	                    .text(title.yAxis);
 
 	            // draw x-axis
 	            svg.append('g')
@@ -286,7 +301,7 @@
 	                    .attr('dy', '.71em')
 	                    .style('text-anchor', 'middle')
 	                    .style('font-size', '16px')
-	                    .text('Substances');
+	                    .text(title.xAxis);
 
 
 	            $("g.x g.tick text").map(function () {
@@ -300,6 +315,7 @@
 	                return;
 	            });
 
+	            // Transform X-Axis Labels
 	            //var xLabelsArray = $("g.x g.tick text").map(function () { return $(this).width(); }).get();
 	            //var len = xLabelsArray.length;
 	            //var xLabelTransform = [];
@@ -307,6 +323,10 @@
 	            //$("g.x g.tick text").attr("transform", "rotate(90), translate(" + val + ", -15)");
 
 	        }
+
+	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+	        var width = 960 - margin.left - margin.right;
+	        var height = 500 - margin.top - margin.bottom;
 
 	        var $body = $("body");
 	        var bodyHeight = $body.height();
@@ -361,17 +381,61 @@
 	            $chartDiv.empty();
 
 	            if (chartType == 1) {           // Draw Run Chart
-	            } else if (chartType == 2) {    // Draw Box Plot 
+	                var dataset = [];
 
 	                var Y_COL = $yDataDrop.val();
+	                var X_COL = $xDataDrop.val();
 
-	                // Select All For Box Plot
+	                _.each(csvArray, function (item, i) {
+	                    var num = parseInt(item[Y_COL]);
+	                    var dte = item[X_COL];
+
+	                    if ((num !== '') && (typeof num !== "undefined") && (dte !== '') && (typeof dte !== "undefined")) {
+	                        var dataObj = { date: dte, val: num };
+	                        dataset.push(dataObj);
+	                    }
+	                });
+
+	                var avg = _.reduce(dataset, function (memo, ob) { return memo + ob['val']; }) / dataset.length;
+
+	                var variance = _.reduce(dataset, function (memo, ob) {
+	                    return ((ob['val'] - avg) * (ob['val'] - avg)) + memo;
+	                }) / dataset.length;
+
+	                var stdev = Math.sqrt(variance);
+
+	                //var avg = calcAvg(dataset);
+	                //var stdev = calcStDev(dataset);
+	                var ucl = avg + (3 * stdev);
+	                var lcl = avg - (3 * stdev);
+
+                    // Sort data by date
+	                dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
+
+	                drawRunChart(dataset, ucl, lcl, "Y-Axis Label");
+	                console.log("dataset = ", dataset);
+	                console.log("avg = ", avg);
+	                console.log("ucl = ", ucl);
+	                console.log("lcl = ", lcl);
+	                console.log("variance = ", variance);
+	                console.log("stdev = ", stdev);
+
+	            } else if (chartType == 2) {    // Draw Box Plot 
+	                var dataset = [];
+
+	                // Get Selected Parameters
+	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop2.val();
 
-	                var dataset = [];
 	                _.each(X_COL, function (item, i) {
+	                    // Create X-Axis Label
+	                    var labelText = $xDataDrop2.find("option[value='" + item + "']").text();
+	                    var labelTextArr = labelText.split(/\(choice=(.*)\)/);
+	                    labelText = labelTextArr[1];
+
+	                    // Format dataset
 	                    dataset[i] = [];
-	                    dataset[i][0] = item;
+	                    dataset[i][0] = labelText;
 	                    dataset[i][1] = [];
 	                });
 
@@ -391,9 +455,12 @@
 	                        });
 	                    }
 	                });
-	                console.log("dataset = ", dataset);
+	                //console.log("dataset = ", dataset);
 
-	                drawBoxPlot(dataset, min, max, "Box and Whisker Plot");
+	                // Need a better way to define X- and Y- axis labels
+	                var titleObj = { yAxis: $yDataDrop.find("option[value='" + Y_COL + "']").text(), xAxis: $xDataDrop2.find("option[value='" + X_COL[0] + "']").text() };
+
+	                drawBoxPlot(dataset, min, max, titleObj);
 
 	                var chartHeight = $chartDiv.height();
 	                $body.height(bodyHeight + (chartHeight / 2));
