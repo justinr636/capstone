@@ -5,6 +5,7 @@
 
 @section cssSection {
     <link href="../../StyleSheets/charts.css" rel="stylesheet" type="text/css" />
+    <link href="../../StyleSheets/plot.css" rel="stylesheet" type="text/css" />
 
     <style type="text/css">
 	    html { height: 100%; }
@@ -87,6 +88,11 @@
 	<script type="text/javascript">
 	    $(document).ready(function () {
 
+	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+	        var width = 960 - margin.left - margin.right;
+	        var height = 500 - margin.top - margin.bottom;
+
+
 	        Math.mean = function (array) {
 	            return array.reduce(function (a, b) { return a + b; }) / array.length;
 	        };
@@ -126,22 +132,22 @@
 
 	            var xAxis = d3.svg.axis()
 	     	                 .scale(x)
-	     	   			  .orient("bottom");
+	     	   			     .orient("bottom");
 
 	            var yAxis = d3.svg.axis()
 	     	                 .scale(y)
-	     	   			  .orient("left");
+	     	   			     .orient("left");
 
 	            var line = d3.svg.line()
 	     	                .interpolate("basis")
-	     	   			 .x(function (d) { return x(d.x_axis); })
-	     	   			 .y(function (d) { return y(d.y_axis); });
+	     	   	    		.x(function (d) { return x(d.x_axis); })
+	     	   				.y(function (d) { return y(d.y_axis); });
 
 	            var svg = d3.select("div#chartDiv").append("svg")
-	     	               .attr("width", width + margin.left + margin.right)
-	     	   			.attr("height", height + margin.top + margin.bottom)
-	     	   			.append("g")
-	     	   			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	     	                .attr("width", width + margin.left + margin.right)
+	     	   	    		.attr("height", height + margin.top + margin.bottom)
+	     	   				.append("g")
+	     	   				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	            data.forEach(function (d) {
 	                d.x_axis = X_DATA_PARSE(d[X_AXIS_COLUMN]);
@@ -158,6 +164,7 @@
 	            dataCopy.push({ x_axis: "", y_axis: lcl + 0 });
 
 	            //console.log("data copy = ", dataCopy);
+	            //console.log("data = ", data);
 
 	            x.domain(d3.extent(data, function (d) { return d.x_axis; }));
 	            //y.domain(d3.extent(data, function (d) { return d.y_axis; }));
@@ -324,9 +331,197 @@
 
 	        }
 
-	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
-	        var width = 960 - margin.left - margin.right;
-	        var height = 500 - margin.top - margin.bottom;
+	        // drawFunnelPlot helper function
+	        //  --- Sorts dataset by population size
+	        function compare(a, b) {
+	            if (a.sample_size < b.sample_size)
+	                return -1;
+	            if (a.sample_size > b.sample_size)
+	                return 1;
+	            return 0;
+	        }
+
+	        function drawFunnelPlot(dataset, sorted_names, mean_incidence_rate, title) {
+	            // Draw the graph
+	            $("#chartDiv").empty();
+
+	            //var w = width;
+	            //var h = height;
+	            var padding = 30;
+
+	            var svg = d3.select("#chartDiv").append("svg")
+            	            .attr("width", width)
+            	            .attr("height", height)
+	            var tooltip = d3.select('body').append('div')
+            	            .attr('class', 'tooltip')
+            	            .style('opacity', 1e-6);
+	            var max_x = d3.max(dataset, function (d) {
+	                return d['sample_size'];
+	            });
+	            var min_x = d3.min(dataset, function (d) {
+	                return d['sample_size'];
+	            });
+
+	            // Create scale functions
+	            var xScale = d3.scale.linear()
+            	               .domain([0, max_x])
+            	               .range([padding, width - padding * 2]);
+	            var yScale = d3.scale.linear()
+            	               .domain([0, d3.max(dataset, function (d) { return d3.max([d['ratio'], d['plus_3sd']]); })])
+            	               .range([height - padding, padding]);
+
+	            // Draw axes and axis labels
+	            var formatAsPercentage = d3.format("%");
+	            var xAxis = d3.svg.axis()
+            	              .scale(xScale)
+            	              .orient("bottom")
+            	              .ticks(5)
+            	              .tickSize(4, 0, 0);
+	            var yAxis = d3.svg.axis()
+            	              .scale(yScale)
+            	              .orient("left")
+            	              .ticks(5)
+            	              .tickSize(4, 0, 0)
+            	              .tickFormat(formatAsPercentage);
+	            svg.append("g")
+            	   .attr("class", "axis")
+            	   .attr("transform", "translate(0," + (height - padding) + ")")
+            	   .call(xAxis);
+	            svg.append("g")
+            	   .attr("class", "axis")
+            	   .attr("transform", "translate(" + padding + ", 0)")
+            	   .call(yAxis);
+
+	            $("#x-axis-label").text("X-Axis Label");
+	            $("#y-axis-label").text("Y-Axis Label");
+	            $("#x-axis-label").css('top', (height - 10) + 'px').css('left', (width - 100) + 'px');
+
+	            // Draw Confidence Intervals
+	            var confidence3sd_lower = d3.svg.line()
+            	                            .x(function (d) { return xScale(d['sample_size']); })
+            	                            .y(function (d) {
+            	                                if (d['minus_3sd'] < 0.0) {
+            	                                    return yScale(0);
+            	                                } else {
+            	                                    return yScale(d['minus_3sd']);
+            	                                }
+            	                            })
+            	                            .interpolate("linear");
+	            var confidence3sd_upper = d3.svg.line()
+            	                            .x(function (d) {
+            	                                return xScale(d['sample_size']);
+            	                            })
+            	                            .y(function (d) {
+            	                                return yScale(d['plus_3sd']);
+            	                            })
+            	                            .interpolate("linear");
+	            var confidence2sd_lower = d3.svg.line()
+            	                            .x(function (d) {
+            	                                return xScale(d['sample_size']);
+            	                            })
+            	                            .y(function (d) {
+            	                                if (d['minus_2sd'] < 0.0) {
+            	                                    return yScale(0);
+            	                                } else {
+            	                                    return yScale(d['minus_2sd']);
+            	                                }
+            	                            })
+            	                            .interpolate("linear");
+	            var confidence2sd_upper = d3.svg.line()
+            	                            .x(function (d) {
+            	                                return xScale(d['sample_size']);
+            	                            })
+            	                            .y(function (d) {
+            	                                return yScale(d['plus_2sd']);
+            	                            })
+            	                            .interpolate("linear");
+	            svg.append("svg:path")
+            	   .attr("d", confidence2sd_upper(dataset))
+            	   .attr("class", "confidence95");
+	            svg.append("svg:path")
+            	   .attr("d", confidence2sd_lower(dataset))
+            	   .attr("class", "confidence95");
+	            svg.append("svg:path")
+            	   .attr("d", confidence3sd_upper(dataset))
+            	   .attr("class", "confidence99");
+	            svg.append("svg:path")
+            	   .attr("d", confidence3sd_lower(dataset))
+            	   .attr("class", "confidence99");
+
+	            //$("#confidence-label").css('left', (w - 100) + 'px');
+
+
+	            // Draw line to indicate mean.
+	            svg.append("svg:line")
+            	   .attr("x1", xScale(min_x))
+            	   .attr("y1", yScale(mean_incidence_rate))
+            	   .attr("x2", xScale(max_x))
+            	   .attr("y2", yScale(mean_incidence_rate))
+            	   .style("stroke", "rgba(6, 120, 155, 0.6)")
+            	   .style("stroke-width", 1)
+            	   .on("mouseover", function (d, i) {
+            	       $('div.tooltip').show();
+            	       tooltip.transition().duration(100).style("opacity", 1);
+            	   }).on("mousemove", function () {
+            	       var divHtml = '<h4>Mean Value</h4>';
+            	       var left_position = (d3.event.pageX - 2) + "px";
+            	       tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
+            	   }).on("mouseout", function (d, i) {
+            	       tooltip.transition().duration(100).style("opacity", 1e-6);
+            	   });
+
+	            // Create Circles
+	            svg.selectAll("circle")
+            	   .data(dataset)
+            	   .enter()
+            	   .append("circle")
+            	   .attr("fill", "rgba(22, 68, 81, 0.6)")
+            	   .attr("cx", function (d) {
+            	       return xScale(d['sample_size']);
+            	   })
+            	   .attr("cy", function (d) {
+            	       return yScale(d['ratio']);
+            	   })
+            	   .attr("name", function (d) {
+            	       return $.inArray(d['date'], sorted_names);
+            	   })
+            	   .attr("r", 5)
+            	   .on("mouseover", function (d, i) {
+            	       $("div.tooltip").show();
+            	       tooltip.transition().duration(100).style("opacity", 1);
+            	   }).on("mousemove", function (d, i) {
+            	       var divHtml = '<h4>' + d['date'] + '</h4>';
+            	       divHtml += '<strong>Population: </strong> ' + d['sample_size'] + '<br/>';
+            	       divHtml += '<strong>Percentage: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
+
+            	       if ($(window).width() - d3.event.pageX < 160) {
+            	           var left_position = (d3.event.pageX - 155) + "px";
+            	       } else {
+            	           var left_position = (d3.event.pageX - 2) + "px";
+            	       }
+            	       tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
+            	   }).on("mouseout", function (d, i) {
+            	       tooltip.transition().duration(100).style("opacity", 1e-6);
+            	   });
+
+	            // Select DropDown
+	            /*
+	            var select_html = '<option value=""></option>';
+	            $.each(sorted_names, function (i, v) {
+	            select_html += '<option value="' + i + '">' + v + '</option>';
+	            });
+	            $("#select-entry").html(select_html);
+	            $("#select-entry").change(function (e) {
+	            // Clear Existing Circles
+	            d3.select('circle').transition().transition(2).attr("r", 5);
+	            // Highlight the circle with the same name val
+	            var circle = d3.select('circle[name="' + $(this).val() + '"]');
+	            circle.transition().duration(800).attr("r", 10);
+	            });
+	            */
+
+	            // Show the graph
+	        }
 
 	        var $body = $("body");
 	        var bodyHeight = $body.height();
@@ -385,6 +580,8 @@
 
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
+	                var avg_sum = 0;
+	                var variance_sum = 0;
 
 	                _.each(csvArray, function (item, i) {
 	                    var num = parseInt(item[Y_COL]);
@@ -393,14 +590,23 @@
 	                    if ((num !== '') && (typeof num !== "undefined") && (dte !== '') && (typeof dte !== "undefined")) {
 	                        var dataObj = { date: dte, val: num };
 	                        dataset.push(dataObj);
+
+	                        avg_sum = avg_sum + num;
 	                    }
 	                });
 
-	                var avg = _.reduce(dataset, function (memo, ob) { return memo + ob['val']; }) / dataset.length;
+	                //var avg = _.reduce(dataset, function (memo, ob) { return memo + ob['val']; }) / dataset.length;
+	                var avg = avg_sum / dataset.length;
 
-	                var variance = _.reduce(dataset, function (memo, ob) {
-	                    return ((ob['val'] - avg) * (ob['val'] - avg)) + memo;
-	                }) / dataset.length;
+	                //var variance = _.reduce(dataset, function (memo, ob) {
+	                //    return ((ob['val'] - avg) * (ob['val'] - avg)) + memo;
+	                //}) / dataset.length;
+
+	                _.each(dataset, function (o, i) {
+	                    variance_sum = variance_sum + ((o.val - avg) * (o.val - avg));
+	                });
+
+	                var variance = variance_sum / dataset.length;
 
 	                var stdev = Math.sqrt(variance);
 
@@ -408,8 +614,10 @@
 	                //var stdev = calcStDev(dataset);
 	                var ucl = avg + (3 * stdev);
 	                var lcl = avg - (3 * stdev);
+	                if (lcl < 0) lcl = 0;
 
-                    // Sort data by date
+	                // Sort data by date
+	                console.log("dataset (before sorting) = ", dataset);
 	                dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
 	                drawRunChart(dataset, ucl, lcl, "Y-Axis Label");
@@ -466,6 +674,95 @@
 	                $body.height(bodyHeight + (chartHeight / 2));
 
 	            } else if (chartType == 3) {	// Draw Funnel Plot 
+	                var funnelData = [];
+
+	                //var Y_COL = $yDataDrop.val();
+	                //var X_COL = $xDataDrop.val();
+	                var Y_COL = 63;
+	                var X_COL = 1;
+
+	                var total_population = 0;
+	                var incidence_population = 0;
+	                var sample_size = 0;
+	                var incidences = 0;
+
+	                // sort csv by date
+	                csvArray = _.sortBy(csvArray, function (item, i) { var dt = new Date(item[X_COL]); return dt; });
+
+	                var jsFirstDate = new Date(csvArray[0][X_COL]);
+	                var firstDate = (jsFirstDate.getMonth() + 1) + "/" + jsFirstDate.getFullYear();
+
+	                funnelData[0] = { sample_size: 0, indicator: 0, date: firstDate, ratio: 0 };
+
+	                _.each(csvArray, function (item, i) {
+	                    var indicator = item[Y_COL];
+	                    var jsDate = new Date(item[X_COL]);
+	                    var dte = (jsDate.getMonth() + 1) + "/" + jsDate.getFullYear();
+	                    var size = funnelData.length;
+
+	                    if ((indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
+	                        if (dte == funnelData[size - 1].date) {
+	                            sample_size++;
+	                            total_population++;
+	                            if (indicator == "Yes") {
+	                                incidences++;
+	                                incidence_population++;
+	                            }
+	                        }
+	                        else {
+	                            funnelData[size - 1].sample_size = sample_size;
+	                            funnelData[size - 1].indicator = incidences;
+	                            funnelData[size - 1].ratio = incidences / sample_size;
+
+	                            sample_size = 1;
+	                            incidences = 0;
+	                            funnelData.push({ sample_size: 0, indicator: 0, date: dte, ratio: 0 });
+
+	                            if (indicator == "Yes") {
+	                                incidences++;
+	                                incidence_population++;
+	                            }
+	                            total_population++;
+	                        }
+	                    }
+	                });
+
+	                var size = funnelData.length;
+
+	                funnelData[size - 1].sample_size = sample_size;
+	                funnelData[size - 1].indicator = incidences;
+	                funnelData[size - 1].ratio = incidences / sample_size;
+
+	                console.log("funnelData (before calculating control limits) = ", funnelData);
+
+	                // Calculate mean incidence over entire population
+	                var mean_incidence_rate = incidence_population / total_population;
+	                var mean_incidence = incidence_population / size;
+
+	                var sigma_squared = mean_incidence_rate * (1 - mean_incidence_rate);
+
+	                // Create Alphabetical List of Labels
+	                var sorted_names = [];
+	                _.each(funnelData, function (item) {
+	                    sorted_names.push(item["date"]);
+	                });
+	                //sorted_names.sort();
+
+	                // Sorts dataset by population size for drawing confidence intervals
+	                funnelData.sort(compare);
+
+	                // Calculate standard error for each value: SE = SD / sqrt(n)
+	                //  ---Creating Control Limits/Confidence Intervals
+	                _.each(funnelData, function (item) {
+	                    item['std_error'] = Math.sqrt(sigma_squared / item['sample_size']);
+	                    item['plus_2sd'] = mean_incidence_rate + (2 * item['std_error']);
+	                    item['minus_2sd'] = mean_incidence_rate - (2 * item['std_error']);
+	                    item['plus_3sd'] = mean_incidence_rate + (3 * item['std_error']);
+	                    item['minus_3sd'] = mean_incidence_rate - (3 * item['std_error']);
+	                });
+	                console.log("funnelData (after calculating control limits) = ", funnelData);
+
+	                drawFunnelPlot(funnelData, sorted_names, mean_incidence_rate, "Chart Title?");
 	            }
 	        });
 

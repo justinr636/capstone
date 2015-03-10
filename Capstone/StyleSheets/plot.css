@@ -72,7 +72,7 @@ path.confidence95 {
 div.tooltip {
   position: absolute;
   width: 140px;
-  height: 60px;
+  height: 80px;
   padding: 8px;
   background: white;
   -moz-box-shadow: 4px 4px 12px rgba(0,0,0,.5);
