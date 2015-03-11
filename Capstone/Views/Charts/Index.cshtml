@@ -9,15 +9,20 @@
 
 
 <div class="container" style="margin-bottom: 10px;">
-
-    <div class="chart-container">
-        <h3>(D3 Scatter Plot) Birth Weight vs NAS Score</h3>
-    	<div class="chartDiv"></div>
-    </div>
-
-    <div class="chart-container">
-        <h3>Avg Length Of Stay vs Infant Pharmacology Agents</h3>
-    	<canvas id="barChart1" width="800" height="400"></canvas>
+    
+    <div class="row">
+        <div class="col-md-7">
+            <div class="chart-container">
+    		    <h3>Birth Weight vs NAS Score</h3>
+    			<div class="chartDiv"></div>
+    		</div>
+        </div>
+        <div class="col-md-5">
+            <div class="chart-container">
+    		    <h3>Avg Length Of Stay vs Infant Pharmacology Agents</h3>
+    			<canvas id="barChart1" width="500" height="500"></canvas>
+    		</div>
+        </div>
     </div>
 
     <div class="chart-container">
@@ -51,7 +56,7 @@
 
         }
 
-        function drawScatterPlot(margin, width, height, xData, yData) {
+        function drawScatterPlot(margin, width, height, xData, yData, width, height) {
             var x = d3.scale.linear().domain([0, d3.max(xData)]).range([0, width]);
             var y = d3.scale.linear().domain([0, d3.max(yData)]).range([height, 0]);
 
@@ -110,7 +115,7 @@
                     //xData = data.xData;
                     //yData = data.yData;
                     console.log("drawing scatter plot");
-                    drawScatterPlot(margin, width, height, data.xData, data.yData);
+                    drawScatterPlot(margin, width, height, data.xData, data.yData, width*2/3, height);
                 }
             },
             error: function (data) {

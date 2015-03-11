@@ -18,27 +18,28 @@
 }
 
 <div id="main" class="container" style="margin-bottom: 10px;">
-
-    <div class="chart-container">
-        <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
-    	<div id="chartDiv1" class="chartDiv"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+    		    <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
+    			<div id="chartDiv1" class="chartDiv"></div>
+    		</div>
+        </div>
     </div>
 
-    <div class="chart-container">
-        <h3 class="chartTitle">Bar Chart - Feeding Method vs Length Of Stay</h3>
-    	<div id="chartDiv2" class="chartDiv"></div>
+    <div class="row">
+        <br />
+        <br />
     </div>
 
-    <div class="chart-container">
-        <h3 class="chartTitle">XMR Chart - Percent Receiving Breast Milk</h3>
-    	<div id="chartDiv3" class="chartDiv"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+    		    <h3 class="chartTitle">Bar Chart - Percent of Infants Receiving Mother's Breast Milk</h3>
+    			<canvas id="chartDiv2" class="chartDiv" height="300" width="960"></canvas>
+    		</div>
+        </div>
     </div>
-
-    <div class="chart-container">
-        <h3 class="chartTitle">XMR Chart - Percent Needing Pharmacology Treatment</h3>
-    	<div id="chartDiv4" class="chartDiv"></div>
-    </div>
-
 </div>
 
 @section jsSection {
@@ -49,12 +50,13 @@
 	<script type="text/javascript">
 	    $(document).ready(function () {
 
-	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+	        //var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+	        var margin = { top: 0, right: 0, bottom: 0, left: 0 };
 	        var width = 960 - margin.left - margin.right;
 	        var height = 500 - margin.top - margin.bottom;
 
 	        // Draw Run Chart Function - passed data and control limits
-	        var drawRunChart = function (data, ucl, lcl, label, chartIndex) {
+	        var drawRunChart = function (data, ucl, lcl, label, chartIndex, width, height) {
 	            var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
 	            var Y_DATA_PARSE = 0;
 
@@ -116,6 +118,15 @@
 	        	   .attr("transform", "translate(0," + height + ")")
 	        	   .call(xAxis);
 
+	            // rotate x-axis labels
+	            $("g.x g.tick text").map(function () {
+	                // translation formula:
+	                // y = 0.4932x + 11.422
+	                var translation = $(this).width() * 0.4932 + 11.422;
+	                $(this).attr("transform", "rotate(90), translate(" + translation + ", -14)");
+	                return;
+	            });
+
 	            //  Draw y-axis
 	            svg.append("g")
 	               .attr("class", "y axis")
@@ -152,7 +163,7 @@
 
 	            // Adjust height of chart div
 	            var $chartDiv = $("#chartDiv" + chartIndex);
-                $chartDiv.height( $chartDiv.height() + (height/10));
+	            $chartDiv.height($chartDiv.height() + (height / 10));
 	        };
 
 	        // Function to Calculate Error Bars?
@@ -172,7 +183,7 @@
 	        }
 
 	        // Draw Box Plot function - passed data
-	        function drawBoxPlot(data, min, max, title, chartIndex) {
+	        function drawBoxPlot(data, min, max, title, chartIndex, width, height) {
 	            var labels = true;
 
 	            // Convert all to integers Math.floor()
@@ -264,7 +275,7 @@
 
 	            // Adjust height of chart div
 	            var $chartDiv = $("#chartDiv" + chartIndex);
-                $chartDiv.height( $chartDiv.height() + (height/2));
+	            $chartDiv.height($chartDiv.height() + (height / 2));
 	        }
 
 	        var $chartTitle = $(".chartTitle");
@@ -278,7 +289,7 @@
 	            url: "/Charts/CustomizeRunChart/",
 	            dataType: "json",
 	            success: function (data) {
-	                drawRunChart(data.list, data.ucl, data.lcl, data.label, 1);
+	                drawRunChart(data.list, data.ucl, data.lcl, data.label, 1, width, height / 2);
 
 	                //$chartTitle[0].text("Length of Stay vs Time");
 	            },
@@ -289,68 +300,90 @@
 	        });
 
 	        // Chart 2 - Feeding Method Vs Length Of Stay
+	        /*
 	        var data2 = { data: 1, data2: 3 };
 	        $.ajax({
-	            type: "POST",
-	            data: data2,
-	            url: "/Charts/CustomizeBoxPlot/",
-	            dataType: "json",
-	            success: function (d) {
-	                var len = d.headers.length;
-	                var formattedData = [];
+	        type: "POST",
+	        data: data2,
+	        url: "/Charts/CustomizeBoxPlot/",
+	        dataType: "json",
+	        success: function (d) {
+	        var len = d.headers.length;
+	        var formattedData = [];
 
-	                for (var i = 0; i < len; i++) {
-	                    formattedData[i] = [];
-	                    formattedData[i][0] = d.headers[i];
-	                    formattedData[i][1] = d.data[i];
-	                }
+	        for (var i = 0; i < len; i++) {
+	        formattedData[i] = [];
+	        formattedData[i][0] = d.headers[i];
+	        formattedData[i][1] = d.data[i];
+	        }
 
-	                drawBoxPlot(formattedData, d.min, d.max, d.title, 2);
+	        drawBoxPlot(formattedData, d.min, d.max, d.title, 2, width / 2, height / 2);
 
-	                //$chartTitle[3].text("Box and Whisker Plot");
-	            },
-	            error: function (e) {
-	                // Show error And refresh Icons
-	                console.log("error getting data.", e);
-	            }
+	        //$chartTitle[3].text("Box and Whisker Plot");
+	        },
+	        error: function (e) {
+	        // Show error And refresh Icons
+	        console.log("error getting data.", e);
+	        }
 	        });
-
-	        // Chart 3 - Percent Infants Receiving Breast Milk
-	        var data3 = { data: 3 };
-	        $.ajax({
-	            type: "POST",
-	            data: data3,
-	            url: "/Charts/CustomizeRunChart/",
-	            dataType: "json",
-	            success: function (data) {
-	                drawRunChart(data.list, data.ucl, data.lcl, data.label, 3);
-
-	                //$chartTitle[2].text("% Infants Receiving Breast Milk (monthly) -- NEED TO MAKE CHART");
-	            },
-	            error: function (e) {
-	                // Show error And refresh Icons
-	                console.log("error getting data.", e);
-	            }
-	        });
-
-	        // Chart 4 - Percent Needing Pharm Treatment XMR
-	        var data4 = { data: 4 };
-	        $.ajax({
-	            type: "POST",
-	            data: data4,
-	            url: "/Charts/CustomizeRunChart/",
-	            dataType: "json",
-	            success: function (data) {
-	                drawRunChart(data.list, data.ucl, data.lcl, data.label, 4);
-
-	                //$chartTitle[1].text("% Infants Needing Pharmacology Treatment (monthly) --- NEED TO MAKE CHART");
-	            },
-	            error: function (e) {
-	                // Show error And refresh Icons
-	                console.log("error getting data.", e);
-	            }
-	        });
-
+	        */
+	        // Chart 2 - ChartJS
+	        var ctx = document.getElementById("chartDiv2").getContext("2d");
+	        var ctxData = {
+	            labels: ["January", "February", "March", "April", "May", "June", "July"],
+	            datasets: [
+                            			{
+                            			    label: "My First dataset",
+                            			    fillColor: "rgba(220,220,220,0.5)",
+                            			    strokeColor: "rgba(220,220,220,0.8)",
+                            			    highlightFill: "rgba(220,220,220,0.75)",
+                            			    highlightStroke: "rgba(220,220,220,1)",
+                            			    data: [65, 59, 80, 81, 56, 55, 40]
+                            			},
+    					    			{
+    					    			    label: "My Second dataset",
+    					    			    fillColor: "rgba(151,187,205,0.5)",
+    					    			    strokeColor: "rgba(151,187,205,0.8)",
+    					    			    highlightFill: "rgba(151,187,205,0.75)",
+    					    			    highlightStroke: "rgba(151,187,205,1)",
+    					    			    data: [28, 48, 40, 19, 86, 27, 90]
+    					    			},
+    					    			{
+    					    			    label: "My Third dataset",
+    					    			    fillColor: "rgba(0,87,205,0.5)",
+    					    			    strokeColor: "rgba(0,87,205,0.8)",
+    					    			    highlightFill: "rgba(0,87,205,0.75)",
+    					    			    highlightStroke: "rgba(0,87,205,1)",
+    					    			    data: [8, 28, 93, 44, 86, 33, 39]
+    					    			},
+    					    			{
+    					    			    label: "My Fourth dataset",
+    					    			    fillColor:  "rgba(182,0,60,0.5)",
+    					    			    strokeColor: "rgba(182,0,60,0.8)",
+    					    			    highlightFill: "rgba(182,0,60,0.75)",
+    					    			    highlightStroke: "rgba(182,0,60,1)",
+    					    			    data: [77, 29, 41, 90, 16, 23, 40]
+    					    			},
+    					    			{
+    					    			    label: "My Fifth dataset",
+    					    			    fillColor:  "rgba(212,180,0,0.5)",
+    					    			    strokeColor: "rgba(212,180,0,0.8)",
+    					    			    highlightFill: "rgba(212,180,0,0.75)",
+    					    			    highlightStroke: "rgba(212,180,0,1)",
+    					    			    data: [12, 99, 32, 82, 52, 83, 38]
+    					    			},
+    					    			{
+    					    			    label: "My Sixth dataset",
+    					    			    fillColor: "rgba(33,66,33,0.5)",
+    					    			    strokeColor: "rgba(33,66,33,0.8)",
+    					    			    highlightFill: "rgba(33,66,33,0.75)",
+    					    			    highlightStroke: "rgba(33,66,33,1)",
+    					    			    data: [10, 33, 63, 33, 44, 13, 43]
+    					    			}
+                   					]
+	        };
+	        var ctxOptions = {};
+	        var barChart = new Chart(ctx).Bar(ctxData, ctxOptions);
 	    });
 	</script>
 }
