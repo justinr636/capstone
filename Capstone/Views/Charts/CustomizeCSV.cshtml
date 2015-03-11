@@ -46,6 +46,7 @@
         <div class="col-md-3">
         </div>
     </div>
+    <!-- Select Chart Attributes Row -->
     <div class="row">
         <div class="col-md-3">
             <select id="chartTypeDrop" class="form-control">
@@ -69,6 +70,18 @@
         </div>
         <div class="col-md-3">
             <input type="submit" id="submitBtn" />
+        </div>
+    </div>
+    <!-- Enter Chart Labels Row -->
+    <div class="row">
+        <div class="col-md-3">
+            <input id="chartTitleText" placeholder="Chart Title" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input id="yAxisTitleText" placeholder="Y-Axis Title" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input id="xAxisTitleText" placeholder="X-Axis Title" class="form-control" />
         </div>
     </div>
     <div class="row">
@@ -170,20 +183,31 @@
 	            //y.domain(d3.extent(data, function (d) { return d.y_axis; }));
 	            y.domain(d3.extent(dataCopy, function (d) { return d.y_axis; }));
 
+	            // draw x-axis
 	            svg.append("g")
 	               .attr("class", "x axis")
 	        	   .attr("transform", "translate(0," + height + ")")
-	        	   .call(xAxis);
+	        	   .call(xAxis)
+                   .append('text')
+                   .attr('x', width / 2)
+                   .attr('y', 30)
+                   .attr('dy', '.71em')
+                   .style('text-anchor', 'middle')
+                   .style('font-size', '14px')
+                   .text(label.xAxis);
 
+	            // draw y-axis
 	            svg.append("g")
 	               .attr("class", "y axis")
 	      		   .call(yAxis)
 	               .append("text")
 	               .attr("transform", "rotate(-90)")
-	      		   .attr("y", 6)
+	      		   .attr("y", "-50")
+	      		   .attr("x", -(height / 2))
 	      		   .attr("dy", ".71em")
 	      		   .style("text-anchor", "end")
-	      		   .text(label);
+                   .style('font-size', '14px')
+	      		   .text(label.yAxis);
 
 	            svg.append("path")
 	               .datum(data)
@@ -210,6 +234,14 @@
 	            svg.append("text")
 	               .attr({ x: width + 5, y: y(lower_limit) + 4 })
 	    		   .text("Lower Limit");
+
+	            // draw title
+	            svg.append('text')
+	                    .attr("x", width / 2)
+	                    .attr("y", 0 + (margin.top / 2))
+	                    .attr("text-anchor", "middle")
+	                    .style("font-size", '18px')
+	                    .text(label.chartTitle);
 	        }
 
 	        // Function to Calculate Error Bars for Box and Whisker Plot
@@ -230,10 +262,6 @@
 	        // Draw Box Plot function - passed data
 	        function drawBoxPlot(data, min, max, title) {
 	            var labels = true;
-
-	            //var margin = { top: 30, right: 50, bottom: 90, left: 50 };
-	            //var width = 960 - margin.left - margin.right;
-	            //var height = 500 - margin.top - margin.bottom;
 
 	            // Parse through data
 	            // Convert all to integers Math.floor()
@@ -282,7 +310,7 @@
 	                    .attr("y", 0 + (margin.top / 2))
 	                    .attr("text-anchor", "middle")
 	                    .style("font-size", '18px')
-	                    .text(title.yAxis + " vs. " + title.xAxis);
+	                    .text(title.chartTitle);
 
 	            // draw y-axis
 	            svg.append('g')
@@ -294,7 +322,7 @@
 	                    .attr('x', -(height / 2))
 	                    .attr('dy', '.71em')
 	                    .style('text-anchor', 'end')
-	                    .style('font-size', '16px')
+	                    .style('font-size', '14px')
 	                    .text(title.yAxis);
 
 	            // draw x-axis
@@ -307,7 +335,7 @@
 	                    .attr('y', 85)
 	                    .attr('dy', '.71em')
 	                    .style('text-anchor', 'middle')
-	                    .style('font-size', '16px')
+	                    .style('font-size', '14px')
 	                    .text(title.xAxis);
 
 
@@ -386,15 +414,39 @@
 	            svg.append("g")
             	   .attr("class", "axis")
             	   .attr("transform", "translate(0," + (height - padding) + ")")
-            	   .call(xAxis);
+            	   .call(xAxis)
+                   .append('text')
+                   .attr('x', width / 2)
+                   .attr('y', 30)
+                   .attr('dy', '.71em')
+                   .style('text-anchor', 'middle')
+                   .style('font-size', '14px')
+                   .text(title.xAxis);
 	            svg.append("g")
             	   .attr("class", "axis")
             	   .attr("transform", "translate(" + padding + ", 0)")
-            	   .call(yAxis);
+            	   .call(yAxis)
+                   .append('text')
+                   .attr('transform', 'rotate(-90)')
+                   .attr('y', '-50')
+                   .attr('x', -(height / 2))
+                   .attr('dy', '.71em')
+                   .style('text-anchor', 'end')
+                   .style('font-size', '14px')
+                   .text(title.yAxis);
 
-	            $("#x-axis-label").text("X-Axis Label");
-	            $("#y-axis-label").text("Y-Axis Label");
-	            $("#x-axis-label").css('top', (height - 10) + 'px').css('left', (width - 100) + 'px');
+	            //$("#x-axis-label").text("X-Axis Label");
+	            //$("#y-axis-label").text("Y-Axis Label");
+	            //$("#x-axis-label").css('top', (height - 10) + 'px').css('left', (width - 100) + 'px');
+
+                // draw title
+	            svg.append('text')
+	                    .attr("x", width / 2)
+	                    .attr("y", 0 + (margin.top / 2))
+	                    .attr("text-anchor", "middle")
+	                    .style("font-size", '18px')
+	                    .text(title.chartTitle);
+
 
 	            // Draw Confidence Intervals
 	            var confidence3sd_lower = d3.svg.line()
@@ -531,6 +583,9 @@
 	        var $yDataDrop = $("#yDataDrop");
 	        var $xDataDrop = $("#xDataDrop");
 	        var $xDataDrop2 = $("#xDataDrop2");
+	        var $chartTitleText = $("#chartTitleText");
+	        var $xAxisTitleText = $("#xAxisTitleText");
+	        var $yAxisTitleText = $("#yAxisTitleText");
 
 	        var csvArray = [];
 	        var titles = [];
@@ -620,7 +675,9 @@
 	                console.log("dataset (before sorting) = ", dataset);
 	                dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
-	                drawRunChart(dataset, ucl, lcl, "Y-Axis Label");
+	                var labelObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
+
+	                drawRunChart(dataset, ucl, lcl, labelObj);
 	                console.log("dataset = ", dataset);
 	                console.log("avg = ", avg);
 	                console.log("ucl = ", ucl);
@@ -666,7 +723,8 @@
 	                //console.log("dataset = ", dataset);
 
 	                // Need a better way to define X- and Y- axis labels
-	                var titleObj = { yAxis: $yDataDrop.find("option[value='" + Y_COL + "']").text(), xAxis: $xDataDrop2.find("option[value='" + X_COL[0] + "']").text() };
+	                //var titleObj = { yAxis: $yDataDrop.find("option[value='" + Y_COL + "']").text(), xAxis: $xDataDrop2.find("option[value='" + X_COL[0] + "']").text() };
+	                var titleObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
 
 	                drawBoxPlot(dataset, min, max, titleObj);
 
@@ -762,7 +820,9 @@
 	                });
 	                console.log("funnelData (after calculating control limits) = ", funnelData);
 
-	                drawFunnelPlot(funnelData, sorted_names, mean_incidence_rate, "Chart Title?");
+	                var titleObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
+
+	                drawFunnelPlot(funnelData, sorted_names, mean_incidence_rate, titleObj);
 	            }
 	        });
 
