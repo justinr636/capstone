@@ -18,39 +18,46 @@
 }
 
 <div id="main" class="container" style="margin-bottom: 10px;">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="chart-container">
-    		    <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
-    			<div id="chartDiv1" class="chartDiv"></div>
-    		</div>
-        </div>
-        <div class="col-md-6">
-    		<div class="chart-container">
-    		    <h3 class="chartTitle">XMR Chart - Percent Needing Pharmacology Treatment</h3>
-    			<div id="chartDiv2" class="chartDiv"></div>
-    		</div>
-        </div>
-    </div>
+    <div id="print-container">
+        <div class="row">
+    	    <div class="col-md-6">
+    	        <div class="chart-container">
+    			    <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
+    				<div id="chartDiv1" class="chartDiv"></div>
+    			</div>
+    	    </div>
+    	    <div class="col-md-6">
+    			<div class="chart-container">
+    			    <h3 class="chartTitle">XMR Chart - Percent Needing Pharmacology Treatment</h3>
+    				<div id="chartDiv2" class="chartDiv"></div>
+    			</div>
+    	    </div>
+    	</div>
 
+    	<div class="row">
+    	    <br />
+    	    <br />
+    	</div>
+
+    	<div class="row">
+    	    <div class="col-md-6">
+    	        <div class="chart-container">
+    			    <h3 class="chartTitle">XMR Chart - Percent Receiving Breast Milk</h3>
+    				<div id="chartDiv3" class="chartDiv"></div>
+    			</div>
+    	    </div>
+    	    <div class="col-md-6">
+    		    <div class="chart-container">
+    			    <h3 class="chartTitle"></h3>
+    				<div id="chartDiv4" class="chartDiv"></div>
+    			</div>
+    	    </div>
+    	</div>
+    </div>
     <div class="row">
         <br />
         <br />
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="chart-container">
-    		    <h3 class="chartTitle">XMR Chart - Percent Receiving Breast Milk</h3>
-    			<div id="chartDiv3" class="chartDiv"></div>
-    		</div>
-        </div>
-        <div class="col-md-6">
-    	    <div class="chart-container">
-    		    <h3 class="chartTitle"></h3>
-    			<div id="chartDiv4" class="chartDiv"></div>
-    		</div>
-        </div>
+        <br />
     </div>
 </div>
 
@@ -58,6 +65,7 @@
     <script src="../../Scripts/Chart.js" type="text/javascript"></script>
 	<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
 	<script src="../../Scripts/box.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery.PrintArea.js" type="text/javascript"></script>
 
 	<script type="text/javascript">
 	    $(document).ready(function () {
@@ -366,6 +374,11 @@
 	            }
 	        });
 
+            // Click Print Button to Print the Report 
+	        $("#printBtn").click(function () {
+	            $("#print-container").printArea();
+	            return false;
+	        });
 
 	    });
 	</script>

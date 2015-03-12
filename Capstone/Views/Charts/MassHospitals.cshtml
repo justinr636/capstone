@@ -18,27 +18,34 @@
 }
 
 <div id="main" class="container" style="margin-bottom: 10px;">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="chart-container">
-    		    <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
-    			<div id="chartDiv1" class="chartDiv"></div>
-    		</div>
-        </div>
-    </div>
+    <div id="print-container">
+        <div class="row">
+    	    <div class="col-md-12">
+    	        <div class="chart-container">
+    			    <h3 class="chartTitle">XMR Chart - Length of Stay vs Time</h3>
+    				<div id="chartDiv1" class="chartDiv"></div>
+    			</div>
+    	    </div>
+    	</div>
 
+    	<div class="row">
+    	    <br />
+    	    <br />
+    	</div>
+
+    	<div class="row">
+    	    <div class="col-md-12">
+    	        <div class="chart-container">
+    			    <h3 class="chartTitle">Bar Chart - Percent of Infants Receiving Mother's Breast Milk</h3>
+    				<canvas id="chartDiv2" class="chartDiv" height="300" width="960"></canvas>
+    			</div>
+    	    </div>
+    	</div>
+    </div>
     <div class="row">
         <br />
         <br />
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="chart-container">
-    		    <h3 class="chartTitle">Bar Chart - Percent of Infants Receiving Mother's Breast Milk</h3>
-    			<canvas id="chartDiv2" class="chartDiv" height="300" width="960"></canvas>
-    		</div>
-        </div>
+        <br />
     </div>
 </div>
 
@@ -46,7 +53,7 @@
     <script src="../../Scripts/Chart.js" type="text/javascript"></script>
 	<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
 	<script src="../../Scripts/box.js" type="text/javascript"></script>
-
+    <script src="../../Scripts/jquery.PrintArea.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	    $(document).ready(function () {
 
@@ -358,7 +365,7 @@
     					    			},
     					    			{
     					    			    label: "My Fourth dataset",
-    					    			    fillColor:  "rgba(182,0,60,0.5)",
+    					    			    fillColor: "rgba(182,0,60,0.5)",
     					    			    strokeColor: "rgba(182,0,60,0.8)",
     					    			    highlightFill: "rgba(182,0,60,0.75)",
     					    			    highlightStroke: "rgba(182,0,60,1)",
@@ -366,7 +373,7 @@
     					    			},
     					    			{
     					    			    label: "My Fifth dataset",
-    					    			    fillColor:  "rgba(212,180,0,0.5)",
+    					    			    fillColor: "rgba(212,180,0,0.5)",
     					    			    strokeColor: "rgba(212,180,0,0.8)",
     					    			    highlightFill: "rgba(212,180,0,0.75)",
     					    			    highlightStroke: "rgba(212,180,0,1)",
@@ -384,6 +391,13 @@
 	        };
 	        var ctxOptions = {};
 	        var barChart = new Chart(ctx).Bar(ctxData, ctxOptions);
+
+            // Click Print Button to Print the Report 
+	        $("#printBtn").click(function () {
+	            $("#print-container").printArea();
+	            return false;
+	        });
+
 	    });
 	</script>
 }

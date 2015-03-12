@@ -14,28 +14,14 @@
         <link href="../../StyleSheets/bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
 
         @Scripts.Render("~/bundles/modernizr")
-        @*
-        @Scripts.Render("~/bundles/jquery")
-        *@
+        @* @Scripts.Render("~/bundles/jquery") *@
 
         <script src="../../Scripts/jquery-1.11.2.min.js" type="text/javascript"></script>
         <script src="../../Scripts/bootstrap.js" type="text/javascript"></script>
 
         @RenderSection("cssSection", required: false)
 
-        <style type="text/css">
-        nav { background-image: #fff !important; }
-            #navbar-container { position: relative; }
-        	    #navbar-container > * { position: relative; }
-        	        .navbar-brand { position: relative; height: 59px; width: 126px; }
-        	            #navbar-brand-image { position: absolute; top: 0px; left: -15px; }
-        	        #navbar-items { position: absolute; left: 115px; }
-
-                    ul.nav li { height: 59px; }
-                        ul.nav li a { height: 100%; }
-                    ul.nav li.selected { background-image: -webkit-linear-gradient(top, #fff 0%, #ec7a08 100%); border-radius: 0px 0px 8px 8px; }
-                        ul.nav li.selected a { color: Black; }
-        </style>
+        <link href="../../StyleSheets/navmenu.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         <nav class="navbar navbar-default" role="navigation">
@@ -52,7 +38,8 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         @* <li> @Html.Partial("_LoginPartial") </li> *@
-                        <li class=@(ViewBag.activeNav == 5 ? "selected" : "")><a href="/NAS/ViewAll/">View/Edit Data</a></li>
+                        @* <li class=@(ViewBag.activeNav == 5 ? "selected" : "")><a href="/NAS/ViewAll/">View/Edit Data</a></li> *@
+                        <li id="printBtn"><a href="#">Print Page</a></li>
                     </ul>
                 </div> @* collapse *@
             </div>     @* container-fluid *@

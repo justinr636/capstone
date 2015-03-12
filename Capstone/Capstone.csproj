@@ -284,9 +284,9 @@
     <Content Include="StyleSheets\bootstrap-theme.css" />
     <Content Include="StyleSheets\bootstrap.css" />
     <Content Include="StyleSheets\charts.css" />
+    <Content Include="StyleSheets\navmenu.css" />
     <Content Include="StyleSheets\jquery-ui.min.css" />
     <Content Include="StyleSheets\plot.css" />
-    <Content Include="StyleSheets\PrintArea.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
