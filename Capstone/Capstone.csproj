@@ -258,12 +258,15 @@
     <Content Include="Scripts\Chart.js" />
     <Content Include="Scripts\d3.js" />
     <Content Include="Scripts\d3.v3.js" />
+    <Content Include="Scripts\jquery-1.11.2.min.js" />
     <Content Include="Scripts\jquery-1.7.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
     <Content Include="Scripts\jquery-1.7.1.min.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.js" />
     <Content Include="Scripts\jquery-ui-1.8.20.min.js" />
+    <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.csv-0.6.js" />
+    <Content Include="Scripts\jquery.PrintArea.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate-vsdoc.js" />
@@ -281,7 +284,9 @@
     <Content Include="StyleSheets\bootstrap-theme.css" />
     <Content Include="StyleSheets\bootstrap.css" />
     <Content Include="StyleSheets\charts.css" />
+    <Content Include="StyleSheets\jquery-ui.min.css" />
     <Content Include="StyleSheets\plot.css" />
+    <Content Include="StyleSheets\PrintArea.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
