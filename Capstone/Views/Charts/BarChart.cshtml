@@ -1,0 +1,420 @@
+﻿@{
+    ViewBag.Title = "Bar Char";
+    ViewBag.activeNav = 0;
+}
+
+@section cssSection {
+    <link href="../../StyleSheets/charts.css" rel="stylesheet" type="text/css" />
+    <link href="../../StyleSheets/plot.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+	    html { height: 100%; }
+		body { height: 100%; }
+		#main { height: 100%; }
+
+		.hidden { display: none; }
+
+		.chart-container { margin-left: auto; margin-right: auto; }
+
+		svg:not(:root) { overflow: visible; }
+	</style>
+}
+
+
+<div id="main" class="container" style="margin-bottom: 10px;">
+    <div class="row">
+        <div class="col-md-12">
+            Choose CSV File <input type="file" id="csvfile" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <br />
+            <br />
+        </div>
+    </div>
+    <!-- Enter Chart Labels Row -->
+    <div class="row">
+        <div class="col-md-3">
+            <input id="chartTitleText" placeholder="Chart Title" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input id="yAxisTitleText" placeholder="Y-Axis Title" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <input id="xAxisTitleText" placeholder="X-Axis Title" class="form-control" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="chartDiv"></div>
+        </div>
+    </div>
+</div>
+
+@section jsSection {
+    <script src="../../Scripts/randomColor.min.js" type="text/javascript"></script>
+    <script src="../../Scripts/underscore.js" type="text/javascript"></script>
+    <script src="../../Scripts/underscore.math.js" type="text/javascript"></script>
+    <script src="../../Scripts/Chart.js" type="text/javascript"></script>
+	<script src="../../Scripts/d3.v3.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	    function drawBarChart(data, hospitals, titles) {
+	        var numHospitals = hospitals.length;
+
+            var x0 = d3.scale.ordinal()
+                       .rangeRoundBands([0, width], .1);
+
+			var x1 = d3.scale.ordinal();
+
+			var y = d3.scale.linear()
+			          .range([height, 0]);
+
+            // Need to randomly generate colors based on number of hospitals
+            // Also differentiate My Hospital vs others
+			var color = d3.scale.ordinal()
+                          .range(randomColor({ count: numHospitals }));
+			//var color = d3.scale.ordinal()
+			//              .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+			var xAxis = d3.svg.axis()
+			              .scale(x0)
+			    	      .orient("bottom");
+
+			var yAxis = d3.svg.axis()
+			              .scale(y)
+			    		  .orient("left")
+			    		  .tickFormat(d3.format(".2s"));
+
+			var svg = d3.select("body").append("svg")
+			            .attr("width", width + margin.left + margin.right)
+			    		.attr("height", height + margin.top + margin.bottom)
+			    		.append("g")
+			    		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var hospIdIndex = data.length - 1;
+            var dateIndex = data.length - 1;
+            var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
+
+            // Get Each Month
+            var columnNames = d3.keys(data[hospIdIndex]).filter(function(key) { return key; });
+
+  			data.forEach(function(d) {
+  			  d.ages = ageNames.map(function(name) { return {name: name, value: +d[name]}; });
+  			});
+
+    		x0.domain(data.map(function(d) { return d.State; }));
+    		x1.domain(ageNames).rangeRoundBands([0, x0.rangeBand()]);
+    		y.domain([0, d3.max(data, function(d) { return d3.max(d.ages, function(d) { return d.value; }); })]);
+
+    		svg.append("g")
+    		    .attr("class", "x axis")
+    		    .attr("transform", "translate(0," + height + ")")
+    		    .call(xAxis);
+
+    		svg.append("g")
+    		    .attr("class", "y axis")
+    		    .call(yAxis)
+    		  .append("text")
+    		    .attr("transform", "rotate(-90)")
+    		    .attr("y", 6)
+    		    .attr("dy", ".71em")
+    		    .style("text-anchor", "end")
+    		    .text("Population");
+
+    		var state = svg.selectAll(".state")
+    		    .data(data)
+    		  .enter().append("g")
+    		    .attr("class", "g")
+    		    .attr("transform", function(d) { return "translate(" + x0(d.State) + ",0)"; });
+
+    		state.selectAll("rect")
+    		    .data(function(d) { return d.ages; })
+    		  .enter().append("rect")
+    		    .attr("width", x1.rangeBand())
+    		    .attr("x", function(d) { return x1(d.name); })
+    		    .attr("y", function(d) { return y(d.value); })
+    		    .attr("height", function(d) { return height - y(d.value); })
+    		    .style("fill", function(d) { return color(d.name); });
+
+    		var legend = svg.selectAll(".legend")
+    		    .data(ageNames.slice().reverse())
+    		  .enter().append("g")
+    		    .attr("class", "legend")
+    		    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    		legend.append("rect")
+    		    .attr("x", width - 18)
+    		    .attr("width", 18)
+    		    .attr("height", 18)
+    		    .style("fill", color);
+
+    		legend.append("text")
+    		    .attr("x", width - 24)
+    		    .attr("y", 9)
+    		    .attr("dy", ".35em")
+    		    .style("text-anchor", "end")
+    		    .text(function(d) { return d; });
+	    }
+    </script>
+
+	<script type="text/javascript">
+	    $(document).ready(function () {
+
+	        var margin = { top: 20, right: 100, bottom: 30, left: 50 };
+	        var width = 960 - margin.left - margin.right;
+	        var height = 500 - margin.top - margin.bottom;
+
+	        var $body = $("body");
+	        var bodyHeight = $body.height();
+	        var $chartDiv = $("#chartDiv");
+
+	        var $chartTitleText = $("#chartTitleText");
+	        var $xAxisTitleText = $("#xAxisTitleText");
+	        var $yAxisTitleText = $("#yAxisTitleText");
+
+	        var csvArray = [];
+	        var titles = [];
+
+	        $chartTypeDrop.change(function () {
+	            // if selecting BoxPlot, show proper drop downs
+	            if ($(this).val() == 2) {
+	            }
+	        });
+
+	        $("#csvfile").change(function (e) {
+	            if (e.target.files != undefined) {
+	                var reader = new FileReader();
+
+	                reader.onload = function (e) {
+	                    var str = e.target.result;
+	                    csvArray = d3.csv.parseRows(str);
+
+	                    titles = csvArray[0];
+	                    csvArray.splice(0, 1);
+	                    var title_html = '';
+	                    var label_html = '';
+	                    _.each(titles, function (item, i) {
+	                        //console.log(item, i);
+	                        title_html += '<option value="' + i + '">' + item + '</option>';
+	                        label_html += '<option value="' + item + '">' + item + '</option>';
+	                    });
+	                    title_html = '<option value="">Select One</option>' + title_html;
+	                    //console.log("title_html = ", title_html);
+
+	                    $(".dataDrop").html(title_html);
+	                    $(".dataLabelDrop").html(label_html);
+	                };
+
+	                reader.readAsText(e.target.files.item(0));
+	            }
+	        });
+
+	        $("#submitBtn").click(function (e) {
+	            e.preventDefault();
+
+	            var chartType = parseInt($chartTypeDrop.val());
+	            $chartDiv.empty();
+
+	            if (chartType == 1) {           // Draw Run Chart
+	                var dataset = [];
+
+	                //var Y_COL = $yDataDrop.val();
+	                //var X_COL = $xDataDrop.val();
+	                var X_COL = 1;
+	                var Y_COL = 77;
+
+	                var avg_sum = 0;
+	                var variance_sum = 0;
+
+	                _.each(csvArray, function (item, i) {
+	                    var num = parseInt(item[Y_COL]);
+	                    var dte = item[X_COL];
+
+	                    if ((num !== '') && (typeof num !== "undefined") && (dte !== '') && (typeof dte !== "undefined")) {
+	                        var dataObj = { date: dte, val: num };
+	                        dataset.push(dataObj);
+
+	                        avg_sum = avg_sum + num;
+	                    }
+	                });
+
+	                //var avg = _.reduce(dataset, function (memo, ob) { return memo + ob['val']; }) / dataset.length;
+	                var avg = avg_sum / dataset.length;
+
+	                //var variance = _.reduce(dataset, function (memo, ob) {
+	                //    return ((ob['val'] - avg) * (ob['val'] - avg)) + memo;
+	                //}) / dataset.length;
+
+	                _.each(dataset, function (o, i) {
+	                    variance_sum = variance_sum + ((o.val - avg) * (o.val - avg));
+	                });
+
+	                var variance = variance_sum / dataset.length;
+
+	                var stdev = Math.sqrt(variance);
+
+	                //var avg = calcAvg(dataset);
+	                //var stdev = calcStDev(dataset);
+	                var ucl = avg + (3 * stdev);
+	                var lcl = avg - (3 * stdev);
+	                if (lcl < 0) lcl = 0;
+
+	                // Sort data by date
+	                //console.log("dataset (before sorting) = ", dataset);
+	                dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
+
+	                var labelObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
+
+	                drawRunChart(dataset, ucl, lcl, labelObj);
+	                console.log("dataset = ", dataset);
+	                //console.log("avg = ", avg);
+	                //console.log("ucl = ", ucl);
+	                //console.log("lcl = ", lcl);
+	                //console.log("variance = ", variance);
+	                //console.log("stdev = ", stdev);
+
+	            } else if (chartType == 2) {    // Draw Box Plot 
+	                var dataset = [];
+
+	                // Get Selected Parameters
+	                var Y_COL = $yDataDrop.val();
+	                var X_COL = $xDataDrop2.val();
+
+	                _.each(X_COL, function (item, i) {
+	                    // Create X-Axis Label
+	                    var labelText = $xDataDrop2.find("option[value='" + item + "']").text();
+	                    var labelTextArr = labelText.split(/\(choice=(.*)\)/);
+	                    labelText = labelTextArr[1];
+
+	                    // Format dataset
+	                    dataset[i] = [];
+	                    dataset[i][0] = labelText;
+	                    dataset[i][1] = [];
+	                });
+
+	                var max = -Infinity;
+	                var min = Infinity;
+
+	                // format data
+	                _.each(csvArray, function (item, i) {
+	                    var num = parseInt(item[Y_COL]);
+	                    if ((num !== '') && (typeof num !== "undefined")) {
+	                        _.each(X_COL, function (header, i) {
+	                            if (item[header] == "Checked") {
+	                                dataset[i][1].push(num);
+	                                if (num > max) max = num;
+	                                if (num < min) min = num;
+	                            }
+	                        });
+	                    }
+	                });
+	                //console.log("dataset = ", dataset);
+
+	                // Need a better way to define X- and Y- axis labels
+	                //var titleObj = { yAxis: $yDataDrop.find("option[value='" + Y_COL + "']").text(), xAxis: $xDataDrop2.find("option[value='" + X_COL[0] + "']").text() };
+	                var titleObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
+
+	                drawBoxPlot(dataset, min, max, titleObj);
+
+	                var chartHeight = $chartDiv.height();
+	                $body.height(bodyHeight + (chartHeight / 2));
+
+	            } else if (chartType == 3) {	// Draw Funnel Plot 
+	                var funnelData = [];
+
+	                //var Y_COL = $yDataDrop.val();
+	                //var X_COL = $xDataDrop.val();
+	                var Y_COL = 63;
+	                var X_COL = 1;
+
+	                var total_population = 0;
+	                var incidence_population = 0;
+	                var sample_size = 0;
+	                var incidences = 0;
+
+	                // sort csv by date
+	                csvArray = _.sortBy(csvArray, function (item, i) { var dt = new Date(item[X_COL]); return dt; });
+
+	                var jsFirstDate = new Date(csvArray[0][X_COL]);
+	                var firstDate = (jsFirstDate.getMonth() + 1) + "/" + jsFirstDate.getFullYear();
+
+	                funnelData[0] = { sample_size: 0, indicator: 0, date: firstDate, ratio: 0 };
+
+	                _.each(csvArray, function (item, i) {
+	                    var indicator = item[Y_COL];
+	                    var jsDate = new Date(item[X_COL]);
+	                    var dte = (jsDate.getMonth() + 1) + "/" + jsDate.getFullYear();
+	                    var size = funnelData.length;
+
+	                    if ((indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
+	                        if (dte == funnelData[size - 1].date) {
+	                            sample_size++;
+	                            total_population++;
+	                            if (indicator == "Yes") {
+	                                incidences++;
+	                                incidence_population++;
+	                            }
+	                        }
+	                        else {
+	                            funnelData[size - 1].sample_size = sample_size;
+	                            funnelData[size - 1].indicator = incidences;
+	                            funnelData[size - 1].ratio = incidences / sample_size;
+
+	                            sample_size = 1;
+	                            incidences = 0;
+	                            funnelData.push({ sample_size: 0, indicator: 0, date: dte, ratio: 0 });
+
+	                            if (indicator == "Yes") {
+	                                incidences++;
+	                                incidence_population++;
+	                            }
+	                            total_population++;
+	                        }
+	                    }
+	                });
+
+	                var size = funnelData.length;
+
+	                funnelData[size - 1].sample_size = sample_size;
+	                funnelData[size - 1].indicator = incidences;
+	                funnelData[size - 1].ratio = incidences / sample_size;
+
+	                console.log("funnelData (before calculating control limits) = ", funnelData);
+
+	                // Calculate mean incidence over entire population
+	                var mean_incidence_rate = incidence_population / total_population;
+	                var mean_incidence = incidence_population / size;
+
+	                var sigma_squared = mean_incidence_rate * (1 - mean_incidence_rate);
+
+	                // Create Alphabetical List of Labels
+	                var sorted_names = [];
+	                _.each(funnelData, function (item) {
+	                    sorted_names.push(item["date"]);
+	                });
+	                //sorted_names.sort();
+
+	                // Sorts dataset by population size for drawing confidence intervals
+	                funnelData.sort(compare);
+
+	                // Calculate standard error for each value: SE = SD / sqrt(n)
+	                //  ---Creating Control Limits/Confidence Intervals
+	                _.each(funnelData, function (item) {
+	                    item['std_error'] = Math.sqrt(sigma_squared / item['sample_size']);
+	                    item['plus_2sd'] = mean_incidence_rate + (2 * item['std_error']);
+	                    item['minus_2sd'] = mean_incidence_rate - (2 * item['std_error']);
+	                    item['plus_3sd'] = mean_incidence_rate + (3 * item['std_error']);
+	                    item['minus_3sd'] = mean_incidence_rate - (3 * item['std_error']);
+	                });
+	                console.log("funnelData (after calculating control limits) = ", funnelData);
+
+	                var titleObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
+
+	                drawFunnelPlot(funnelData, sorted_names, mean_incidence_rate, titleObj);
+	            }
+	        });
+
+	    });
+	</script>
+}
