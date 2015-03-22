@@ -132,6 +132,10 @@
 	        function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
 	            var numHospitals = hospitalLabels.length;
 
+	            var tooltip = d3.select('body').append('div')
+                                .attr('class', 'tooltip')
+                                .style('opacity', 1e-6);
+
 	            var x0 = d3.scale.ordinal()
                        .rangeRoundBands([0, width], .1);
 
@@ -143,7 +147,8 @@
 	            // Need to randomly generate colors based on number of hospitals
 	            // Also differentiate My Hospital vs others
 	            var color = d3.scale.ordinal()
-                          .range(randomColor({ count: numHospitals }));
+	                      .range(randomColor({ count: numHospitals, hue: 'blue' }));
+	            //var color = d3.interpolateRgb("#ffd", "#056");
 	            //var color = d3.scale.ordinal()
 	            //              .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
@@ -214,48 +219,53 @@
 	            .attr("x", function (d) { return x1(d.hid); })
 	            .attr("y", function (d) { return y(d.ratio); })
 	            .attr("height", function (d) { return height - y(d.ratio); })
-	            .style("fill", function (d) { return color(d.hid); });
+	            .style("fill", function (d, i) { return color(i / (numHospitals - 1)); })
+                .on("mouseover", function (d, i) {
+                    $("div.tooltop").show();
+                    tooltip.transition().duration(100).style("opacity", 1);
+                }).on("mousemove", function (d, i) {
+                                   var divHtml = '<h4>' + d['date'] + '</h4>';
+                                       divHtml += '<strong>Sample Size: </strong> ' + d['sample_size'] + '<br/>';
+                                       divHtml += '<strong>Ratio: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
+
+                                   if ($(window).width() - d3.event.pageX < 160) {
+                                       var left_position = (d3.event.pageX - 155) + "px";
+                                   } else {
+                                       var left_position = (d3.event.pageX - 2) + "px";
+                                   }
+                                   tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
+                })
+
+	            /*
+	            for (var i = 0; i < dateLabels.length; i++) {
+	            for (var j = 0; j < hospitalLabels.length; j++) {
+	            //console.log("data datelabels hosplabels");
+	            //console.log(data[dateLabels[i]][hospitalLabels[j]]);
+
+	            //var td = data[dateLabels[i]][hospitalLabels[j]];
+
+	            state.selectAll("rect")
+	            //.data(function (d) { return d.ages; })
+	            //.data(function (d) { return d[dateLabels[i]][hospitalLabels[j]]; })
+	            .data(data)
+	            //.data(td)
+	            .enter().append("rect")
+	            .attr("width", x1.rangeBand())
 	            //.attr("x", function (d) { return x1(d.hid); })
 	            //.attr("y", function (d) { return y(d.ratio); })
-	            //.attr("x", function (d) { return x1(d[dateLabels[i]][hospitalLabels[j]].hid); })
-	            //.attr("y", function (d) { return y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
-    		    //.attr("height", function (d) { return height - y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
-    		    //.style("fill", function (d) { return color(d[dateLabels[i]][hospitalLabels[j]].hid); });
+	            .attr("x", function (d) { return x1(d[dateLabels[i]][hospitalLabels[j]].hid); })
+	            .attr("y", function (d) { return y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
+	            .attr("height", function (d) { return height - y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
+	            .style("fill", function (d) { return color(d[dateLabels[i]][hospitalLabels[j]].hid); });
 	            //.attr("x", function (d) { return x1(d.hid); })
 	            //.attr("y", function (d) { return y(d.ratio); })
 	            //.attr("height", function (d) { return height - y(d.ratio); })
 	            //.style("fill", function (d) { return color(d.hid); });
-
-                /*
-	            for (var i = 0; i < dateLabels.length; i++) {
-	                for (var j = 0; j < hospitalLabels.length; j++) {
-	                    //console.log("data datelabels hosplabels");
-	                    //console.log(data[dateLabels[i]][hospitalLabels[j]]);
-
-	                    //var td = data[dateLabels[i]][hospitalLabels[j]];
-
-	                    state.selectAll("rect")
-	                    //.data(function (d) { return d.ages; })
-	                    //.data(function (d) { return d[dateLabels[i]][hospitalLabels[j]]; })
-	                    .data(data)
-	                    //.data(td)
-    		    		.enter().append("rect")
-    		    		.attr("width", x1.rangeBand())
-	                    //.attr("x", function (d) { return x1(d.hid); })
-	                    //.attr("y", function (d) { return y(d.ratio); })
-	                    .attr("x", function (d) { return x1(d[dateLabels[i]][hospitalLabels[j]].hid); })
-	                    .attr("y", function (d) { return y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
-    		    		.attr("height", function (d) { return height - y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
-    		    		.style("fill", function (d) { return color(d[dateLabels[i]][hospitalLabels[j]].hid); });
-	                    //.attr("x", function (d) { return x1(d.hid); })
-	                    //.attr("y", function (d) { return y(d.ratio); })
-	                    //.attr("height", function (d) { return height - y(d.ratio); })
-	                    //.style("fill", function (d) { return color(d.hid); });
-	                }
+	            }
 	            }
 
 	            console.log('state = ', state);
-                */
+	            */
 
 	            var legend = svg.selectAll(".legend")
 	            //.data(ageNames.slice().reverse())
