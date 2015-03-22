@@ -86,9 +86,11 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-1"> </div>
+        <div class="col-md-10">
             <div id="chartDiv"></div>
         </div>
+        <div class="col-md-1"> </div>
     </div>
 </div>
 
@@ -130,6 +132,8 @@
 	        };
 
 	        function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
+	            $("#chartDiv").empty();
+
 	            var numHospitals = hospitalLabels.length;
 
 	            var tooltip = d3.select('body').append('div')
@@ -147,7 +151,7 @@
 	            // Need to randomly generate colors based on number of hospitals
 	            // Also differentiate My Hospital vs others
 	            var color = d3.scale.ordinal()
-	                      .range(randomColor({ count: numHospitals, hue: 'blue' }));
+	                      .range(randomColor({ count: numHospitals, hue: 'random', luminosity: 'bright' }));
 	            //var color = d3.interpolateRgb("#ffd", "#056");
 	            //var color = d3.scale.ordinal()
 	            //              .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
@@ -158,10 +162,11 @@
 
 	            var yAxis = d3.svg.axis()
 			              .scale(y)
-			    		  .orient("left")
-			    		  .tickFormat(d3.format(".2s"));
+			    		  .orient("left");
+	            //.tickFormat(d3.format(".2s"));
+	            //.tickFormat(d3.format(function (d) { return d + "%"; }));
 
-	            var svg = d3.select("body").append("svg")
+	            var svg = d3.select("div#chartDiv").append("svg")
 			            .attr("width", width + margin.left + margin.right)
 			    		.attr("height", height + margin.top + margin.bottom)
 			    		.append("g")
@@ -186,19 +191,30 @@
 	            //y.domain([0, d3.max(data, function (d) { return d3.max(d.hospitals, function (d) { return d.value; }); })]);
 	            y.domain([0, max]);
 
+	            // draw x-axis
 	            svg.append("g")
     		    .attr("class", "x axis")
     		    .attr("transform", "translate(0," + height + ")")
-    		    .call(xAxis);
+    		    .call(xAxis)
+                .append("text")
+                .attr("x", width / 2)
+                .attr('y', 30)
+                .attr('dy', '.71em')
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .text(titles.xAxis);
 
+	            // draw y-axis
 	            svg.append("g")
     		    .attr("class", "y axis")
     		    .call(yAxis)
     		    .append("text")
     		    .attr("transform", "rotate(-90)")
-    		    .attr("y", 6)
+    		    .attr("y", "-50")
+    		    .attr("x", -(height / 2))
     		    .attr("dy", ".71em")
     		    .style("text-anchor", "end")
+    		    .style("font-size", "14px")
     		    .text(titles.yAxis);
 
 	            var state = svg.selectAll(".state")
@@ -224,17 +240,25 @@
                     $("div.tooltop").show();
                     tooltip.transition().duration(100).style("opacity", 1);
                 }).on("mousemove", function (d, i) {
-                                   var divHtml = '<h4>' + d['date'] + '</h4>';
-                                       divHtml += '<strong>Sample Size: </strong> ' + d['sample_size'] + '<br/>';
-                                       divHtml += '<strong>Ratio: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
+                    //var divHtml = '<h5>' + d['date'] + '</h5>';
+                    var divHtml = '<strong>Date: </strong>' + d['date'] + '<br/>';
+                    divHtml += '<strong>Hospital ID: </strong> ' + d['hid'] + '<br/>';
+                    //divHtml += '<strong>Ratio: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%' + '<br/>';
+                    divHtml += '<strong>Ratio: </strong> ' + (d['ratio']).toFixed(2) + '%' + '<br/>';
+                    divHtml += '<strong>Sample Size: </strong> ' + d['sample_size'];
 
-                                   if ($(window).width() - d3.event.pageX < 160) {
-                                       var left_position = (d3.event.pageX - 155) + "px";
-                                   } else {
-                                       var left_position = (d3.event.pageX - 2) + "px";
-                                   }
-                                   tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
-                })
+                    if ($(window).width() - d3.event.pageX < 160) {
+                        var left_position = (d3.event.pageX - 155) + "px";
+                    } else {
+                        var left_position = (d3.event.pageX - 2) + "px";
+                    }
+                    tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
+                }).on("mouseout", function (d, i) {
+                    tooltip.transition().duration(100).style("opacity", 1e-6);
+                });
+
+	            //yAxis.tickFormat(d3.format(function (d) { return d + "%"; }));
+	            //.tickFormat(d3.format(function (d) { return d + "%"; }));
 
 	            /*
 	            for (var i = 0; i < dateLabels.length; i++) {
@@ -267,6 +291,14 @@
 	            console.log('state = ', state);
 	            */
 
+	            // draw title
+	            svg.append('text')
+	                    .attr("x", width / 2)
+	                    .attr("y", 0 + (margin.top / 2))
+	                    .attr("text-anchor", "middle")
+	                    .style("font-size", '18px')
+	                    .text(titles.chartTitle);
+
 	            var legend = svg.selectAll(".legend")
 	            //.data(ageNames.slice().reverse())
     		    .data(hospitalLabels.slice().reverse())
@@ -290,6 +322,8 @@
 
 	        // Draw Run Chart Function - passed data and control limits
 	        function drawRunChart(data, ucl, lcl, label) {
+	            $("#chartDiv").empty();
+
 	            var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
 	            //var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
 
@@ -457,6 +491,8 @@
 
 	        // Draw Box Plot function - passed data
 	        function drawBoxPlot(data, min, max, title) {
+	            $("#chartDiv").empty();
+
 	            var labels = true;
 
 	            // Parse through data
@@ -1058,8 +1094,12 @@
 	                var X_COL = 1;          // Date
 	                var HID_COL = 105;      // Hospital ID column
 	                var YEAR = 2014;      // Date Range
-	                var START_DATE = new Date("2014-01-01");      // Date Range
-	                var END_DATE = new Date("2014-12-31");      // Date Range
+	                //var byMonth = true;
+	                //var START_DATE = new Date("2014-01-01");      // Date Range
+	                //var END_DATE = new Date("2014-12-31");      // Date Range
+	                var byMonth = false;
+	                var START_DATE = new Date("2011-01-01");      // Date Range
+	                var END_DATE = new Date("2015-12-31");      // Date Range
 
 	                /*
 	                var incidences = 0;
@@ -1085,7 +1125,7 @@
 
 	                var idLabels = [];    // d.State
 	                var dateLabels = [];    // d.State
-	                var testData = {};
+	                //var testData = {};
 	                var testData2 = [];
 
 	                // Need to get each month (and possibly year) between START_DATE and END_DATE
@@ -1095,35 +1135,43 @@
 	                var startYear = START_DATE.getFullYear();
 	                var endYear = END_DATE.getFullYear();
 
-
 	                for (startYear; startYear <= endYear; startYear++) {
-	                    if (startYear < endYear) {
-	                        for (startMonth; startMonth <= 12; startMonth++) {
-	                            var dateStr = startMonth + "/" + startYear;
-	                            dateLabels.push(dateStr);
-	                            testData[dateStr] = {};
+	                    if (byMonth) {
+	                        if (startYear < endYear) {
+	                            for (startMonth; startMonth <= 12; startMonth++) {
+	                                var dateStr = startMonth + "/" + startYear;
+	                                dateLabels.push(dateStr);
+	                                //testData[dateStr] = {};
 
-	                            testData2.push({ date: dateStr, hospitals: [] });
-	                        }
-	                        startMonth = 1;
-	                    } else if (startYear == endYear) {
-	                        for (startMonth; startMonth <= endMonth; startMonth++) {
-	                            var dateStr = startMonth + "/" + startYear;
-	                            dateLabels.push(dateStr);
-	                            testData[dateStr] = {};
+	                                testData2.push({ date: dateStr, hospitals: [] });
+	                            }
+	                            startMonth = 1;
+	                        } else if (startYear == endYear) {
+	                            for (startMonth; startMonth <= endMonth; startMonth++) {
+	                                var dateStr = startMonth + "/" + startYear;
+	                                dateLabels.push(dateStr);
+	                                //testData[dateStr] = {};
 
-	                            testData2.push({ date: dateStr, hospitals: [] });
-	                        }
+	                                testData2.push({ date: dateStr, hospitals: [] });
+	                            }
+	                        } else { }
+	                    } else {
+	                        var dateStr = startYear;
+	                        dateLabels.push(dateStr);
+	                        testData2.push({ date: dateStr, hospitals: [] });
 	                    }
 	                }
-	                console.log("testData = ", testData);
+	                //console.log("testData = ", testData);
 
 	                _.each(csvArray, function (item, i) {
 	                    var item_date = new Date(item[X_COL]);
 	                    var item_id = item[HID_COL];
 
 	                    if (item_date > START_DATE && item_date < END_DATE && typeof item_id !== "undefined" && item_id !== '') {
-	                        item_date = DateToString(item_date);
+	                        if (byMonth)
+	                            item_date = DateToString(item_date);
+	                        else
+	                            item_date = item_date.getFullYear();
 
 	                        var newId = $.inArray(item_id, idLabels);
 	                        if (newId == -1) {
@@ -1139,13 +1187,14 @@
 	                            }
 	                            */
 	                            for (var i = 0; i < dateLabels.length; i++) {
-	                                testData[dateLabels[i]][item_id] = {
-	                                    indicator: 0,
-	                                    sample_size: 0,
-	                                    ratio: 0,
-	                                    date: dateLabels[i],
-	                                    hid: item_id
-	                                };
+
+	                                //testData[dateLabels[i]][item_id] = {
+	                                //    indicator: 0,
+	                                //    sample_size: 0,
+	                                //    ratio: 0,
+	                                //    date: dateLabels[i],
+	                                //    hid: item_id
+	                                //};
 
 	                                //testData[i][1].indicator = 0;
 	                                //testData[i][1].push([item_id, []]);
@@ -1161,7 +1210,7 @@
 
 	                        }
 
-	                        testData[item_date][item_id].sample_size++;
+	                        //testData[item_date][item_id].sample_size++;
 
 	                        var newDate = $.inArray(item_date, dateLabels);
 	                        newId = $.inArray(item_id, idLabels);
@@ -1225,7 +1274,7 @@
 
 	                    for (var i = 0; i < idLabels.length; i++) {
 	                        if (hospItems[i].sample_size !== 0) {
-	                            var ratio = hospItems[i].indicator / hospItems[i].sample_size;
+	                            var ratio = (hospItems[i].indicator / hospItems[i].sample_size) * 100;
 	                            hospItems[i].ratio = ratio;
 
 	                            if (ratio > maxRatio) maxRatio = ratio;
@@ -1233,12 +1282,12 @@
 	                    }
 	                });
 
-	                testData.hospLabels = idLabels;
-	                testData.dateLabels = dateLabels;
+	                //testData.hospLabels = idLabels;
+	                //testData.dateLabels = dateLabels;
 
 	                console.log("idLabels = ", idLabels);
 	                console.log("dateLabels = ", dateLabels);
-	                console.log("testData = ", testData);
+	                //console.log("testData = ", testData);
 	                console.log("testData2 = ", testData2);
 
 	                /*
