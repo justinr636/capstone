@@ -66,8 +66,18 @@
             <select id="xDataDrop" class="form-control dataDrop">
                 <option value="0">Select One</option>
             </select>
-            <select id="xDataDrop2" class="form-control dataDrop" multiple>
-            </select>
+            <div id="multipleXData">
+                <select id="xDataDrop2" class="form-control dataDrop" multiple>
+            	</select>
+            </div>
+            <div id="dateXData">
+                Start:&emsp;<input id="startDateText" type="text" class="date-text" /><br />
+                End:&emsp;&nbsp;<input id="endDateText" type="text" class="date-text" /><br />
+                &emsp;&emsp;&emsp;
+                <input id="monthRadio" type="radio" name="date-radio" value="month" /> Month 
+                &emsp;
+                <input id="yearRadio" type="radio" name="date-radio" value="year" /> Year 
+            </div>
         </div>
         <div class="col-md-3">
             <input type="submit" id="submitBtn" />
@@ -521,7 +531,8 @@
 	                              .orient('bottom')
 
 	            var y = d3.scale.linear()
-	                            .domain([min, max])
+	                            //.domain([min, max])
+	                            .domain([0, max])
 	                            .range([height + margin.top, 0 + margin.top]);
 
 	            var yAxis = d3.svg.axis()
@@ -849,11 +860,33 @@
 	        var csvArray = [];
 	        var titles = [];
 
+	        $("#multipleXData").hide();
+	        $("#dateXData").hide();
+
 	        $chartTypeDrop.change(function () {
 	            // if selecting BoxPlot, show proper drop downs
-	            if ($(this).val() == 2) {
+	            var val = parseInt($(this).val());
+
+	            if (val == 1) {
+	                $("#multipleXData").hide();
+	                $("#dateXData").show();
+	            } else if (val == 2) {
+	                $("#multipleXData").show();
+	                $("#dateXData").hide();
+	            } else if (val == 3) {
+	                $("#multipleXData").hide();
+	                $("#dateXData").show();
+	            } else if (val == 4) {
+	                $("#multipleXData").hide();
+	                $("#dateXData").show();
+	            } else {
+	                $("#multipleXData").hide();
+	                $("#dateXData").hide();
 	            }
 	        });
+
+	        $("#startDateText").datepicker();
+	        $("#endDateText").datepicker();
 
 	        $("#csvfile").change(function (e) {
 	            if (e.target.files != undefined) {
@@ -1097,9 +1130,18 @@
 	                //var byMonth = true;
 	                //var START_DATE = new Date("2014-01-01");      // Date Range
 	                //var END_DATE = new Date("2014-12-31");      // Date Range
-	                var byMonth = false;
-	                var START_DATE = new Date("2011-01-01");      // Date Range
-	                var END_DATE = new Date("2015-12-31");      // Date Range
+
+	                var startDateText = $("#startDateText").val();
+	                var endDateText = $("#endDateText").val();
+	                var byMonth = true;
+
+	                if ($("#yearRadio:checked").length > 0)
+	                    byMonth = false;
+
+	                //var START_DATE = new Date("2011-01-01");      // Date Range
+	                //var END_DATE = new Date("2015-12-31");      // Date Range
+	                var START_DATE = new Date(startDateText);      // Date Range
+	                var END_DATE = new Date(endDateText);      // Date Range
 
 	                /*
 	                var incidences = 0;
