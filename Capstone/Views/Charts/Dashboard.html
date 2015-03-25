@@ -324,18 +324,39 @@
 	                if (inList == -1) {
 	                    allHids.push(num);
 
-	                    if (parseInt(num)) 
+	                    if (parseInt(num))
 	                        title_html += '<option value="' + num + '">' + num + '</option>';
-	                    else 
+	                    else
 	                        console.log("ERROR! Data Missing Hospital ID");
 	                }
 	            });
-                title_html = '<option value="">Select One</option>' + title_html;
+	            title_html = '<option value="0">I Do Not Know</option>' + title_html;
 
 	            $("#hidSelect").html(title_html);
 
 	            $("#select-hid-row").show();
 	        }
+	        // Actually Set Global Hospital ID  --- Create submit button to prevent accidental change
+	        $("#hidSelect").change(function () {
+	            global_hid = parseInt($(this).val());
+
+	            $(".chartDiv").empty();
+
+	            var Y_COL = 77;     // Validate 77 = index of 'Length of Stay' column of CSV
+	            var X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+	            var HID_COL = 105;      // Validate 105 = index of 'Hospital ID' column of CSV
+
+	            var END_DATE = new Date();
+	            var START_DATE = new Date();
+	            START_DATE.setMonth(START_DATE.getMonth() - 6);
+
+	            // Draw Avg Length of Stay vs Time
+	            drawRunChart(customizeCSVData(1, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                             { yAxis: "Length of Stay (# of days)", xAxis: "Date", chartTitle: "Length of Stay vs Time (6 mo.)" },
+                             width / 2 - margin.left - margin.right,
+                             height / 2 - margin.top - margin.bottom,
+                             "div#localChartDiv1");
+	        });
 
 	        // Convert CSV data from fileupload to javascript object array
 	        $("#csvfile").change(function (e) {
