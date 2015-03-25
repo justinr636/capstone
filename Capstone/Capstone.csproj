@@ -256,6 +256,7 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\box.js" />
     <Content Include="Scripts\Chart.js" />
+    <Content Include="Scripts\drawCharts.js" />
     <Content Include="Scripts\d3.js" />
     <Content Include="Scripts\d3.v3.js" />
     <Content Include="Scripts\jquery-1.11.2.min.js" />
@@ -288,6 +289,25 @@
     <Content Include="StyleSheets\navmenu.css" />
     <Content Include="StyleSheets\jquery-ui.min.css" />
     <Content Include="StyleSheets\plot.css" />
+    <Content Include="Views\Charts\css\bootstrap-responsive.min.css" />
+    <Content Include="Views\Charts\css\bootstrap-theme.css" />
+    <Content Include="Views\Charts\css\bootstrap.css" />
+    <Content Include="Views\Charts\css\charts.css" />
+    <Content Include="Views\Charts\css\jquery-ui.min.css" />
+    <Content Include="Views\Charts\css\navmenu.css" />
+    <Content Include="Views\Charts\css\plot.css" />
+    <Content Include="Views\Charts\img\NeoQIC_icon_126_59.gif" />
+    <Content Include="Views\Charts\js\bootstrap.js" />
+    <Content Include="Views\Charts\js\box.js" />
+    <Content Include="Views\Charts\js\Chart.js" />
+    <Content Include="Views\Charts\js\dashboard.js" />
+    <Content Include="Views\Charts\js\d3.v3.js" />
+    <Content Include="Views\Charts\js\drawCharts.js" />
+    <Content Include="Views\Charts\js\jquery-1.11.2.min.js" />
+    <Content Include="Views\Charts\js\jquery-ui.min.js" />
+    <Content Include="Views\Charts\js\randomColor.min.js" />
+    <Content Include="Views\Charts\js\underscore.js" />
+    <Content Include="Views\Charts\js\underscore.math.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -380,6 +400,7 @@
     <Content Include="Views\Charts\FunnelPlot.cshtml" />
     <Content Include="Views\Charts\CustomizeCSV.cshtml" />
     <Content Include="Views\Charts\BarChart.cshtml" />
+    <Content Include="Views\Charts\Dashboard.html" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

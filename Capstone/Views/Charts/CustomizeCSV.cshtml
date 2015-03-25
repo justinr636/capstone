@@ -123,24 +123,6 @@
 	            return ((d.getMonth() + 1) + "/" + d.getFullYear());
 	        }
 
-	        Math.mean = function (array) {
-	            return array.reduce(function (a, b) { return a + b; }) / array.length;
-	        };
-
-	        Math.stdev = function (array, opts) {
-	            var avg = 0.0;
-
-	            if (opts['avg']) {
-	                avg = parseFloat(opts['avg']);
-	            } else {
-	                avg = Math.mean(array);
-	            }
-
-	            var variance = array.map(function (itm) { return (itm - avg) * (itm - avg); });
-
-	            return Math.sqrt(variance.reduce(function (a, b) { return a + b; }) / array.length);
-	        };
-
 	        function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
 	            $("#chartDiv").empty();
 
