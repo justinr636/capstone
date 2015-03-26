@@ -308,7 +308,6 @@
 	        $("#endDateText").datepicker();
 
 	        function setHospitalId() {
-	            //var lastCol = csvArray.length - 1;
 	            var lastCol = 105;
 
 	            var title_html = '';
@@ -331,9 +330,12 @@
 
 	            $("#select-hid-row").show();
 	        }
-	        // Actually Set Global Hospital ID  --- Create submit button to prevent accidental change
-	        // Create Local and Regional Charts
+
 	        $("#hidSelect").change(function () {
+	            // hospitalID Select Change Handler --- Possibly Create submit button to prevent accidental change
+	            // -    Set Global Hospital ID  
+	            // -	Create Local and Regional Charts
+
 	            global_hid = parseInt($(this).val());
 
 	            $(".chartDiv").empty();
@@ -408,6 +410,8 @@
                              width - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#regionChartDiv2");
+
+	            $("ul.nav li:nth-child(2)").click();
 	        });
 
 	        // Convert CSV data from fileupload to javascript object array

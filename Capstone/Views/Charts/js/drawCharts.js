@@ -125,15 +125,13 @@ function drawBarChart(barData, titles, width, height, selector) {
 
     // draw title
     svg.append('text')
-	                    .attr("x", width / 2)
-	                    .attr("y", 0 - (margin.top / 2))
-	                    .attr("text-anchor", "middle")
-	                    .style("font-size", '18px')
-	                    .text(titles.chartTitle);
+	            .attr("x", width / 2)
+	            .attr("y", 0 - (margin.top / 2))
+	            .attr("text-anchor", "middle")
+	            .style("font-size", '18px')
+	            .text(titles.chartTitle);
 
     var legend = svg.selectAll(".legend")
-    //.data(ageNames.slice().reverse())
-    		    //.data(hospitalLabels.slice().reverse())
     		    .data(hospitalLabels.slice())
     		    .enter().append("g")
     		    .attr("class", "legend")
