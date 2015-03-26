@@ -14,9 +14,11 @@ function DateToString(d) {
     return ((d.getMonth() + 1) + "/" + d.getFullYear());
 }
 
-function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
-    $("#chartDiv").empty();
-
+function drawBarChart(barData, titles, width, height, selector) {
+    var data = barData.data;
+    var max = barData.max;
+    var dateLabels = barData.dateLabels;
+    var hospitalLabels = barData.hospitalLabels;
     var numHospitals = hospitalLabels.length;
 
     var tooltip = d3.select('body').append('div')
@@ -49,25 +51,11 @@ function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
     //.tickFormat(d3.format(".2s"));
     //.tickFormat(d3.format(function (d) { return d + "%"; }));
 
-    var svg = d3.select("div#chartDiv").append("svg")
+    var svg = d3.select(selector).append("svg")
 			            .attr("width", width + margin.left + margin.right)
 			    		.attr("height", height + margin.top + margin.bottom)
 			    		.append("g")
 			    		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    //var hospIdIndex = data.length - 1;
-    //var dateIndex = data.length - 1;
-    //var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
-
-    // Get Each Month
-    /*
-    var columnNames = d3.keys(data[hospIdIndex]).filter(function (key) { return key; });
-
-    data.forEach(function (d) {
-    //d.ages = ageNames.map(function (name) { return { name: name, value: +d[name] }; });
-    d.hospitals = hospitalNames.map(function (name) { return { name: name, value: +d.ratio }; });
-    });
-    */
 
     x0.domain(dateLabels);
     x1.domain(hospitalLabels).rangeRoundBands([0, x0.rangeBand()]);
@@ -94,7 +82,7 @@ function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
     		    .append("text")
     		    .attr("transform", "rotate(-90)")
     		    .attr("y", "-50")
-    		    .attr("x", -(height / 2))
+    		    .attr("x", -(height / 4))
     		    .attr("dy", ".71em")
     		    .style("text-anchor", "end")
     		    .style("font-size", "14px")
@@ -104,15 +92,10 @@ function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
     		    .data(data)
     		    .enter().append("g")
     		    .attr("class", "g")
-    //.attr("transform", function (d) { return "translate(" + x0(d.State) + ",0)"; });
     		    .attr("transform", function (d) { return "translate(" + x0(d.date) + ",0)"; });
 
     state.selectAll("rect")
 	            .data(function (d) { return d.hospitals; })
-    //.data(function (d) { return d.ages; })
-    //.data(function (d) { return d[dateLabels[i]][hospitalLabels[j]]; })
-    //.data(data)
-    //.data(td)
     		    .enter().append("rect")
     		    .attr("width", x1.rangeBand())
 	            .attr("x", function (d) { return x1(d.hid); })
@@ -140,51 +123,18 @@ function drawBarChart(data, max, dateLabels, hospitalLabels, titles) {
                     tooltip.transition().duration(100).style("opacity", 1e-6);
                 });
 
-    //yAxis.tickFormat(d3.format(function (d) { return d + "%"; }));
-    //.tickFormat(d3.format(function (d) { return d + "%"; }));
-
-    /*
-    for (var i = 0; i < dateLabels.length; i++) {
-    for (var j = 0; j < hospitalLabels.length; j++) {
-    //console.log("data datelabels hosplabels");
-    //console.log(data[dateLabels[i]][hospitalLabels[j]]);
-
-    //var td = data[dateLabels[i]][hospitalLabels[j]];
-
-    state.selectAll("rect")
-    //.data(function (d) { return d.ages; })
-    //.data(function (d) { return d[dateLabels[i]][hospitalLabels[j]]; })
-    .data(data)
-    //.data(td)
-    .enter().append("rect")
-    .attr("width", x1.rangeBand())
-    //.attr("x", function (d) { return x1(d.hid); })
-    //.attr("y", function (d) { return y(d.ratio); })
-    .attr("x", function (d) { return x1(d[dateLabels[i]][hospitalLabels[j]].hid); })
-    .attr("y", function (d) { return y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
-    .attr("height", function (d) { return height - y(d[dateLabels[i]][hospitalLabels[j]].ratio); })
-    .style("fill", function (d) { return color(d[dateLabels[i]][hospitalLabels[j]].hid); });
-    //.attr("x", function (d) { return x1(d.hid); })
-    //.attr("y", function (d) { return y(d.ratio); })
-    //.attr("height", function (d) { return height - y(d.ratio); })
-    //.style("fill", function (d) { return color(d.hid); });
-    }
-    }
-
-    console.log('state = ', state);
-    */
-
     // draw title
     svg.append('text')
 	                    .attr("x", width / 2)
-	                    .attr("y", 0 + (margin.top / 2))
+	                    .attr("y", 0 - (margin.top / 2))
 	                    .attr("text-anchor", "middle")
 	                    .style("font-size", '18px')
 	                    .text(titles.chartTitle);
 
     var legend = svg.selectAll(".legend")
     //.data(ageNames.slice().reverse())
-    		    .data(hospitalLabels.slice().reverse())
+    		    //.data(hospitalLabels.slice().reverse())
+    		    .data(hospitalLabels.slice())
     		    .enter().append("g")
     		    .attr("class", "legend")
     		    .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
@@ -265,7 +215,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
     // Set Y Domain (including Control Limits)
     data.push({ x_axis: "", y_axis: ucl + 0 });
     data.push({ x_axis: "", y_axis: lcl + 0 });
-    y.domain(d3.extent(data, function (d) { return d.y_axis; }));
+    //y.domain(d3.extent(data, function (d) { return d.y_axis; }));
+    y.domain([0, d3.max(data, function (d) { return d.y_axis; })]);
     data.pop();
     data.pop();
 
@@ -289,7 +240,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	               .append("text")
 	               .attr("transform", "rotate(-90)")
 	      		   .attr("y", "-50")
-	      		   .attr("x", -(height / 2))
+	      		   .attr("x", -(height / 4))
 	      		   .attr("dy", ".71em")
 	      		   .style("text-anchor", "end")
                    .style('font-size', '14px')
@@ -334,8 +285,6 @@ function drawRunChart(dataObj, label, width, height, selector) {
                     });
 
     // upper limit line
-    //var upper_limit = 15;
-    //console.log("ucl = ", ucl);
     var upper_limit = ucl;
     svg.append("line")
 	               .attr("class", "limit-line")
@@ -345,7 +294,6 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	    		   .text("Upper Limit: " + parseInt(upper_limit));
 
     // lower limit line
-    //var lower_limit = 6;
     var lower_limit = lcl;
     svg.append("line")
 	               .attr("class", "limit-line")
@@ -442,7 +390,7 @@ function drawBoxPlot(boxData, title, width, height, selector) {
             .append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', -50)
-            .attr('x', -(height / 2))
+            .attr('x', -(height / 4))
             .attr('dy', '.71em')
             .style('text-anchor', 'end')
             .style('font-size', '14px')
@@ -563,7 +511,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
             	  .tickSize(4, 0, 0)
             	  .tickFormat(formatAsPercentage);
 
-    // Draw X - Axis
+    // draw x-axis
     svg.append("g")
        .attr("class", "axis")
        .attr("transform", "translate(0," + (height - padding) + ")")
@@ -576,7 +524,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .style('font-size', '14px')
        .text(title.xAxis);
 
-    // Draw Y - Axis
+    // draw y-axis
     svg.append("g")
        .attr("class", "axis")
        .attr("transform", "translate(" + padding + ", 0)")
@@ -584,7 +532,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .append('text')
        .attr('transform', 'rotate(-90)')
        .attr('y', '-50')
-       .attr('x', -(height / 2))
+       .attr('x', -(height / 4))
        .attr('dy', '.71em')
        .style('text-anchor', 'end')
        .style('font-size', '14px')
@@ -883,16 +831,10 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
     } else if (chartType == 4) {    // Draw Bar Chart
         var barData = [];
 
-        //var Y_COL = $yDataDrop.val();
-        //var X_COL = $xDataDrop.val();
-        var Y_COL = 63;         // If Infant Received Pharm treatment 
-        var X_COL = 1;          // Date
-        var HID_COL = 105;      // Hospital ID column
-        var YEAR = 2014;      // Date Range
-        //var byMonth = true;
-        //var START_DATE = new Date("2014-01-01");      // Date Range
-        //var END_DATE = new Date("2014-12-31");      // Date Range
+        var byMonth = true;
 
+        // Get Date Range from User Input
+        /*
         var startDateText = $("#startDateText").val();
         var endDateText = $("#endDateText").val();
         var byMonth = true;
@@ -904,39 +846,15 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //var END_DATE = new Date("2015-12-31");      // Date Range
         var START_DATE = new Date(startDateText);      // Date Range
         var END_DATE = new Date(endDateText);      // Date Range
-
-        /*
-        var incidences = 0;
-        var sample_size = 0;
-        var id = 0;
-        var hospitalLabels = [];
         */
 
-        // Sort CSV by Hospital ID and Time
-        //csvArray.sort(dynamicSortMultiple([HID_COL, X_COL]));
-        // Sort CSV by Time and Hospital ID
-        csvArray.sort(dynamicSortMultiple([X_COL, HID_COL]));
-        console.log("sorted csvArray", csvArray);
-
-        /*
-        var jsFirstDate = new Date(csvArray[0][X_COL]);
-        var firstDate = (jsFirstDate.getMonth() + 1) + "/" + jsFirstDate.getFullYear();
-        id = csvArray[0][HID_COL];
-        hospitalLabels.push(id);
-
-        barData[0] = { sample_size: 0, indicator: 0, date: firstDate, ratio: 0, hid: id };
-        */
-
-        var idLabels = [];    // d.State
-        var dateLabels = [];    // d.State
-        //var testData = {};
-        var testData2 = [];
+        var idLabels = [];
+        var dateLabels = [];
 
         // Need to get each month (and possibly year) between START_DATE and END_DATE
-
         var startMonth = START_DATE.getMonth() + 1;
-        var endMonth = END_DATE.getMonth() + 1;
         var startYear = START_DATE.getFullYear();
+        var endMonth = END_DATE.getMonth() + 1;
         var endYear = END_DATE.getFullYear();
 
         for (startYear; startYear <= endYear; startYear++) {
@@ -945,27 +863,24 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                     for (startMonth; startMonth <= 12; startMonth++) {
                         var dateStr = startMonth + "/" + startYear;
                         dateLabels.push(dateStr);
-                        //testData[dateStr] = {};
 
-                        testData2.push({ date: dateStr, hospitals: [] });
+                        barData.push({ date: dateStr, hospitals: [] });
                     }
                     startMonth = 1;
                 } else if (startYear == endYear) {
                     for (startMonth; startMonth <= endMonth; startMonth++) {
                         var dateStr = startMonth + "/" + startYear;
                         dateLabels.push(dateStr);
-                        //testData[dateStr] = {};
 
-                        testData2.push({ date: dateStr, hospitals: [] });
+                        barData.push({ date: dateStr, hospitals: [] });
                     }
                 } else { }
             } else {
                 var dateStr = startYear;
                 dateLabels.push(dateStr);
-                testData2.push({ date: dateStr, hospitals: [] });
+                barData.push({ date: dateStr, hospitals: [] });
             }
         }
-        //console.log("testData = ", testData);
 
         _.each(csvArray, function (item, i) {
             var item_date = new Date(item[X_COL]);
@@ -980,30 +895,9 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 var newId = $.inArray(item_id, idLabels);
                 if (newId == -1) {
                     idLabels.push(item_id);
-                    //barData[barData.length - 1].values[newId][0]
-                    //testData[item_date][2]++;
-                    //if (item[Y_COL] === "Yes") testData[item_date][0]++;
-                    /*
-                    testData[item_date][item_id] = {
-                    sample_size: 0,
-                    indicator: 0,
-                    ratio: 0
-                    }
-                    */
+
                     for (var i = 0; i < dateLabels.length; i++) {
-
-                        //testData[dateLabels[i]][item_id] = {
-                        //    indicator: 0,
-                        //    sample_size: 0,
-                        //    ratio: 0,
-                        //    date: dateLabels[i],
-                        //    hid: item_id
-                        //};
-
-                        //testData[i][1].indicator = 0;
-                        //testData[i][1].push([item_id, []]);
-
-                        testData2[i].hospitals.push({
+                        barData[i].hospitals.push({
                             hid: item_id,
                             date: dateLabels[i],
                             indicator: 0,
@@ -1011,69 +905,21 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                             ratio: 0
                         });
                     }
-
                 }
-
-                //testData[item_date][item_id].sample_size++;
 
                 var newDate = $.inArray(item_date, dateLabels);
                 newId = $.inArray(item_id, idLabels);
 
-                //console.log("newDate = ", newDate);
-                //console.log("newId = ", newId);
-                //console.log("testData2 = ", testData2);
                 if (newDate !== -1 && newId !== -1) {
-                    //if (item[Y_COL] == "Yes") testData2[newDate][item_id].indicator++;
-                    testData2[newDate].hospitals[newId].sample_size++;
-                    if (item[Y_COL] == "Yes") testData2[newDate].hospitals[newId].indicator++;
+                    barData[newDate].hospitals[newId].sample_size++;
+                    if (item[Y_COL] == "Yes") barData[newDate].hospitals[newId].indicator++;
                 }
-
-
-                /*
-                var newDate = $.inArray(item_date, dateLabels);
-
-                if (newDate == -1) {
-                dateLabels.push(item_date);
-                //barData.push({
-                //    date: (item_date.getMonth() + 1) + "/" + item_date.getFullYear(),
-                //    values: [[]]     // [[]]
-                //    // [hopsitalIds][3] 
-                //    // [indicator, ratio, sample_size]
-                //});
-                //testData[item_date] = {};
-                //for (var i = 0; i < idLabels.length; i++)
-                //    barData[barData.length - 1].values[i][2] = 0;
-                }
-
-                if (typeof testData[item_date][item_id] == 'object') {
-                testData[item_date][item_id].sample_size++;
-                if (item[Y_COL] === "Yes") testData[item_date][item_id].indicator++;
-                } else {
-                testData[item_date][item_id] = {
-                sample_size: 0,
-                indicator: 0,
-                ratio: 0
-                }
-                }
-                */
             }
         });
 
         var maxRatio = 0;
 
-        //_.each(testData, function (item) {
-        //    for (var i = 0; i < idLabels.length; i++) {
-        //        var hospItem = item[idLabels[i]];
-        //        if (hospItem.sample_size !== 0) {
-        //            var ratio = hospItem.indicator / hospItem.sample_size;
-        //            hospItem.ratio = ratio;
-
-        //            if (ratio > maxRatio) maxRatio = ratio;
-        //        }
-        //    }
-        //});
-
-        _.each(testData2, function (item) {
+        _.each(barData, function (item) {
             var hospItems = item.hospitals;
 
             for (var i = 0; i < idLabels.length; i++) {
@@ -1086,87 +932,10 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             }
         });
 
-        //testData.hospLabels = idLabels;
-        //testData.dateLabels = dateLabels;
+        //console.log("idLabels = ", idLabels);
+        //console.log("dateLabels = ", dateLabels);
+        //console.log("barData = ", barData);
 
-        console.log("idLabels = ", idLabels);
-        console.log("dateLabels = ", dateLabels);
-        //console.log("testData = ", testData);
-        console.log("testData2 = ", testData2);
-
-        /*
-        _.each(csvArray, function (item, i) {
-        var indicator = item[Y_COL];        // Possibly parseInt or parseFloat
-        var jsDate = new Date(item[X_COL]);
-        var dte = (jsDate.getMonth() + 1) + "/" + jsDate.getFullYear();
-        var itemID = item[HID_COL];
-        var size = barData.length;
-
-        if ((indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined") && (jsDate.getFullYear() == YEAR)) {
-        if ((dte == barData[size - 1].date) && (id == itemID)) {
-        sample_size++;
-        //total_population++;
-        if (indicator == "Yes") {
-        incidences++;
-        //incidence_population++;
-        }
-        }
-        else {
-        barData[size - 1].sample_size = sample_size;
-        barData[size - 1].indicator = incidences;
-        barData[size - 1].ratio = (incidences / sample_size) * 100;
-        //barData[size - 1].hid = id;
-
-        if (itemID !== id) hospitalLabels.push(itemID);
-
-        sample_size = 1;
-        incidences = 0;
-        id = itemID;
-        barData.push({ sample_size: 0, indicator: 0, date: dte, ratio: 0, hid: id });
-
-        if (indicator == "Yes") {
-        incidences++;
-        //incidence_population++;
-        }
-        //total_population++;
-        }
-        }
-        });
-
-        var size = barData.length;
-
-        barData[size - 1].sample_size = sample_size;
-        barData[size - 1].indicator = incidences;
-        barData[size - 1].ratio = incidences / sample_size;
-
-        var zeroDate = barData[0].date;
-        if (zeroDate.substr(zeroDate.length - 4, 4) !== YEAR.toString())
-        barData.splice(0, 1);
-
-        //_.sortBy(barData, function (item) { return item.date; });
-
-        console.log("barData = ", barData);
-
-        var testData = [];
-
-        testData[0] = [];
-        testData[0][0] = "Date";
-        testData[0][1] = [];
-
-        _.each(hospitalLabels, function (item, i) {
-        // Format dataset
-        testData[i + 1] = [];
-        testData[i + 1][0] = item;
-        testData[i + 1][1] = [];
-        });
-
-        _.each(barData, function (item, i) {
-        });
-
-        */
-
-        var titleObj = { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() };
-
-        drawBarChart(testData2, maxRatio, dateLabels, idLabels, titleObj);
+        return { data: barData, max: maxRatio, dateLabels: dateLabels, hospitalLabels: idLabels };
     }
 }
