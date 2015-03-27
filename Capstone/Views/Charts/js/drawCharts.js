@@ -280,6 +280,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	               .datum(data)
                     //.attr("class", "avg_line")
 	      		   .style("stroke", "rgba(70, 130, 180, 1.0)")
+	      		   //.style("stroke", "rgba(70, 130, 180, 1.0)""rgba(220, 30, 80, 0.4)")
 	      		   .style("stroke-width", "1.5px")
 	      		   .style("fill", "none")
 	      		   .attr("d", avg_line);
@@ -384,6 +385,35 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	                    .attr("text-anchor", "middle")
 	                    .style("font-size", '18px')
 	                    .text(label.chartTitle);
+
+    if (avg_line_bool) {
+        var legend = svg.selectAll(".legend")
+    			    .data(["My Hospital", "All Hospital's Average"])
+    			    .enter().append("g")
+    			    .attr("class", "legend")
+    			    .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
+
+        var color = d3.scale.ordinal()
+	                .range(["#dc1e50", "#4682b4"]);
+
+        legend.append("rect")
+    			    .attr("x", width - 18)
+    			    .attr("y", 11)
+    			    .attr("width", 18)
+    			    .attr("height", 18)
+                    .style("fill", color);
+    			    //.style("fill", ["#4682b4", "#dc1e50"]);
+    			    //.style("fill", ["rgba(70, 130, 180, 1.0)", "rgba(220, 30, 80, 0.4)"]);
+
+        legend.append("text")
+                    //.attr("x", width - 24)
+                    // Translation Formula = y = 1.0982x + 4.1833
+    			    .attr("x", function (d) { return (width + ($("#hidden-span").text(d).width() * 1.0982 + 4.1833)) })
+    			    .attr("y", 20)
+    			    .attr("dy", ".35em")
+    			    .style("text-anchor", "end")
+    			    .text(function (d) { return d; });
+    }
 }
 
 // #######################
@@ -791,7 +821,7 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         if (lcl < 0) lcl = 0;       // assumes lcl cannot be negative
 
         // Sort data by date
-        console.log("run chart dataset = ", dataset);
+        //console.log("run chart dataset = ", dataset);
         dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
         return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line  };
@@ -829,7 +859,7 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 });
             }
         });
-        console.log("dataset = ", dataset);
+        //console.log("dataset = ", dataset);
 
         return { data: dataset, min: min, max: max };
     } else if (chartType == 3) {	// Draw Funnel Plot 
