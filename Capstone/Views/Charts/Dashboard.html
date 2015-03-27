@@ -34,6 +34,7 @@
 		<script src="./js/box.js" type="text/javascript"></script>
         <script src="./js/dashboard.js" type="text/javascript"></script>
         <script src="./js/drawCharts.js" type="text/javascript"></script>
+        <script src="./js/jquery.PrintArea.js" type="text/javascript"></script>
 
     	<style type="text/css">
 		    html { height: 100%; }
@@ -95,7 +96,7 @@
 <!-- Home Tab End -->
 
 <!-- Local Tab Start -->
-        <div id="local-tab" class="container">
+        <div id="local-tab" class="container print-container">
             <div class="row">
     		    <div class="col-md-6">
     		        <div class="chart-container">
@@ -128,7 +129,7 @@
 <!-- Local Tab End -->
 
 <!-- Regional Tab Start -->
-        <div id="regional-tab" class="container">
+        <div id="regional-tab" class="container print-container">
             <div class="row">
     		    <div class="col-md-12">
     		        <div class="chart-container">
@@ -220,7 +221,7 @@
 		            <input id="xAxisTitleText" placeholder="X-Axis Title" class="form-control" />
 		        </div>
 		    </div>
-		    <div class="row">
+		    <div class="row print-container">
 		        <div class="col-md-1"> </div>
 		        <div class="col-md-10">
 		            <div id="chartDiv"></div>
@@ -260,7 +261,7 @@
 	        }
 
 	        // Handle Switching Tabs
-	        $("ul.nav > li").click(function (e) {
+	        $("ul.nav > li:not(#printBtn)").click(function (e) {
 	            e.preventDefault();
 
 	            switchTab($(this).index());
@@ -441,6 +442,17 @@
 
 	                reader.readAsText(e.target.files.item(0));
 	            }
+	        });
+
+	        // Click Print Button to Print the Report 
+	        $("#printBtn").click(function () {
+	            var index = $("ul.nav > li.selected").index();
+                if (index == 1 || index == 2)
+	                $tabs[index].printArea();
+                else
+	                $tabs[index].find(".print-container").printArea();
+
+	            return false;
 	        });
 
 	        // Customize CSV Submit Button Handler
