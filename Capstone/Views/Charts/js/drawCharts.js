@@ -158,6 +158,8 @@ function drawBarChart(barData, titles, width, height, selector) {
 function drawRunChart(dataObj, label, width, height, selector) {
     var data = dataObj.data;
     var avg = dataObj.avg;
+    var avg_line_bool = dataObj.avg_line;
+    var avg_single_data = [];
     var ucl = dataObj.ucl;
     var lcl = dataObj.lcl;
 
@@ -186,11 +188,30 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	     	                 .scale(y)
 	     	   			     .orient("left");
 
-    var line = d3.svg.line()
-    //.interpolate("linear")
+    // draw line(s)
+    if (avg_line_bool) {
+        var avg_line = d3.svg.line()
 	     	                .interpolate("linear")
 	     	   	    		.x(function (d) { return x(d.x_axis); })
 	     	   				.y(function (d) { return y(d.y_axis); });
+        var line = d3.svg.line()
+	     	                .interpolate("linear")
+	     	   	    		.x(function (d) { return x(d.x_axis); })
+	     	   				.y(function (d) { return y(d.y_axis); });
+	     	   	 //   		.x(function (d) { if (d.hid == global_hid) return x(d.x_axis); })
+	     	     //			.y(function (d) { if (d.hid == global_hid) return y(d.y_axis); });
+
+        _.each(data, function (item) {
+            if (item.hid == global_hid)
+                avg_single_data.push(item);
+        });
+    } else {
+        var line = d3.svg.line()
+	     	                .interpolate("linear")
+	     	   	    		.x(function (d) { return x(d.x_axis); })
+	     	   				.y(function (d) { return y(d.y_axis); });
+    }
+
 
     var svg = d3.select(selector).append("svg")
 	     	                .attr("width", width + margin.left + margin.right)
@@ -213,8 +234,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
     // Set Y Domain (including Control Limits)
     data.push({ x_axis: "", y_axis: ucl + 0 });
     data.push({ x_axis: "", y_axis: lcl + 0 });
-    //y.domain(d3.extent(data, function (d) { return d.y_axis; }));
-    y.domain([0, d3.max(data, function (d) { return d.y_axis; })]);
+    //y.domain(d3.extent(data, function (d) { return d.y_axis; }));     // Y-AXIS-Range = [Min, Max]
+    y.domain([0, d3.max(data, function (d) { return d.y_axis; })]);     // Y-AXIS-Range = [0, Max]
     data.pop();
     data.pop();
 
@@ -244,19 +265,74 @@ function drawRunChart(dataObj, label, width, height, selector) {
                    .style('font-size', '14px')
 	      		   .text(label.yAxis);
 
-    // draw run chart line
-    svg.append("path")
-	               .datum(data)
-	      		   .attr("class", "line")
+    if (avg_line_bool) {
+        // draw run chart line
+        svg.append("path")
+	               .datum(avg_single_data)
+                    //.attr("class", "line")
+	      		   .style("stroke", "rgba(220, 30, 80, 0.4)")
+	      		   .style("stroke-width", "1.5px")
+	      		   .style("fill", "none")
 	      		   .attr("d", line);
 
+        // draw avg run chart line
+        svg.append("path")
+	               .datum(data)
+                    //.attr("class", "avg_line")
+	      		   .style("stroke", "rgba(70, 130, 180, 1.0)")
+	      		   .style("stroke-width", "1.5px")
+	      		   .style("fill", "none")
+	      		   .attr("d", avg_line);
+    } else {
+        // draw run chart line
+        svg.append("path")
+	               .datum(data)
+                    //.attr("class", "line")
+	      		   .style("stroke", "rgba(70, 130, 180, 1.0)")
+	      		   .style("stroke-width", "1.5px")
+	      		   .style("fill", "none")
+	      		   .attr("d", line);
+    }
+
     // draw data points on line
-    svg.selectAll('circle')
+    if (avg_line_bool) {
+        svg.selectAll('circle')
                     .data(data)
                     .enter()
                     .append("circle")
-    //.attr("fill", "rgba(22, 68, 81, 0.6)")
-    // Flag data points >= UCL or <= LCL
+        //.attr("fill", "rgba(22, 68, 81, 0.6)")
+        // Flag data points >= UCL or <= LCL
+                    .attr("fill", function (d) { return ((d.val >= ucl) || (d.val <= lcl) ? "rgba(220, 55, 41, 0.8)" : d.hid == global_hid ? "rgba(22, 68, 81, 0.4)" : "rgba(22, 68, 81, 1.0)"); })
+                    .attr("cx", function (d) {
+                        return x(d.x_axis);
+                    })
+                    .attr("cy", function (d) {
+                        return y(d.y_axis);
+                    })
+                    .attr("r", 3)
+                    .on("mouseover", function (d, i) {
+                        $("div.tooltip").show();
+                        tooltip.transition().duration(100).style("opacity", 1);
+                    }).on("mousemove", function (d, i) {
+                        var divHtml = '<h5><strong>Date:</strong>&emsp;' + d.date + '</h5>';
+                        divHtml += '<h5><strong>Value:</strong>&emsp;' + d.val + '</h5>';
+
+                        if ($(window).width() - d3.event.pageX < 160) {
+                            var left_position = (d3.event.pageX - 155) + "px";
+                        } else {
+                            var left_position = (d3.event.pageX - 2) + "px";
+                        }
+                        tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
+                    }).on("mouseout", function (d, i) {
+                        tooltip.transition().duration(100).style("opacity", 1e-6);
+                    });
+    } else {
+        svg.selectAll('circle')
+                    .data(data)
+                    .enter()
+                    .append("circle")
+        //.attr("fill", "rgba(22, 68, 81, 0.6)")
+        // Flag data points >= UCL or <= LCL
                     .attr("fill", function (d) { return ((d.val >= ucl) || (d.val <= lcl) ? "rgba(220, 55, 41, 0.8)" : "rgba(22, 68, 81, 0.6)"); })
                     .attr("cx", function (d) {
                         return x(d.x_axis);
@@ -281,6 +357,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
                     }).on("mouseout", function (d, i) {
                         tooltip.transition().duration(100).style("opacity", 1e-6);
                     });
+    }
 
     // upper limit line
     var upper_limit = ucl;
@@ -660,7 +737,14 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
     //  2 = Box and Whisker Plot
     //  3 = Funnel Plot                 Y_COL = "Yes" / "No", add functionality for "Checked" / "Unchecked"
     //  4 = Bar Chart
-    // 
+    //
+
+    // Handle Run Chart with multiple lines
+    var avg_line = false;
+    if (typeof HID_COL !== 'number') {
+        HID_COL = HID_COL[0];
+        avg_line = true;
+    }
 
     if (chartType == 1) {           // Draw Run Chart
         var dataset = [];
@@ -671,20 +755,20 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         _.each(csvArray, function (item, i) {
 
             // Get Y-Axis indicator
-            // This assumes y-axis = numbers (not "Yes" or "Checked")
+            // -This assumes item[Y_COL] (y-axis) = number (not "Yes" or "Checked")
             var num = parseInt(item[Y_COL]);
 
             // Get Date
-            // This assumes x-axis = time    (YYYY-MM-DD)
+            // This assumes item[X_COL] (x-axis) = datetime    (YYYY-MM-DD)
             var dte = item[X_COL];
             var jsDte = new Date(item[X_COL]);
 
             // Get Hospital ID
             var hid = item[HID_COL];
 
-            // if all items are defined, jsDte is between START_DATE and END_DATE
-            //    and matches Hospital ID
-            if ((num !== '') && (typeof num !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined") && (jsDte > START_DATE) && (jsDte < END_DATE) && (hid == global_hid)) {
+            // if jsDte is between START_DATE and END_DATE
+            //    AND ((hid matches Global Hospital ID) OR (drawing avg line))
+            if ((jsDte > START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (num !== '') && (typeof num !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
                 var dataObj = { date: dte, val: num, hid: hid };
                 dataset.push(dataObj);
 
@@ -707,9 +791,10 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         if (lcl < 0) lcl = 0;       // assumes lcl cannot be negative
 
         // Sort data by date
+        console.log("run chart dataset = ", dataset);
         dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
-        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl };
+        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line  };
 
     } else if (chartType == 2) {    // Draw Box Plot 
         var dataset = [];
