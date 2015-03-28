@@ -158,11 +158,13 @@ function drawBarChart(barData, titles, width, height, selector) {
 function drawRunChart(dataObj, label, width, height, selector) {
     var data = dataObj.data;
     var avg = dataObj.avg;
+    var min = dataObj.min;
+    var max = dataObj.max;
     var avg_line_bool = dataObj.avg_line;
     var avg_single_data = [];
     var ucl = dataObj.ucl;
     var lcl = dataObj.lcl;
-
+    
     var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
     //var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
 
@@ -264,13 +266,33 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	      		   .style("text-anchor", "end")
                    .style('font-size', '14px')
 	      		   .text(label.yAxis);
+    
+    // Draw center line to indicate mean.
+    svg.append("svg:line")
+       .attr("x1", x(data[0].x_axis))
+       .attr("y1", y(avg))
+       .attr("x2", x(data[data.length-1].x_axis))
+       .attr("y2", y(avg))
+       .style("stroke", "rgba(0, 165, 46, 0.6)")
+       .style("stroke-width", 2)
+       .on("mouseover", function (d, i) {
+           $('div.tooltip').show();
+           tooltip.transition().duration(100).style("opacity", 1);
+       }).on("mousemove", function () {
+           var divHtml = '<h4>Mean Value</h4>';
+               divHtml += avg.toFixed(2);
+           var left_position = (d3.event.pageX - 2) + "px";
+           tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
+       }).on("mouseout", function (d, i) {
+           tooltip.transition().duration(100).style("opacity", 1e-6);
+       });
 
     if (avg_line_bool) {
         // draw run chart line
         svg.append("path")
 	               .datum(avg_single_data)
                     //.attr("class", "line")
-	      		   .style("stroke", "rgba(220, 30, 80, 0.4)")
+	      		   .style("stroke", "rgba(236, 122, 8, 0.5)")
 	      		   .style("stroke-width", "1.5px")
 	      		   .style("fill", "none")
 	      		   .attr("d", line);
@@ -303,7 +325,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
                     .append("circle")
         //.attr("fill", "rgba(22, 68, 81, 0.6)")
         // Flag data points >= UCL or <= LCL
-                    .attr("fill", function (d) { return ((d.val >= ucl) || (d.val <= lcl) ? "rgba(220, 55, 41, 0.8)" : d.hid == global_hid ? "rgba(22, 68, 81, 0.4)" : "rgba(22, 68, 81, 1.0)"); })
+                    .attr("fill", function (d) { return ((d.val >= ucl) || (d.val <= lcl) ? "rgba(220, 55, 41, 0.8)" : d.hid == global_hid ? "rgba(236, 122, 8, 0.5)" : "rgba(22, 68, 81, 1.0)"); })
                     .attr("cx", function (d) {
                         return x(d.x_axis);
                     })
@@ -394,7 +416,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
     			    .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
 
         var color = d3.scale.ordinal()
-	                .range(["#dc1e50", "#4682b4"]);
+	                //.range(["#dc1e50", "#4682b4"]);
+	                .range(["#ec7a08", "#4682b4"]);
 
         legend.append("rect")
     			    .attr("x", width - 18)
@@ -696,7 +719,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .attr("d", confidence3sd_lower(dataset))
        .attr("class", "confidence99");
 
-    // Draw line to indicate mean.
+    // Draw center line to indicate mean.
     svg.append("svg:line")
        .attr("x1", xScale(min_x))
        .attr("y1", yScale(mean_incidence_rate))
@@ -721,7 +744,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .data(dataset)
        .enter()
        .append("circle")
-       .attr("fill", function (d) { return (d['hid'] == global_hid ? "rgba(220, 30, 80, 0.6)" : "rgba(22, 68, 81, 0.6)"); })
+       .attr("fill", function (d) { return (d['hid'] == global_hid ? "rgba(236, 122, 8, 0.75)" : "rgba(22, 68, 81, 0.6)"); })
        .attr("cx", function (d) {
            return xScale(d['sample_size']);
        })
@@ -778,6 +801,9 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
         var avg_sum = 0;
         var variance_sum = 0;
+        
+        var min = Infinity;
+        var max = -Infinity;
 
         _.each(csvArray, function (item, i) {
 
@@ -800,6 +826,8 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 dataset.push(dataObj);
 
                 avg_sum += num;     // get total sum
+               if (num > max) max = num;    // get maximum value
+               if (num < min) min = num;    // get minimum value
             }
         });
 
@@ -821,7 +849,7 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //console.log("run chart dataset = ", dataset);
         dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
-        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line  };
+        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min  };
 
     } else if (chartType == 2) {    // Draw Box Plot 
         var dataset = [];
