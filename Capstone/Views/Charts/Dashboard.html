@@ -40,7 +40,7 @@
 		    html { height: 100%; }
 			body { height: 100%; }
 
-			#main { height: 100%; }
+			.tab { height: 100%; }
 			.hidden { display: none; }
 			.chart-container { margin-left: auto; margin-right: auto; }
 			svg:not(:root) { overflow: visible; }
@@ -70,7 +70,7 @@
 <!-- Nav Bar End -->
 
 <!-- Home Tab Start -->
-        <div id="home-tab" class="container">
+        <div id="home-tab" class="container tab">
 			<div class="row">
 			    <div class="col-md-12">
                     <h3>Upload a CSV File to Begin!</h3>
@@ -87,16 +87,15 @@
     	        <!--
 
     	    After uploading a file, 
-            Ask user to identify which Hospital ID corresponds to them.
             if creating Local and Regional Dashboards fails (check if values are of right type)
-    	    then ask the user to clarify certain columns.
+    	    ask the user to clarify certain columns.
 
     	        -->
     	</div>
 <!-- Home Tab End -->
 
 <!-- Local Tab Start -->
-        <div id="local-tab" class="container print-container">
+        <div id="local-tab" class="container print-container tab">
             <div class="row">
     		    <div class="col-md-6">
     		        <div class="chart-container">
@@ -129,7 +128,7 @@
 <!-- Local Tab End -->
 
 <!-- Regional Tab Start -->
-        <div id="regional-tab" class="container print-container">
+        <div id="regional-tab" class="container print-container tab">
             <div class="row">
     		    <div class="col-md-12">
     		        <div class="chart-container">
@@ -152,7 +151,7 @@
 <!-- Regional Tab End -->
 
 <!-- Customize Tab Start -->
-        <div id="customize-tab" class="container" style="margin-bottom: 10px;">
+        <div id="customize-tab" class="container tab" style="margin-bottom: 10px;">
 		    <div class="row">
 		        <div class="col-md-12">
 		            <br />
@@ -399,6 +398,7 @@
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#regionChartDiv1");
 
+                /*
 	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
@@ -408,8 +408,19 @@
                              width - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#regionChartDiv2");
+                 */
+                                   
+	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
-	            $("ul.nav li:nth-child(2)").click();
+	            // Local Report - Draw % Patients Receiving Breast Milk - Funnel Plot
+	            drawFunnelPlot(customizeCSVData(3, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                             { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk (during hospitalization) - Funnel Plot (All History)" },
+                             width - margin.left - margin.right,
+                             (2 * height / 3) - margin.top - margin.bottom,
+                             "div#regionChartDiv2");
+
+	            $("ul.nav li:nth-child(3)").click();
 	        });
 
 	        // Convert CSV data from fileupload to javascript object array

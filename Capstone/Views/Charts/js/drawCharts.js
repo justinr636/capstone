@@ -566,14 +566,6 @@ function dynamicSortMultiple(props) {
     }
 }
 
-function compareGen(a, b) {
-    if (a < b)
-        return -1;
-    if (a > b)
-        return 1;
-    return 0;
-}
-
 function drawFunnelPlot(data, title, width, height, selector) {
     var dataset = data.data;
     var sorted_names = data.names;
@@ -717,6 +709,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
            tooltip.transition().duration(100).style("opacity", 1);
        }).on("mousemove", function () {
            var divHtml = '<h4>Mean Value</h4>';
+               divHtml += (mean_incidence_rate * 100).toFixed(2) + '%';
            var left_position = (d3.event.pageX - 2) + "px";
            tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
        }).on("mouseout", function (d, i) {
@@ -728,7 +721,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .data(dataset)
        .enter()
        .append("circle")
-       .attr("fill", "rgba(22, 68, 81, 0.6)")
+       .attr("fill", function (d) { return (d['hid'] == global_hid ? "rgba(220, 30, 80, 0.6)" : "rgba(22, 68, 81, 0.6)"); })
        .attr("cx", function (d) {
            return xScale(d['sample_size']);
        })
@@ -736,16 +729,20 @@ function drawFunnelPlot(data, title, width, height, selector) {
            return yScale(d['ratio']);
        })
        .attr("name", function (d) {
-           return $.inArray(d['date'], sorted_names);
+           return $.inArray(d['hid'], sorted_names);
        })
        .attr("r", 5)
        .on("mouseover", function (d, i) {
            $("div.tooltip").show();
            tooltip.transition().duration(100).style("opacity", 1);
        }).on("mousemove", function (d, i) {
-           var divHtml = '<h4>' + d['date'] + '</h4>';
-           divHtml += '<strong>Population: </strong> ' + d['sample_size'] + '<br/>';
-           divHtml += '<strong>Percentage: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
+           var divHtml = '<strong>Hospital ID: ' + d['hid'] + '</strong><br/>';
+           //divHtml += '<strong>Incidences: </strong> ' + d['indicator'] + '<br/>';
+           //divHtml += '<strong>Population: </strong> ' + d['sample_size'] + '<br/>';
+           //divHtml += '<strong>Percentage: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
+           divHtml += 'Incidences: ' + d['indicator'] + '<br/>';
+           divHtml += 'Population: ' + d['sample_size'] + '<br/>';
+           divHtml += 'Percentage: ' + (d['ratio'] * 100).toFixed(2) + '%';
 
            if ($(window).width() - d3.event.pageX < 160) {
                var left_position = (d3.event.pageX - 155) + "px";
@@ -872,59 +869,51 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
         var jsFirstDate = new Date(csvArray[0][X_COL]);
         var firstDate = (jsFirstDate.getMonth() + 1) + "/" + jsFirstDate.getFullYear();
+        
+        _.each(allHids, function(item) {
+               funnelData.push({ hid: item, sample_size: 0, indicator: 0, ratio: 0 });
+        });
 
-        funnelData[0] = { sample_size: 0, indicator: 0, date: firstDate, ratio: 0 };
+        //funnelData[0] = { sample_size: 0, indicator: 0, date: firstDate, ratio: 0 };
 
         _.each(csvArray, function (item, i) {
-            var indicator = item[Y_COL];
             var jsDate = new Date(item[X_COL]);
             var dte = (jsDate.getMonth() + 1) + "/" + jsDate.getFullYear();
+            var indicator = item[Y_COL];
             var size = funnelData.length;
             var hid = item[HID_COL];
+               
+            var hidIndex = $.inArray(hid, allHids);
 
-            if ((indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined") && (hid == global_hid)) {
-                if (dte == funnelData[size - 1].date) {
-                    sample_size++;
-                    total_population++;
+            if ((hidIndex !== -1) && (indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
+               
+                    funnelData[hidIndex].sample_size++;
                     if (indicator == "Yes") {       // Assumes Indicator is always Yes/No
-                        incidences++;
+                        funnelData[hidIndex].indicator++;
                         incidence_population++;
                     }
-                }
-                else {
-                    funnelData[size - 1].sample_size = sample_size;
-                    funnelData[size - 1].indicator = incidences;
-                    funnelData[size - 1].ratio = incidences / sample_size;
-
-                    sample_size = 1;
-                    incidences = 0;
-                    funnelData.push({ sample_size: 0, indicator: 0, date: dte, ratio: 0 });
-
-                    if (indicator == "Yes") {
-                        incidences++;
-                        incidence_population++;
-                    }
+               
                     total_population++;
-                }
             }
         });
 
-        var size = funnelData.length;
-
-        funnelData[size - 1].sample_size = sample_size;
-        funnelData[size - 1].indicator = incidences;
-        funnelData[size - 1].ratio = incidences / sample_size;
+        _.each(funnelData, function (item) {
+               if (item.sample_size !== 0)
+                    item.ratio = item.indicator / item.sample_size;
+               else
+                    item.ratio = 0;
+        });
 
         // Calculate mean incidence over entire population
         var mean_incidence_rate = incidence_population / total_population;
-        var mean_incidence = incidence_population / size;
+        var mean_incidence = incidence_population / funnelData.length;
 
         var sigma_squared = mean_incidence_rate * (1 - mean_incidence_rate);
 
         // Create Sorted List of Labels
         var sorted_names = [];
         _.each(funnelData, function (item) {
-            sorted_names.push(item["date"]);
+            sorted_names.push(item["hid"]);
         });
 
         // Sorts dataset by population size for drawing confidence intervals
