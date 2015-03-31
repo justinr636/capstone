@@ -1,4 +1,4 @@
-﻿<!--
+<!--
  * Dashboard.html
  *
  * by Justin Ratra
@@ -109,8 +109,8 @@
     		    </div>
     		</div>
     		<div class="row">
-    		    <br />
-    		    <br />
+    		    <br /><br />
+    		    <br /><br />
     		</div>
     		<div class="row">
     		    <div class="col-md-6">
@@ -137,8 +137,8 @@
     		    </div>
     		</div>
     		<div class="row">
-    		    <br />
-    		    <br />
+    		    <br /><br />
+    		    <br /><br />
     		</div>
     		<div class="row">
     		    <div class="col-md-12">
@@ -146,6 +146,32 @@
     					<div id="regionChartDiv2" class="chartDiv"></div>
     				</div>
     		    </div>
+    		</div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
+    		<div class="row">
+    		    <div class="col-md-12">
+    		        <div class="chart-container">
+    					<div id="regionChartDiv3" class="chartDiv"></div>
+    				</div>
+    		    </div>
+    		</div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
+    		<div class="row">
+    		    <div class="col-md-12">
+    		        <div class="chart-container">
+    					<div id="regionChartDiv4" class="chartDiv"></div>
+    				</div>
+    		    </div>
+    		</div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
     		</div>
     	</div>
 <!-- Regional Tab End -->
@@ -348,30 +374,95 @@
 
 	            var END_DATE = new Date();
 	            var START_DATE = new Date();
-	            START_DATE.setMonth(START_DATE.getMonth() - 6);
+	            //START_DATE.setMonth(START_DATE.getMonth() - 6);
+	            START_DATE.setMonth(START_DATE.getMonth() - 12);
 
 	            // Local Report - Draw Avg Length of Stay vs Time - Run Chart
-	            drawRunChart(customizeCSVData(1, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
-                             { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay vs Time - Run Chart (6 mo.)" },
+                drawRunChart(customizeCSVData({ chartType: 1, byMonth: true, indicator: 0, hids: [global_hid] }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                             { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time - (12 mo.)" },
                              width / 2 - margin.left - margin.right,
                              height / 2 - margin.top - margin.bottom,
                              "div#localChartDiv1");
+                 
+	            Y_COL = 63;     // Validate 63 = index of 'Receiving Pharmacology Treatment' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+                                   
+	            // Local Report - Draw % Receiving Pharm Treatment Over Time - Run Chart
+                drawRunChart(customizeCSVData({ chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid] }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                             { yAxis: "Receiving Pharm Treatment (%)", xAxis: "", chartTitle: "% Patients Receiving Pharmacology Treatment Over Time (12 mo.)" },
+                             width / 2 - margin.left - margin.right,
+                             height / 2 - margin.top - margin.bottom,
+                             "div#localChartDiv2");
+                                   
+	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+                                   
+	            // Local Report - Draw % Receiving Brast Milk vs Time - Run Chart
+                drawRunChart(customizeCSVData({ chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid] }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                             { yAxis: "Receiving Breast Milk (%)", xAxis: "", chartTitle: "% Patients Receiving Breast Milk Over Time (12 mo.)" },
+                             width / 2 - margin.left - margin.right,
+                             height / 2 - margin.top - margin.bottom,
+                             "div#localChartDiv3");
+                                   
+	            Y_COL = 89;     // Validate 89 = index of 'Patients discharted with meds' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+                                   
+	            // Local Report - Draw % of Patients Discharged with Meds vs Time - Run Chart
+                drawRunChart(customizeCSVData({ chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid] }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                             { yAxis: "Discharged with Meds (%)", xAxis: "", chartTitle: "% Patients Discharged with Meds over Time (12 mo.)" },
+                             width / 2 - margin.left - margin.right,
+                             height / 2 - margin.top - margin.bottom,
+                             "div#localChartDiv4");
 
+                var hids = [global_hid, 0];     // 0 = calculate total average
+                                   
+	            Y_COL = 77;     // Validate 77 = index of 'Length of Stay' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+                                   
+	            // Regional Report - Draw Avg Length of Stay vs Time - Run Chart
+                drawRunChart(customizeCSVData({ chartType: 1, byMonth: true, indicator: 0, hids: hids }, Y_COL, X_COL, [HID_COL], START_DATE, END_DATE),
+                             { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time - (12 mo.)" },
+                             width - margin.left - margin.right,
+                             (2 * height / 3) - margin.top - margin.bottom,
+                             "div#regionChartDiv1");
+                                   
 	            Y_COL = 63;     // Validate 63 = index of 'Receiving Pharmacology Treatment' column of CSV
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
-	            // Local Report - Draw % Patients Receiving Pharmacology Treatment - Funnel Plot
-	            drawFunnelPlot(customizeCSVData(3, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+	            // Regional Report - Draw % Patients Receiving Pharmacology Treatment - Funnel Plot
+	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Receiving Pharmacology Treatment (%)", xAxis: "Population", chartTitle: "% Patients That Receive Pharmacology Treatment - Funnel Plot (All History)" },
-                             (2 * width / 3) - margin.left - margin.right,
+                             width,
                              (2 * height / 3) - margin.top - margin.bottom,
-                             "div#localChartDiv2");
+                             "div#regionChartDiv2");
 
 	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
+	            // Regional Report - Draw % Patients Receiving Breast Milk - Funnel Plot
+	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+                             { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk - Funnel Plot (All History)" },
+                             width,
+                             (2 * height / 3) - margin.top - margin.bottom,
+                             "div#regionChartDiv3");
+
+	            Y_COL = 89;     // Validate 89 = index of 'Patients discharted with meds' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+
+	            // Regional Report - Draw % Patients Discharged With Meds- Funnel Plot
+	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+                             { yAxis: "Patients Discharged with Meds (%)", xAxis: "Population", chartTitle: "% Patients Discharged with Medication - Funnel Plot (All History)" },
+                             width,
+                             (2 * height / 3) - margin.top - margin.bottom,
+                             "div#regionChartDiv4");
+                                   
+                /*
+	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
+	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
+
+            // Draw Funnel Plot
 	            // Local Report - Draw % Patients Receiving Breast Milk - Funnel Plot
-	            drawFunnelPlot(customizeCSVData(3, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk (during hospitalization) - Funnel Plot (All History)" },
                              (2 * width / 3) - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
@@ -381,24 +472,30 @@
 	            X_COL_MULT = [51, 52, 53, 54, 55, 56, 57];  // Validate 51-57 = index of 'Formula choices' columns of CSV
 	            //X_COL_MULT = [51, 52, 53, 54, 55, 56];  // Validate 51-57 = index of 'Formula choices' columns of CSV
 
+            // Draw Box and Whisker Plot
 	            // Local Report - Draw Length of Stay vs Feeding Method - Box and Whisker Plot
-	            drawBoxPlot(customizeCSVData(2, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE),
+                drawBoxPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Length of Stay (days)", xAxis: "Feeding Method", chartTitle: "Average Length of Stay vs Feeding Method" },
                              (2 * width / 3) - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#localChartDiv4");
+                */
 
+                /*
 	            Y_COL = 77;     // Validate 77 = index of 'Length of Stay' column of CSV
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
 	            // Regional Report - Draw Avg Length of Stay vs Time - Run Chart
-	            drawRunChart(customizeCSVData(1, Y_COL, X_COL, [HID_COL], START_DATE, END_DATE),
+	            drawRunChart(customizeCSVData(1, Y_COL, X_COL, [HID_COL], START_DATE, END_DATE, true),
                              { yAxis: "Length of Stay (# of days)", xAxis: "Date", chartTitle: "Length of Stay vs Time - Run Chart (6 mo.)" },
                              width - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#regionChartDiv1");
+                */
 
                 /*
+                // Working Bar Chart
+                 
 	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
@@ -408,17 +505,17 @@
                              width - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#regionChartDiv2");
-                 */
-                                   
+                 
 	            Y_COL = 49;     // Validate 49 = index of 'Receive mothers own milk' column of CSV
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
 	            // Local Report - Draw % Patients Receiving Breast Milk - Funnel Plot
-	            drawFunnelPlot(customizeCSVData(3, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+	            drawFunnelPlot(customizeCSVData(3, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk (during hospitalization) - Funnel Plot (All History)" },
                              width - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
                              "div#regionChartDiv2");
+                 */
 
 	            $("ul.nav li:nth-child(3)").click();
 	        });
@@ -466,6 +563,9 @@
 	        // Customize CSV Submit Button Handler
 	        $("#submitBtn").click(function (e) {
 	            e.preventDefault();
+                                  
+                var byMonth = true;
+                if ($("#yearRadio:checked").length > 0) byMonth = false;
 
 	            var chartType = parseInt($chartTypeDrop.val());
 	            $("#custChartDiv").empty();
@@ -478,7 +578,7 @@
 	                var END_DATE = new Date($("#endDateText").val());
 
 	                // Local Report - Draw Avg Length of Stay vs Time - Run Chart
-	                drawRunChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+	                drawRunChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
                 	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                 	             (width - margin.left - margin.right),
                 	             (height - margin.top - margin.bottom),
@@ -491,7 +591,7 @@
 	                var END_DATE = new Date($("#endDateText").val());
 
 	                // Customize Report - Box and Whisker Plot
-	                drawBoxPlot(customizeCSVData(chartType, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE),
+	                drawBoxPlot(customizeCSVData(chartType, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE, byMonth),
                 	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                 	             width - margin.left - margin.right,
                 	             height - margin.top - margin.bottom,
@@ -504,7 +604,7 @@
 	                var END_DATE = new Date($("#endDateText").val());
 
 	                // Customize Report - Funnel Plot
-	                drawFunnelPlot(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+	                drawFunnelPlot(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
                 	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                 	             width - margin.left - margin.right,
                 	             height - margin.top - margin.bottom,
@@ -517,7 +617,7 @@
 	                var END_DATE = new Date($("#endDateText").val());
 
 	                // Customize Report - Bar Chart 
-	                drawBarChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+	                drawBarChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
                 	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                 	             width - margin.left - margin.right,
                 	             height - margin.top - margin.bottom,

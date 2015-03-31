@@ -14,6 +14,10 @@ function DateToString(d) {
     return ((d.getMonth() + 1) + "/" + d.getFullYear());
 }
 
+function DateToString2(d) {
+    return ((d.getMonth() + 1) + "/1/" + d.getFullYear());
+}
+
 function drawBarChart(barData, titles, width, height, selector) {
     var data = barData.data;
     var max = barData.max;
@@ -164,17 +168,25 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var avg_single_data = [];
     var ucl = dataObj.ucl;
     var lcl = dataObj.lcl;
+    var hids = dataObj.hids;
     
-    var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
-    //var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
+    //var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
+    //var X_DATA_PARSE = d3.time.format("%B/%Y").parse;
+    var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
+    
+    _.each(data, function (item) {
+           _.each(item, function (o) {
+                 o.date = X_DATA_PARSE(o.date);
+           });
+    });
 
-    var Y_DATA_PARSE = 0;
+    //var Y_DATA_PARSE = 0;
 
     // This is the key in the data object passed to draw function
     var X_AXIS_COLUMN = "date";
 
     // This is the key in the data object passed to draw function
-    var Y_AXIS_COLUMN = "val";
+    var Y_AXIS_COLUMN = "ratio";
 
     var x = d3.time.scale()
 	     	             .range([0, width]);
@@ -189,57 +201,47 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var yAxis = d3.svg.axis()
 	     	                 .scale(y)
 	     	   			     .orient("left");
+    
+    var color = d3.scale.ordinal()
+	                      .range(randomColor({ count: data.length, hue: 'blue' }));
 
-    // draw line(s)
-    if (avg_line_bool) {
-        var avg_line = d3.svg.line()
-	     	                .interpolate("linear")
-	     	   	    		.x(function (d) { return x(d.x_axis); })
-	     	   				.y(function (d) { return y(d.y_axis); });
-        var line = d3.svg.line()
-	     	                .interpolate("linear")
-	     	   	    		.x(function (d) { return x(d.x_axis); })
-	     	   				.y(function (d) { return y(d.y_axis); });
-	     	   	 //   		.x(function (d) { if (d.hid == global_hid) return x(d.x_axis); })
-	     	     //			.y(function (d) { if (d.hid == global_hid) return y(d.y_axis); });
-
-        _.each(data, function (item) {
-            if (item.hid == global_hid)
-                avg_single_data.push(item);
-        });
-    } else {
-        var line = d3.svg.line()
-	     	                .interpolate("linear")
-	     	   	    		.x(function (d) { return x(d.x_axis); })
-	     	   				.y(function (d) { return y(d.y_axis); });
-    }
-
-
+    
     var svg = d3.select(selector).append("svg")
 	     	                .attr("width", width + margin.left + margin.right)
 	     	   	    		.attr("height", height + margin.top + margin.bottom)
 	     	   				.append("g")
 	     	   				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    var line = d3.svg.line()
+                 .interpolate("linear")
+                 .x(function (d) { return x(d.date); })
+                 .y(function (d) { return y(d.ratio); });
+    
 
     var tooltip = d3.select('body').append('div')
                                 .attr('class', 'tooltip')
                                 .style('opacity', 1e-6);
 
-    data.forEach(function (d) {
-        d.x_axis = X_DATA_PARSE(d[X_AXIS_COLUMN]);
-        d.y_axis = d[Y_AXIS_COLUMN] + 0;
-    });
-
     // Set X Domain
-    x.domain(d3.extent(data, function (d) { return d.x_axis; }));
+    x.domain([data[0][0].date, data[0][data[0].length-1].date]);
 
     // Set Y Domain (including Control Limits)
-    data.push({ x_axis: "", y_axis: ucl + 0 });
-    data.push({ x_axis: "", y_axis: lcl + 0 });
+    var max = d3.max(data, function (d) { return (d3.max(d, function (d) { return d.ratio; })); });
+    if (ucl > max) max = ucl;
+    y.domain([0, max]);
     //y.domain(d3.extent(data, function (d) { return d.y_axis; }));     // Y-AXIS-Range = [Min, Max]
-    y.domain([0, d3.max(data, function (d) { return d.y_axis; })]);     // Y-AXIS-Range = [0, Max]
-    data.pop();
-    data.pop();
+    //y.domain([0, d3.max(data, function (d) { return d.y_axis; })]);     // Y-AXIS-Range = [0, Max]
+    
+    // draw line(s)
+    svg.selectAll(".run-line")
+       .data(data)
+       .enter().append("path")
+       .attr("class", "line")
+       .style("fill", "none")
+       .style("stroke-width", "1.5px")
+       .style("stroke", function (d, i) { return color(i / (data.length - 1)); })
+       .attr("d", line);
+    
 
     // draw x-axis
     svg.append("g")
@@ -269,9 +271,9 @@ function drawRunChart(dataObj, label, width, height, selector) {
     
     // Draw center line to indicate mean.
     svg.append("svg:line")
-       .attr("x1", x(data[0].x_axis))
+       .attr("x1", x(data[0][0].date))
        .attr("y1", y(avg))
-       .attr("x2", x(data[data.length-1].x_axis))
+       .attr("x2", x(data[0][data[0].length-1].date))
        .attr("y2", y(avg))
        .style("stroke", "rgba(0, 165, 46, 0.6)")
        .style("stroke-width", 2)
@@ -287,118 +289,56 @@ function drawRunChart(dataObj, label, width, height, selector) {
            tooltip.transition().duration(100).style("opacity", 1e-6);
        });
 
-    if (avg_line_bool) {
-        // draw run chart line
-        svg.append("path")
-	               .datum(avg_single_data)
-                    //.attr("class", "line")
-	      		   .style("stroke", "rgba(236, 122, 8, 0.5)")
-	      		   .style("stroke-width", "1.5px")
-	      		   .style("fill", "none")
-	      		   .attr("d", line);
-
-        // draw avg run chart line
-        svg.append("path")
-	               .datum(data)
-                    //.attr("class", "avg_line")
-	      		   .style("stroke", "rgba(70, 130, 180, 1.0)")
-	      		   //.style("stroke", "rgba(70, 130, 180, 1.0)""rgba(220, 30, 80, 0.4)")
-	      		   .style("stroke-width", "1.5px")
-	      		   .style("fill", "none")
-	      		   .attr("d", avg_line);
-    } else {
-        // draw run chart line
-        svg.append("path")
-	               .datum(data)
-                    //.attr("class", "line")
-	      		   .style("stroke", "rgba(70, 130, 180, 1.0)")
-	      		   .style("stroke-width", "1.5px")
-	      		   .style("fill", "none")
-	      		   .attr("d", line);
-    }
-
     // draw data points on line
-    if (avg_line_bool) {
-        svg.selectAll('circle')
-                    .data(data)
-                    .enter()
-                    .append("circle")
-        //.attr("fill", "rgba(22, 68, 81, 0.6)")
-        // Flag data points >= UCL or <= LCL
-                    .attr("fill", function (d) { return ((d.val >= ucl) || (d.val <= lcl) ? "rgba(220, 55, 41, 0.8)" : d.hid == global_hid ? "rgba(236, 122, 8, 0.5)" : "rgba(22, 68, 81, 1.0)"); })
-                    .attr("cx", function (d) {
-                        return x(d.x_axis);
-                    })
-                    .attr("cy", function (d) {
-                        return y(d.y_axis);
-                    })
-                    .attr("r", 3)
-                    .on("mouseover", function (d, i) {
-                        $("div.tooltip").show();
-                        tooltip.transition().duration(100).style("opacity", 1);
-                    }).on("mousemove", function (d, i) {
-                        var divHtml = '<h5><strong>Date:</strong>&emsp;' + d.date + '</h5>';
-                        divHtml += '<h5><strong>Value:</strong>&emsp;' + d.val + '</h5>';
+    for (var i = 0; i < data.length; i++) {
+        console.log("data i = ", data[i]);
+        console.log("data.length = ", data.length);
+        
+        svg.selectAll('.circle-' + i)
+           .data(data[i])
+           .enter()
+           .append("circle")
+           .attr("fill", function (d) { return ((d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
+           .attr("cx", function (d) { return x(d.date); })
+           .attr("cy", function (d) { return y(d.ratio); })
+           .attr("r", 3)
+           .on("mouseover", function (d, i) {
+               $("div.tooltip").show();
+               tooltip.transition().duration(100).style("opacity", 1);
+           }).on("mousemove", function (d, i) {
+               //var divHtml = '<h5><strong>Date:</strong>&emsp;' + DateToString(d.date) + '</h5>';
+               //divHtml += '<h5><strong>Value:</strong>&emsp;' + d.ratio.toFixed(2) + '%</h5>';
+               var divHtml = '<strong>Date:</strong>&emsp;' + DateToString(d.date) + '<br/>';
+                   divHtml += '<strong>Hospital ID: </strong> ' + d['hid'] + '<br/>';
+                   divHtml += '<strong>Ratio: </strong> ' + (d['ratio']).toFixed(2) + '%' + '<br/>';
+                   divHtml += '<strong>Sample Size: </strong> ' + d['sample_size'];
 
-                        if ($(window).width() - d3.event.pageX < 160) {
-                            var left_position = (d3.event.pageX - 155) + "px";
-                        } else {
-                            var left_position = (d3.event.pageX - 2) + "px";
-                        }
-                        tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
-                    }).on("mouseout", function (d, i) {
-                        tooltip.transition().duration(100).style("opacity", 1e-6);
-                    });
-    } else {
-        svg.selectAll('circle')
-                    .data(data)
-                    .enter()
-                    .append("circle")
-        //.attr("fill", "rgba(22, 68, 81, 0.6)")
-        // Flag data points >= UCL or <= LCL
-                    .attr("fill", function (d) { return ((d.val >= ucl) || (d.val <= lcl) ? "rgba(220, 55, 41, 0.8)" : "rgba(22, 68, 81, 0.6)"); })
-                    .attr("cx", function (d) {
-                        return x(d.x_axis);
-                    })
-                    .attr("cy", function (d) {
-                        return y(d.y_axis);
-                    })
-                    .attr("r", 3)
-                    .on("mouseover", function (d, i) {
-                        $("div.tooltip").show();
-                        tooltip.transition().duration(100).style("opacity", 1);
-                    }).on("mousemove", function (d, i) {
-                        var divHtml = '<h5><strong>Date:</strong>&emsp;' + d.date + '</h5>';
-                        divHtml += '<h5><strong>Value:</strong>&emsp;' + d.val + '</h5>';
-
-                        if ($(window).width() - d3.event.pageX < 160) {
-                            var left_position = (d3.event.pageX - 155) + "px";
-                        } else {
-                            var left_position = (d3.event.pageX - 2) + "px";
-                        }
-                        tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
-                    }).on("mouseout", function (d, i) {
-                        tooltip.transition().duration(100).style("opacity", 1e-6);
-                    });
+               if ($(window).width() - d3.event.pageX < 160) {
+                   var left_position = (d3.event.pageX - 155) + "px";
+               } else {
+                   var left_position = (d3.event.pageX - 2) + "px";
+               }
+               tooltip.html(divHtml).style("left", left_position).style("top", (d3.event.pageY - 80) + "px");
+           }).on("mouseout", function (d, i) {
+                 tooltip.transition().duration(100).style("opacity", 1e-6);
+           });
     }
 
     // upper limit line
-    var upper_limit = ucl;
     svg.append("line")
 	               .attr("class", "limit-line")
-	    		   .attr({ x1: 0, y1: y(upper_limit), x2: width, y2: y(upper_limit) });
+	    		   .attr({ x1: 0, y1: y(ucl), x2: width, y2: y(ucl) });
     svg.append("text")
-	               .attr({ x: width + 5, y: y(upper_limit) + 4 })
-	    		   .text("Upper Limit: " + parseInt(upper_limit));
+	               .attr({ x: width + 5, y: y(ucl) + 4 })
+	    		   .text("Upper Limit: " + ucl.toFixed(2));
 
     // lower limit line
-    var lower_limit = lcl;
     svg.append("line")
 	               .attr("class", "limit-line")
-	    		   .attr({ x1: 0, y1: y(lower_limit), x2: width, y2: y(lower_limit) });
+	    		   .attr({ x1: 0, y1: y(lcl), x2: width, y2: y(lcl) });
     svg.append("text")
-	               .attr({ x: width + 5, y: y(lower_limit) + 4 })
-	    		   .text("Lower Limit: " + parseInt(lower_limit));
+	               .attr({ x: width + 5, y: y(lcl) + 4 })
+	    		   .text("Lower Limit: " + lcl.toFixed(2));
 
     // draw title
     svg.append('text')
@@ -414,10 +354,6 @@ function drawRunChart(dataObj, label, width, height, selector) {
     			    .enter().append("g")
     			    .attr("class", "legend")
     			    .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
-
-        var color = d3.scale.ordinal()
-	                //.range(["#dc1e50", "#4682b4"]);
-	                .range(["#ec7a08", "#4682b4"]);
 
         legend.append("rect")
     			    .attr("x", width - 18)
@@ -437,6 +373,19 @@ function drawRunChart(dataObj, label, width, height, selector) {
     			    .style("text-anchor", "end")
     			    .text(function (d) { return d; });
     }
+    
+    $(selector + " g.x g.tick text").map(function () {
+        // translation formula 1:
+        // y = 0.4932x + 11.422
+        // translation formula 2:
+        // y = 0.3961x + 14.865
+        var text = $("#hidden-span").text($(this).text());
+
+        var translation = text.width() * 0.4932 + 11.422;
+        //var translation = text.width() * 0.3961 + 14.865;
+        $(this).attr("transform", "rotate(-90), translate(" + "-" + translation + ", -14)");
+        return;
+    });
 }
 
 // #######################
@@ -778,16 +727,19 @@ function drawFunnelPlot(data, title, width, height, selector) {
        });
 }
 
-function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE) {
+function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE) {
     // Returns data object formatted for SPC chart 
     //      depending on chartType value
     // 
     // chartType 
-    //  1 = Run Chart                   Y_COL = number
+    //  1 = Run Chart                   Y_COL = number?
     //  2 = Box and Whisker Plot
     //  3 = Funnel Plot                 Y_COL = "Yes" / "No", add functionality for "Checked" / "Unchecked"
     //  4 = Bar Chart
     //
+    var chartType = chartData.chartType;
+    var byMonth = chartData.byMonth;
+    var indicatorVal = chartData.indicator;
 
     // Handle Run Chart with multiple lines
     var avg_line = false;
@@ -798,46 +750,190 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
     if (chartType == 1) {           // Draw Run Chart
         var dataset = [];
+        
+        var hids = chartData.hids;
 
+        var avg_count = 0;
         var avg_sum = 0;
         var variance_sum = 0;
         
         var min = Infinity;
         var max = -Infinity;
+        
+        // Need to get each month (and possibly year) between START_DATE and END_DATE
+        var startMonth = START_DATE.getMonth() + 1;
+        var startYear = START_DATE.getFullYear();
+        var endMonth = END_DATE.getMonth() + 1;
+        var endYear = END_DATE.getFullYear();
+        var dateLabels = [];
+        var jsDateLabels = [];
+        
+
+        for (startYear; startYear <= endYear; startYear++) {
+            if (byMonth) {
+                if (startYear < endYear) {
+                    for (startMonth; startMonth <= 12; startMonth++) {
+                        //var dateStr = startMonth + "/" + startYear;
+                        var dateStr = startMonth + "/1/" + startYear;
+                        dateLabels.push(dateStr);
+                        var dateJs = new Date(startMonth + "/1/" + startYear);
+                        jsDateLabels.push(dateJs);
+                    }
+                    startMonth = 1;
+                } else if (startYear == endYear) {
+                    for (startMonth; startMonth <= endMonth; startMonth++) {
+                        //var dateStr = startMonth + "/" + startYear;
+                        var dateStr = startMonth + "/1/" + startYear;
+                        dateLabels.push(dateStr);
+                        var dateJs = new Date(startMonth + "/1/" + startYear);
+                        jsDateLabels.push(dateJs);
+                    }
+                } else { }
+            } else {
+                //var dateStr = startYear;
+                var dateStr = "1/1/" + startYear;
+                dateLabels.push(dateStr);
+                var dateJs = new Date("1/1/" + startYear);
+                jsDateLabels.push(dateJs);
+            }
+        }
+        
+        _.each(hids, function (hid) {
+               var arr = [];
+               _.each(dateLabels, function (date) {
+                    arr.push({ date: date, hid: hid, sample_size: 0, indicator: 0, ratio: 0, vals: [] });
+               });
+               dataset.push(arr);
+        });
+        
+        console.log("dataset = ", dataset);
 
         _.each(csvArray, function (item, i) {
 
             // Get Y-Axis indicator
-            // -This assumes item[Y_COL] (y-axis) = number (not "Yes" or "Checked")
-            var num = parseInt(item[Y_COL]);
+            //var val = parseInt(item[Y_COL]);  -This assumes item[Y_COL] (y-axis) = number (not "Yes" or "Checked")
+            var val = item[Y_COL];
 
             // Get Date
             // This assumes item[X_COL] (x-axis) = datetime    (YYYY-MM-DD)
             var dte = item[X_COL];
             var jsDte = new Date(item[X_COL]);
+            var dteStr = DateToString2(jsDte);
+            var dateIndex = $.inArray(dteStr, dateLabels);
+            //var dateIndex = _.findIndex(dataset, { date: dteStr });
+            //var dateIndex = -1;
+            //dateIndex = $.map(dataset, function (obj, index) { if (obj.date == dteStr) return index; });
+            //dateIndex = _.each(dataset, function (item, i) { if (item.date == dteStr) return i; });
+               //console.log("dateIndex = ", dateIndex);
 
             // Get Hospital ID
             var hid = item[HID_COL];
+            var hospIndex = $.inArray(parseInt(hid), hids);
+            //var hospIndex = _.findIndex(allHids, hid);
+            //var hospIndex = -1;
+            //hospIndex = $.map(allHids, function (item, index) { if (item == hid) return index; });
+            //hospIndex = _.each(allHids, function (item, i) { if(item == hid) return i; });
 
             // if jsDte is between START_DATE and END_DATE
             //    AND ((hid matches Global Hospital ID) OR (drawing avg line))
-            if ((jsDte > START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (num !== '') && (typeof num !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
-                var dataObj = { date: dte, val: num, hid: hid };
-                dataset.push(dataObj);
+            if ((dateIndex !== -1) && (jsDte > START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (val !== '') && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
+               
+               //console.log("val = ", val);
+               //console.log("indicatorVal = ", indicatorVal);
+               
+               if (typeof indicatorVal === "number") {
+                    var num = parseInt(val);
+               
+                    if (hospIndex !== -1) {
+                        dataset[hospIndex][dateIndex].vals.push(num);
+                    }
+               
+                    if (avg_line) {
+                        dataset[hids.length-1][dateIndex].sample_size++;
+                        dataset[hids.length-1][dateIndex].vals.push(num);
+                    }
+               
+                    avg_sum += num;              // get total sum
+                    avg_count++;
+                    if (num > max) max = num;    // get maximum value
+                    if (num < min) min = num;    // get minimum value
+               } else {
+                    if (hospIndex !== -1) {
+                        dataset[hospIndex][dateIndex].sample_size++;
+               
+                        if (val == indicatorVal) {
+                            dataset[hospIndex][dateIndex].indicator++;
+                        }
+                    }
+               
+                    dataset[hids.length-1][dateIndex].sample_size++;
+                    avg_count++;
+               
+                    if (val == indicatorVal) {
+                        dataset[hids.length-1][dateIndex].indicator++;
+                        avg_sum++;
+                    }
+               }
 
-                avg_sum += num;     // get total sum
-               if (num > max) max = num;    // get maximum value
-               if (num < min) min = num;    // get minimum value
             }
         });
 
-        var avg = avg_sum / dataset.length;
+        var avg = avg_sum / avg_count;
 
-        _.each(dataset, function (o, i) {
-            variance_sum = variance_sum + ((o.val - avg) * (o.val - avg));
-        });
+        if (typeof indicatorVal === "number") {
+            _.each(dataset, function (hidData) {
+                  var sum = 0;
+                  var items = [];
+                  _.each(hidData, function (o) {
+                        var current_sum = 0;
+                        var size = o.vals.length;
+                         
+                        _.each(o.vals, function (item) {
+                            variance_sum += ((item - avg) * (item - avg));
+                            current_sum += item;
+                            
+                            sum += item;
+                            items.push(item);
+                        });
+                        
+                         o.sample_size = size;
+                         
+                        if (size > 0)
+                            o.ratio = current_sum / size;
+                        else
+                            o.ratio = 0;
+                  });
+                   /*
+                  if (hids.length > 1)
+                  {
+                   console.log("obj = ", obj);
+                       dataset.push({ date: obj.hospitals[0].date, hid: 0, vals: items, ratio: sum / items.length, indicator: 0, sample_size: 0 });
+                  }
+                   */
+            });
+        } else {
+            avg = avg * 100;
+            
+            _.each(dataset, function (hidData) {
+                   _.each(hidData, function (o) {
+                        if (o.hid !== 0) {
+                            if (o.sample_size == 0)
+                                o.ratio = 0;
+                            else
+                                o.ratio = (o.indicator / o.sample_size) * 100;
+                   
+                            variance_sum += ((o.ratio - avg) * (o.ratio - avg));
+                        } else {
+                            if (o.sample_size == 0)
+                                o.ratio = 0;
+                            else
+                                o.ratio = (o.indicator / o.sample_size) * 100;
+                        }
+                   });
+           });
+        }
 
-        var variance = variance_sum / dataset.length;
+        var variance = variance_sum / avg_count;
 
         var stdev = Math.sqrt(variance);
 
@@ -846,10 +942,10 @@ function customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         if (lcl < 0) lcl = 0;       // assumes lcl cannot be negative
 
         // Sort data by date
-        //console.log("run chart dataset = ", dataset);
-        dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
+        console.log("run chart dataset = ", dataset);
+        //dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
-        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min  };
+        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids  };
 
     } else if (chartType == 2) {    // Draw Box Plot 
         var dataset = [];
