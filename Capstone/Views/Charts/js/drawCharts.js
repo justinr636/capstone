@@ -291,8 +291,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
 
     // draw data points on line
     for (var i = 0; i < data.length; i++) {
-        console.log("data i = ", data[i]);
-        console.log("data.length = ", data.length);
+        //console.log("data i = ", data[i]);
+        //console.log("data.length = ", data.length);
         
         svg.selectAll('.circle-' + i)
            .data(data[i])
@@ -806,7 +806,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                dataset.push(arr);
         });
         
-        console.log("dataset = ", dataset);
+        //console.log("dataset = ", dataset);
 
         _.each(csvArray, function (item, i) {
 
@@ -942,7 +942,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         if (lcl < 0) lcl = 0;       // assumes lcl cannot be negative
 
         // Sort data by date
-        console.log("run chart dataset = ", dataset);
+        //console.log("run chart dataset = ", dataset);
         //dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
         return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids  };
@@ -986,6 +986,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
     } else if (chartType == 3) {	// Draw Funnel Plot 
         var funnelData = [];
 
+        var indicatorVal = chartData.indicator;
         var total_population = 0;
         var incidence_population = 0;
         var sample_size = 0;
@@ -1012,7 +1013,8 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             if ((hidIndex !== -1) && (indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
                
                     funnelData[hidIndex].sample_size++;
-                    if (indicator == "Yes") {       // Assumes Indicator is always Yes/No
+                    //if (indicator == "Yes") {       // Assumes Indicator is always Yes/No
+                    if (indicator == indicatorVal) {       // Assumes Indicator is always Yes/No
                         funnelData[hidIndex].indicator++;
                         incidence_population++;
                     }

@@ -58,7 +58,7 @@
                     <ul id="navbar-items" class="nav navbar-nav">
                         <li class="selected"><a href="#">Home</a></li>
                         <li><a href="#">My Hospital Report</a></li>
-                        <li><a href="#">Massachussets Hospital Reports</a></li>
+                        <li><a href="#">State Report</a></li>
                         <li><a href="#">Customizable Charts</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
@@ -207,11 +207,16 @@
 		                <option value="3">Funnel Plot</option>
 		                <option value="4">Bar Chart</option>
 		            </select>
+                    <div id="hidChecks">
+                    </div>
 		        </div>
 		        <div class="col-md-3">
 		            <select id="yDataDrop" class="form-control dataDrop">
 		                <option value="0">Select One</option>
 		            </select>
+                    <div id="indicatorDiv">
+                        Indicator Value:&emsp;<input id="indicatorText" type="text" />
+                    </div>
 		        </div>
 		        <div class="col-md-3">
 		            <select id="xDataDrop" class="form-control dataDrop">
@@ -234,6 +239,10 @@
 		            <input type="submit" id="submitBtn" />
 		        </div>
 		    </div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
 		    <!-- Enter Chart Labels Row -->
 		    <div class="row">
 		        <div class="col-md-3">
@@ -246,13 +255,19 @@
 		            <input id="xAxisTitleText" placeholder="X-Axis Title" class="form-control" />
 		        </div>
 		    </div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
 		    <div class="row print-container">
-		        <div class="col-md-1"> </div>
-		        <div class="col-md-10">
+		        <div class="col-md-12">
 		            <div id="custChartDiv"></div>
 		        </div>
-		        <div class="col-md-1"> </div>
 		    </div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
 		</div>
 <!-- Customize Tab End -->
 
@@ -300,40 +315,12 @@
 	        var $xAxisTitleText = $("#xAxisTitleText");
 	        var $yAxisTitleText = $("#yAxisTitleText");
 
-	        $("#multipleXData").hide();
-	        $("#dateXData").hide();
-
-	        $chartTypeDrop.change(function () {
-	            // if selecting BoxPlot, show proper drop downs
-	            var val = parseInt($(this).val());
-
-	            if (val == 1) {
-	                $("#multipleXData").hide();
-	                $("#dateXData").show();
-	            } else if (val == 2) {
-	                $xDataDrop.hide();
-	                $("#multipleXData").show();
-	                $("#dateXData").hide();
-	            } else if (val == 3) {
-	                $("#multipleXData").hide();
-	                $("#dateXData").show();
-	            } else if (val == 4) {
-	                $("#multipleXData").hide();
-	                $("#dateXData").show();
-	            } else {
-	                $("#multipleXData").hide();
-	                $("#dateXData").hide();
-	            }
-	        });
-
-	        $("#startDateText").datepicker();
-	        $("#endDateText").datepicker();
-
 	        function setHospitalId() {
 	            //var lastCol = 105;               // Validate and/or have Users validate this number
 	            var lastCol = global_hid_col;
 
 	            var title_html = '';
+	            var hid_check_html = '';
 
 	            _.each(csvArray, function (item) {
 	                var num = item[lastCol];
@@ -341,21 +328,26 @@
 	                if (inList == -1) {
 	                    allHids.push(num);
 
-	                    if (parseInt(num))
+                    var hids = $("#hidChecks input:checked");
+                       if (parseInt(num)) {
 	                        title_html += '<option value="' + num + '">' + num + '</option>';
-	                    else
+                            hid_check_html += '<input type="checkbox" value="' + num + '"/>' + num + '&emsp;';
+                       } else {
 	                        console.log("ERROR! Data Missing Hospital ID");
+                       }
 	                }
 	            });
 	            title_html = '<option value="0">I Do Not Know</option>' + title_html;
+                hid_check_html += '<input type="checkbox" value="0"/> AVG &emsp;';
 
 	            $("#hidSelect").html(title_html);
+	            $("#hidChecks").html(hid_check_html);
 
 	            $("#select-hid-row").show();
 	        }
 
 	        $("#hidSelect").change(function () {
-	            // hospitalID Select Change Handler --- Possibly Create submit button to prevent accidental change
+	            // hospitalID Select Change Handler --- (Possibly Create submit button to prevent accidental change)
 	            // -    Set Global Hospital ID  
 	            // -	Create Local and Regional Charts
 
@@ -430,7 +422,7 @@
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
 	            // Regional Report - Draw % Patients Receiving Pharmacology Treatment - Funnel Plot
-	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+                drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true, indicator: "Yes" }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Receiving Pharmacology Treatment (%)", xAxis: "Population", chartTitle: "% Patients That Receive Pharmacology Treatment - Funnel Plot (All History)" },
                              width,
                              (2 * height / 3) - margin.top - margin.bottom,
@@ -440,7 +432,7 @@
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
 	            // Regional Report - Draw % Patients Receiving Breast Milk - Funnel Plot
-	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+                drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true, indicator: "Yes" }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk - Funnel Plot (All History)" },
                              width,
                              (2 * height / 3) - margin.top - margin.bottom,
@@ -450,7 +442,7 @@
 	            X_COL = 1;      // Validate 1 = index of 'Date of Audit' column of CSV
 
 	            // Regional Report - Draw % Patients Discharged With Meds- Funnel Plot
-	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true, indicator: "Yes" }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Patients Discharged with Meds (%)", xAxis: "Population", chartTitle: "% Patients Discharged with Medication - Funnel Plot (All History)" },
                              width,
                              (2 * height / 3) - margin.top - margin.bottom,
@@ -462,7 +454,7 @@
 
             // Draw Funnel Plot
 	            // Local Report - Draw % Patients Receiving Breast Milk - Funnel Plot
-	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+	            drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true, indicator: "Yes" }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk (during hospitalization) - Funnel Plot (All History)" },
                              (2 * width / 3) - margin.left - margin.right,
                              (2 * height / 3) - margin.top - margin.bottom,
@@ -560,6 +552,48 @@
 	            return false;
 	        });
 
+            // Customize Tab - Chart Type Change event handler
+	        $chartTypeDrop.change(function () {
+	            // if selecting BoxPlot, show proper drop downs
+	            var val = parseInt($(this).val());
+
+	            if (val == 1) {
+	                $("#multipleXData").hide();
+	                $("#dateXData").show();
+                    $("#indicatorDiv").show();
+                    $("#hidChecks").show();
+	            } else if (val == 2) {
+	                $xDataDrop.hide();
+	                $("#multipleXData").show();
+	                $("#dateXData").hide();
+                    $("#indicatorDiv").hide();
+                    $("#hidChecks").hide();
+	            } else if (val == 3) {
+	                $("#multipleXData").hide();
+	                $("#dateXData").show();
+                    $("#indicatorDiv").show();
+                    $("#hidChecks").hide();
+	            } else if (val == 4) {
+	                $("#multipleXData").hide();
+	                $("#dateXData").show();
+                    $("#indicatorDiv").hide();
+                    $("#hidChecks").hide();
+	            } else {
+	                $("#multipleXData").hide();
+	                $("#dateXData").hide();
+                    $("#indicatorDiv").hide();
+                    $("#hidChecks").hide();
+	            }
+	        });
+                          
+	        $("#multipleXData").hide();
+	        $("#dateXData").hide();
+            $("#indicatorDiv").hide();
+            $("#hidChecks").hide();
+
+	        $("#startDateText").datepicker();
+	        $("#endDateText").datepicker();
+
 	        // Customize CSV Submit Button Handler
 	        $("#submitBtn").click(function (e) {
 	            e.preventDefault();
@@ -573,17 +607,33 @@
 	            if (chartType == 1) {           // Draw Run Chart
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
+                                  
 	                var HID_COL = global_hid_col;
+                                  
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
-
-	                // Local Report - Draw Avg Length of Stay vs Time - Run Chart
-	                drawRunChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
-                	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
-                	             (width - margin.left - margin.right),
-                	             (height - margin.top - margin.bottom),
-                	             "div#custChartDiv");
-	            } else if (chartType == 2) {    // Draw Box Plot 
+                                  
+                    var hids = [];
+                    $("#hidChecks input:checked").each(function () {
+                         hids.push(parseInt($(this).val()));
+                    });
+                    if (hids.length > 1) HID_COL = [global_hid_col];
+                                  
+                    function isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
+                    
+                    var indicatorVal = $("#indicatorText").val();
+                    if (isNumeric(indicatorVal)) indicatorVal = parseInt(indicatorVal);
+                                  
+                    //console.log("hids = ", hids);
+                                  
+                    // Local Report - Draw % Receiving Pharm Treatment Over Time - Run Chart
+                    drawRunChart(customizeCSVData({ chartType: chartType, byMonth: byMonth, indicator: indicatorVal, hids: hids }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
+                                    { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
+                                    width - margin.left - margin.right,
+                                    height - margin.top - margin.bottom,
+                                    "div#custChartDiv");
+                                  
+	            } else if (chartType == 2) {    // Draw Box Plot
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL_MULT = $xDataDrop2.val();
 	                var HID_COL = global_hid_col;
@@ -591,24 +641,27 @@
 	                var END_DATE = new Date($("#endDateText").val());
 
 	                // Customize Report - Box and Whisker Plot
-	                drawBoxPlot(customizeCSVData(chartType, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE, byMonth),
-                	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
-                	             width - margin.left - margin.right,
-                	             height - margin.top - margin.bottom,
-                	             "div#custChartDiv");
+                    drawBoxPlot(customizeCSVData({ chartType: chartType, byMonth: true }, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE, true),
+                             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
+                             width - margin.left - margin.right,
+                             height - margin.top - margin.bottom,
+                             "div#custChartDiv");
+                                  
 	            } else if (chartType == 3) {	// Draw Funnel Plot 
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
 	                var HID_COL = global_hid_col;
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
+                    var indicatorVal = $("#indicatorText").val();
+                                  
+                    // Customize Report - Draw % Patients Receiving Pharmacology Treatment - Funnel Plot
+                    drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true, indicator: indicatorVal }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
+                             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
+                             width,
+                             height - margin.top - margin.bottom,
+                             "div#custChartDiv");
 
-	                // Customize Report - Funnel Plot
-	                drawFunnelPlot(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
-                	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
-                	             width - margin.left - margin.right,
-                	             height - margin.top - margin.bottom,
-                	             "div#custChartDiv");
 	            } else if (chartType == 4) {    // Draw Bar Chart
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
@@ -616,12 +669,14 @@
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
 
+                    /*
 	                // Customize Report - Bar Chart 
 	                drawBarChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
                 	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                 	             width - margin.left - margin.right,
                 	             height - margin.top - margin.bottom,
                 	             "div#custChartDiv");
+                    */
 	            }
 	        });
 
