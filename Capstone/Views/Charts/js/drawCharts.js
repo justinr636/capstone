@@ -18,6 +18,10 @@ function DateToString2(d) {
     return ((d.getMonth() + 1) + "/1/" + d.getFullYear());
 }
 
+function DateToString3(d) {
+    return ((d.getMonth() + 1) + "/" + d.getDay() + "/" + d.getFullYear());
+}
+
 function drawBarChart(barData, titles, width, height, selector) {
     var data = barData.data;
     var max = barData.max;
@@ -169,6 +173,10 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var ucl = dataObj.ucl;
     var lcl = dataObj.lcl;
     var hids = dataObj.hids;
+    
+   //console.log("data = ", data);
+   console.log("Chart Title = ", label.chartTitle);
+   console.log("Chart Data = ", dataObj);
     
     //var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
     //var X_DATA_PARSE = d3.time.format("%B/%Y").parse;
@@ -871,9 +879,6 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             // if jsDte is between START_DATE and END_DATE
             //    AND ((hid matches Global Hospital ID) OR (drawing avg line))
             if ((dateIndex !== -1) && (jsDte > START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (val !== '') && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
-               
-               //console.log("val = ", val);
-               //console.log("indicatorVal = ", indicatorVal);
                
                if (typeof indicatorVal === "number") {
                     var num = parseInt(val);
