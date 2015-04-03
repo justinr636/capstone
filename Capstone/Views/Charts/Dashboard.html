@@ -489,8 +489,8 @@
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
                     options: { chartType: 1, byMonth: true, indicator: 0, hids: [global_hid] },
-                    Y_COL: 77,
-                    X_COL: 1,
+                    Y_COL: 77,              // Validate 77 = index of 'Length of Stay' column of CSV
+                    X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     HID_COL: HID_COL,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,

@@ -854,7 +854,12 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
             // Get Y-Axis indicator
             //var val = parseInt(item[Y_COL]);  -This assumes item[Y_COL] (y-axis) = number (not "Yes" or "Checked")
-            var val = item[Y_COL];
+            var val = 0;
+            if (Y_COL == 77) {
+               val = parseInt(item[Y_COL]) - parseInt(item[7]);
+            } else {
+               val = item[Y_COL];
+            }
 
             // Get Date
             // This assumes item[X_COL] (x-axis) = datetime    (YYYY-MM-DD)
