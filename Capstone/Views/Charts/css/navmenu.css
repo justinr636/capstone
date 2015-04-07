@@ -20,53 +20,10 @@ h1, h2, h3, h4, h5, h6 {
 a, p, div {
     font-family: 'Ubuntu', sans-serif;
 }
-    .only-print, .only-print *
-    {
-        display: none;
-    }
 
-@media print
-{
-    .only-print, .only-print *
-    {
-        display: block !important;
-    }
-    
-    .no-print, .no-print *
-    {
-        display: none !important;
-    }
-    
-    /*
-    svg, svg *
-    {
-        overflow: visible !important;
-    }
-    */
-    svg:not(:root)
-    {
-        overflow: visible !important;
-    }
-    
-    div#main
-    {
-        display: inline;
-    }
-    
-    .print-report
-    {
-        display: block !important;
-    }
-    
-    .print-report:not(:first-child) .only-print h5
-    {
-        page-break-before: always;
-        padding-top: 90px;
-    }
-}
-
-    .print-area { margin-left: auto; margin-right: auto; width: 90%; }
-        .print-area td { padding-left: 50px; padding-top: 20px; }
+.only-print, .only-print * { display: none; }
+.print-area { margin-left: auto; margin-right: auto; width: 90%; }
+    .print-area td { padding-left: 50px; padding-top: 20px; }
 
 
 nav { background-image: #fff !important; }
@@ -106,3 +63,6 @@ nav { background-image: #fff !important; }
 
 .date-toggle-start { width: 82px; }
 .date-toggle-end { width: 82px; }
+
+#csvfile-error { text-align: center; }
+    .csvfile-error-select { width: 100%; }
