@@ -21,6 +21,10 @@ a, p, div {
     font-family: 'Ubuntu', sans-serif;
 }
 
+.ib { width: 100%; }
+    .ib, .ib > * { display: inline-block; }
+        .logos { width: 50px !important; height 50px !important; }
+
 .only-print, .only-print * { display: none; }
 .print-area { margin-left: auto; margin-right: auto; width: 90%; }
     .print-area td { padding-left: 50px; padding-top: 20px; }

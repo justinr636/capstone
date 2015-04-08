@@ -63,11 +63,11 @@
                         <img id="navbar-brand-image" src="./img/NeoQIC_icon_126_59.gif" height="59" width="126" />
                     </a>
                     <ul id="navbar-items" class="nav navbar-nav">
-                        <li class="selected"><a href="#">Home</a></li>
+                        <li><a href="#">Home</a></li>
                         <li><a href="#">My Hospital Report</a></li>
                         <li><a href="#">State Report</a></li>
                         <li><a href="#">Customizable Charts</a></li>
-                        <li><a href="#">Help</a></li>
+                        <li class="selected"><a href="#">Help</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li id="printBtn"><a href="#">Print</a></li>
@@ -474,8 +474,10 @@
             <div id="help-nav-tabs">
                 <div id="help-gstart-tab">
                     <div class="row">
-                        <div class="col-md-4">
+                        <br />
+                        <div class="col-md-12">
                             <div class="well well-sm">
+                                <a onclick="$(document).scrollTop($('#h4-gstart').offset().top - 75); return false;" href="#">Getting Started</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-data').offset().top - 75); return false;" href="#">Selecting a Data File</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-hid').offset().top - 75); return false;" href="#">Choosing a Hospital ID</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-date').offset().top -75); return false;" href="#">Selecting a Date Range</a> <br />
@@ -485,8 +487,42 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
+                            <h4 id="h4-gstart">Getting Started</h4>
+                            <p>This web application is optimized to work with Google Chrome.</p>
+                            <p>This will not work in Internet Explorer!</p>
+                            <p>Before you can use the reporting tool of this dashboard, ensure you have a .CSV file that has been exported from RedCAP (with labels)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row" style="display: inline">
+                                <div class="ib">
+                                    <div class="col-md-4">
+                                        <h3>Chrome</h3>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <img width="50" height="50" class="logos" src="./img/chrome_logo.png" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h3>&#x2713;</h3>
+                                    </div>
+                                </div>
+                                <div class="ib">
+                                    <div class="col-md-4">
+                                        <h3>IE</h3>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <img width="50" height="50" class="logos" src="./img/ie_logo.png" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h3>&#x2717;</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
                             <h4 id="h4-data">Selecting a Data File</h4>
-                            <p>Click on 'Choose File' and select a <strong>.csv</strong> file from your computer.</p>
+                            <p>Click on 'Choose File' and select a <strong>.CSV</strong> file from your computer.</p>
                         </div>
                         <div class="col-md-6">
                             <img src="./img/help_csv.png" />
@@ -529,16 +565,15 @@
                 </div>
                 <div id="help-charts-tab">
                     <div class="row">
-                        <div class="col-md-4"></div>
-                        <div class="col-md-4">
-                            <div class="well well-sm" style="margin-left: -30px; margin-right: 35px;">
+                        <br />
+                        <div class="col-md-12">
+                            <div class="well well-sm">
                                 <a onclick="$(document).scrollTop($('#h4-control-chart').offset().top - 75); return false;" href="#">Control Charts</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-funnel-plot').offset().top - 75); return false;" href="#">Funnel Plots</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-tooltip').offset().top -75); return false;" href="#">Tool Tips</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-toggle-date').offset().top -75); return false;" href="#">Toggle Date Range</a>
                             </div>
                         </div>
-                        <div class="col-md-4"></div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -547,7 +582,7 @@
                             <p>The <strong>control limits</strong> are the dashed lines at the top and bottom of the chart.</p>
                             <p>Data points that fall outside the control limits are colored red.</p>
                             <br />
-                            <p>Placing your cursor over any data point or center line will reveal a <a onclick="$(document).scrollTop($('#h4-toggle-date').offset().top -75); return false;" class="a-tooltip" href="#">tooltip</a></p>
+                            <p>Placing your cursor over any data point or center line will reveal a <a onclick="$(document).scrollTop($('#h4-tooltip').offset().top - 75); return false;" class="a-tooltip" href="#">tooltip</a></p>
                         </div>
                         <div class="col-md-6">
                             <img src="./img/help_run.png" />
@@ -561,7 +596,7 @@
                             <p>The <strong>outer control limits</strong> (with short dashed lines) are 3&sigma; away from the mean.</p>
                             <p>The orange data point represents your hospital.</p>
                             <br />
-                            <p>Placing your cursor over any data point or center line will reveal a <a onclick="$(document).scrollTop($('#h4-toggle-date').offset().top -75); return false;" class="a-tooltip" href="#">tooltip</a></p>
+                            <p>Placing your cursor over any data point or center line will reveal a <a onclick="$(document).scrollTop($('#h4-tooltip').offset().top - 75); return false;" class="a-tooltip" href="#">tooltip</a></p>
                         </div>
                         <div class="col-md-6">
                             <img src="./img/help_funnel.png" />
@@ -588,11 +623,8 @@
                 </div>
                 <div id="help-faq-tab">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h4></h4>
-                            <p></p>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
+                            <h1>Under Construction</h1>
                         </div>
                     </div>
                 </div>
@@ -621,10 +653,11 @@
 
 	        var $tabs = [$homeTab, $localTab, $regionalTab, $customizeTab, $helpTab];
 
+            $homeTab.hide();
 	        $localTab.hide();
 	        $regionalTab.hide();
 	        $customizeTab.hide();
-	        $helpTab.hide();
+	        $helpTab.show();
             $(".global-var-error").hide();
 
 	        //$("#select-hid-row").hide();
