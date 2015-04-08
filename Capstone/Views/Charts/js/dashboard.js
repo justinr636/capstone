@@ -24,7 +24,7 @@ function drawChart(opts) {
     
 }
 
-var global_hid = 0;
+var global_hid = "AVG";
 
 //var global_hid_col = 105;
 //var global_date_col = 1;
@@ -58,6 +58,14 @@ function validateCSVFile() {
             global_hid_col = i;
         
     }
+    
+    console.log(global_date_col);
+    console.log(global_los_start_col);
+    console.log(global_milk_col);
+    console.log(global_pharm_col);
+    console.log(global_discharge_meds_col);
+    console.log(global_los_end_col);
+    console.log(global_hid_col);
     
     if (global_date_col  == -1) {
         //console.log("Date of Audit");
