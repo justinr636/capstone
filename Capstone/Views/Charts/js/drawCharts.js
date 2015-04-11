@@ -171,6 +171,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var avg = dataObj.avg;
     var min = dataObj.min;
     var max = dataObj.max;
+    var print_percent = max == -Infinity ? true : false;
     var avg_line_bool = dataObj.avg_line;
     var avg_single_data = [];
     var ucl = dataObj.ucl;
@@ -194,10 +195,10 @@ function drawRunChart(dataObj, label, width, height, selector) {
     //var Y_DATA_PARSE = 0;
 
     // This is the key in the data object passed to draw function
-    var X_AXIS_COLUMN = "date";
+    //var X_AXIS_COLUMN = "date";
 
     // This is the key in the data object passed to draw function
-    var Y_AXIS_COLUMN = "ratio";
+    //var Y_AXIS_COLUMN = "ratio";
 
     var x = d3.time.scale()
 	     	             .range([0, width]);
@@ -304,7 +305,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
            tooltip.transition().duration(100).style("opacity", 1);
        }).on("mousemove", function () {
            var divHtml = '<h4>Mean Value</h4>';
-               divHtml += avg.toFixed(2);
+               if (print_percent) divHtml += avg.toFixed(2) + " %";
+               else divHtml += avg.toFixed(2);
            var left_position = (d3.event.pageX - 2) + "px";
            tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
        }).on("mouseout", function (d, i) {
@@ -330,9 +332,15 @@ function drawRunChart(dataObj, label, width, height, selector) {
            }).on("mousemove", function (d, i) {
                //var divHtml = '<h5><strong>Date:</strong>&emsp;' + DateToString(d.date) + '</h5>';
                //divHtml += '<h5><strong>Value:</strong>&emsp;' + d.ratio.toFixed(2) + '%</h5>';
+               var num = d['ratio'];
                var divHtml = '<strong>Date:</strong>&emsp;' + DateToString(d.date) + '<br/>';
                    divHtml += '<strong>Hospital ID: </strong> ' + d['hid'] + '<br/>';
-                   divHtml += '<strong>Ratio: </strong> ' + (d['ratio']).toFixed(2) + '%' + '<br/>';
+                 if (print_percent) {
+                   divHtml += '<strong>Average: </strong> ' + num.toFixed(2) + '%' + '<br/>';
+                 } else {
+                   if (num % 1 === 0) divHtml += '<strong>Average: </strong> ' + num + '<br/>';
+                   else divHtml += '<strong>Average: </strong> ' + num.toFixed(2) + '<br/>';
+                 }
                    divHtml += '<strong>Sample Size: </strong> ' + d['sample_size'];
 
                if ($(window).width() - d3.event.pageX < 160) {
@@ -742,7 +750,8 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .attr("y1", yScale(mean_incidence_rate))
        .attr("x2", xScale(max_x))
        .attr("y2", yScale(mean_incidence_rate))
-       .style("stroke", "rgba(6, 120, 155, 0.6)")
+       //.style("stroke", "rgba(6, 120, 155, 0.6)")
+       .style("stroke", "rgba(101, 200, 128, 1.0)")
        .style("stroke-width", 2)
        .on("mouseover", function (d, i) {
            $('div.tooltip').show();
@@ -787,8 +796,10 @@ function drawFunnelPlot(data, title, width, height, selector) {
            //divHtml += '<strong>Incidences: </strong> ' + d['indicator'] + '<br/>';
            //divHtml += '<strong>Population: </strong> ' + d['sample_size'] + '<br/>';
            //divHtml += '<strong>Percentage: </strong> ' + (d['ratio'] * 100).toFixed(2) + '%';
-           divHtml += 'Incidences: ' + d['indicator'] + '<br/>';
-           divHtml += 'Population: ' + d['sample_size'] + '<br/>';
+           if (d['hid'] == global_hid) {
+             divHtml += 'Incidences: ' + d['indicator'] + '<br/>';
+             divHtml += 'Population: ' + d['sample_size'] + '<br/>';
+           }
            divHtml += 'Percentage: ' + (d['ratio'] * 100).toFixed(2) + '%';
 
            if ($(window).width() - d3.event.pageX < 160) {
@@ -1027,7 +1038,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //console.log("run chart dataset = ", dataset);
         //dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
-        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids, stdev: stdev  };
+        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids, stdev: stdev };
 
     } else if (chartType == 2) {    // Draw Box Plot 
         var dataset = [];
@@ -1062,7 +1073,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 });
             }
         });
-        //console.log("dataset = ", dataset);
+        console.log("dataset = ", dataset);
 
         return { data: dataset, min: min, max: max };
     } else if (chartType == 3) {	// Draw Funnel Plot 

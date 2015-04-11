@@ -34,9 +34,11 @@
     	<script src="./js/Chart.js" type="text/javascript"></script>
 		<script src="./js/d3.v3.js" type="text/javascript"></script>
 		<script src="./js/box.js" type="text/javascript"></script>
+        <script src='./js/persist-min.js' type='text/javascript'></script>
         <script src="./js/dashboard.js" type="text/javascript"></script>
         <script src="./js/drawCharts.js" type="text/javascript"></script>
         <script src="./js/jquery.PrintArea.js" type="text/javascript"></script>
+        <script src="./js/numeric-1.2.6.min.js" type="text/javascript"></script>
 
     	<style type="text/css">
 		    html { height: 100%; }
@@ -101,14 +103,14 @@
                         <br />
                         <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
                     </div>
-                    <div id="global-los-start-error" class="alert alert-warning global-var-error">
+                    <div id="global-losstart-error" class="alert alert-warning global-var-error">
                         <strong>Error finding "Date of Admission" column</strong>
                         <br />Please select the correct column from the drop-down menu:
                         <select class="dataDrop csvfile-error-select"></select>
                         <br />
                         <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
                     </div>
-                    <div id="global-los-end-error" class="alert alert-warning global-var-error">
+                    <div id="global-losend-error" class="alert alert-warning global-var-error">
                         <strong>Error finding "Date of Discharge" column</strong>
                         <br />Please select the correct column from the drop-down menu:
                         <select class="dataDrop csvfile-error-select"></select>
@@ -129,7 +131,7 @@
                         <br />
                         <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
                     </div>
-                    <div id="global-discharge-error" class="alert alert-warning global-var-error">
+                    <div id="global-dischargemeds-error" class="alert alert-warning global-var-error">
                         <strong>Error finding "If infant received medications at discharge" column</strong>
                         <br />Please select the correct column from the drop-down menu:
                         <select class="dataDrop csvfile-error-select"></select>
@@ -421,7 +423,7 @@
 		                      </div>
 		                  </div>
 		                  <div class="col-md-3">
-		                      <input type="submit" id="submitBtn" />
+		                      <input type="submit" id="advSubmitBtn" />
 		                  </div>
 		              </div>
 		    </div>
@@ -459,7 +461,7 @@
 		</div>
 <!-- Customize Tab End -->
 
-<!-- Help Tab End -->
+<!-- Help Tab Start -->
         <div id="help-tab" class="container tab" style="margin-bottom: 10px;">
             <div class="row">
                 <div class="col-md-12">
@@ -625,6 +627,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h1>Under Construction</h1>
+                            <h3>E-mail <a href="mailto:ratra.j@husky.neu.edu">Ratra.J@husky.neu.edu</a> if you encounter any issues or have any questions</h3>
                         </div>
                     </div>
                 </div>
@@ -715,7 +718,8 @@
 
 	        function setHospitalId() {
 	            //var lastCol = 105;               // Validate and/or have Users validate this number
-	            var lastCol = global_hid_col;
+	            //var lastCol = global_hid_col;
+	            var lastCol = global_cols["global_hid_col"].val;
 
 	            var title_html = '';
 	            var hid_check_html = '';
@@ -727,7 +731,7 @@
 	                if (inList == -1) {
 	                    allHids.push(num);
 
-                    var hids = $("#hidChecks input:checked");
+                       var hids = $("#hidChecks input:checked");
                        if (num) {
 	                        title_html += '<option value="' + num + '">' + num + '</option>';
                             hid_check_html += '<input type="checkbox" value="' + num + '"/>' + num + '&emsp;';
@@ -798,23 +802,50 @@
                 var $errorDiv = $(this).closest('.global-var-error');
                 var col = parseInt($errorDiv.find(".csvfile-error-select").val());
                 var id = $errorDiv.attr("id");
+                var idArr = id.split("-");
                 
-                if (id == "global-date-error") {
-                    global_date_col = col;
-                } else if (id == "global-los-start-error") {
-                    global_los_start_col = col;
-                } else if (id == "global-milk-error") {
-                    global_milk_col = col;
-                } else if (id == "global-pharm-error") {
-                    global_pharm_col = col;
-                } else if (id == "global-los-end-error") {
-                    global_los_end_col = col;
-                } else if (id == "global-discharge-error") {
-                    global_discharge_col = col;
-                } else if (id == "global-hid-error") {
-                    global_hid_col = col;
+                global_cols["global_"+idArr[1]+"_col"].val = col;
+                global_cols["global_"+idArr[1]+"_col"].name = $errorDiv.find(".csvfile-error-select option:selected").text();
+                setCookie("global_"+idArr[1]+"_col", col, 365);
+                setCookie("global_"+idArr[1]+"_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                
+                if (id == "global-hid-error") {
                     setHospitalId();
                 }
+                
+                /*
+                if (id == "global-date-error") {
+                    //global_date_col = col;
+                    global_date_col = col;
+                    setCookie("global_date_col", col, 365);
+                    setCookie("global_date_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                } else if (id == "global-los-start-error") {
+                    global_los_start_col = col;
+                    setCookie("global_losstart_col", col, 365);
+                    setCookie("global_losstart_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                } else if (id == "global-milk-error") {
+                    global_milk_col = col;
+                    setCookie("global_milk_col", col, 365);
+                    setCookie("global_milk_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                } else if (id == "global-pharm-error") {
+                    global_pharm_col = col;
+                    setCookie("global_pharm_col", col, 365);
+                    setCookie("global_pharm_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                } else if (id == "global-losend-error") {
+                    global_los_end_col = col;
+                    setCookie("global_losend_col", col, 365);
+                    setCookie("global_losend_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                } else if (id == "global-dischargemeds-error") {
+                    global_discharge_col = col;
+                    setCookie("global_dischargemeds_col", col, 365);
+                    setCookie("global_dischargemeds_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                } else if (id == "global-hid-error") {
+                    global_hid_col = col;
+                    setCookie("global_hid_col", col, 365);
+                    setCookie("global_hid_col_text", $errorDiv.find(".csvfile-error-select option:selected").text(), 365);
+                    setHospitalId();
+                }
+                */
                 
                 $errorDiv.hide();
                 
@@ -866,12 +897,17 @@
                     //Y_COL: 77,              // Validate 77 = index of 'Length of Stay' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
-                    Y_COL: global_los_end_col,
+                    /*
+                    Y_COL: global_losend_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_losend_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time - (12 mo.)" },
+                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time" },
                     width: width / 2 - margin.left - margin.right,
                     height: height / 2 - margin.top - margin.bottom,
                     selector: "div#localChartDiv1"
@@ -888,12 +924,17 @@
                     //Y_COL: 63,              // Validate 63 = index of 'Receiving Pharmacology Treatment' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
+                    /*
                     Y_COL: global_pharm_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_pharm_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Receiving Pharm Treatment (%)", xAxis: "", chartTitle: "% Patients Receiving Pharmacology Treatment Over Time (12 mo.)" },
+                    titles: { yAxis: "Receiving Pharm Treatment (%)", xAxis: "", chartTitle: "% Patients Receiving Pharmacology Treatment Over Time" },
                     width: width / 2 - margin.left - margin.right,
                     height: height / 2 - margin.top - margin.bottom,
                     selector: "div#localChartDiv2"
@@ -910,12 +951,17 @@
                     //Y_COL: 49,              // Validate 49 = index of 'Receive mothers own milk' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
+                    /*
                     Y_COL: global_milk_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_milk_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Receiving Breast Milk (%)", xAxis: "", chartTitle: "% Patients Receiving Breast Milk Over Time (12 mo.)" },
+                    titles: { yAxis: "Receiving Breast Milk (%)", xAxis: "", chartTitle: "% Patients Receiving Breast Milk Over Time" },
                     width: width / 2 - margin.left - margin.right,
                     height: height / 2 - margin.top - margin.bottom,
                     selector: "div#localChartDiv3"
@@ -932,12 +978,17 @@
                     //Y_COL: 78,              // Validate 78 = index of 'Patients discharged with meds' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
+                    /*
                     Y_COL: global_discharge_meds_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_dischargemeds_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Discharged with Meds (%)", xAxis: "", chartTitle: "% Patients Discharged with Meds over Time (12 mo.)" },
+                    titles: { yAxis: "Discharged with Meds (%)", xAxis: "", chartTitle: "% Patients Discharged with Meds over Time" },
                     width: width / 2 - margin.left - margin.right,
                     height: height / 2 - margin.top - margin.bottom,
                     selector: "div#localChartDiv4"
@@ -959,12 +1010,17 @@
                     //Y_COL: 77,              // Validate 77 = index of 'Length of Stay' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: [HID_COL],
+                    /*
                     Y_COL: global_los_end_col,
                     X_COL: global_date_col,
                     HID_COL: [global_hid_col],
+                    */
+                    Y_COL: global_cols["global_losend_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: [global_cols["global_hid_col"].val],
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time - (12 mo.)" },
+                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time" },
                     //width: width / 2,
                     //height: (2 * height) / 3 - margin.top - margin.bottom,
                     //width: 450 - margin.left,
@@ -984,12 +1040,17 @@
                     //Y_COL: 63,              // Validate 63 = index of 'Receiving Pharmacology Treatment' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
+                    /*
                     Y_COL: global_pharm_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_pharm_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Receiving Pharmacology Treatment (%)", xAxis: "Population", chartTitle: "% Patients That Receive Pharmacology Treatment - Funnel Plot (12 mo.)" },
+                    titles: { yAxis: "Receiving Pharmacology Treatment (%)", xAxis: "Population", chartTitle: "% Patients That Receive Pharmacology Treatment - Funnel Plot" },
                     //width: width / 2 + margin.left,
                     //height: (3 * height) / 4 - margin.top - margin.bottom,
                     //width: 450 + margin.left,
@@ -1010,12 +1071,17 @@
                     //Y_COL: 49,              // Validate 49 = index of 'Receive mothers own milk' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
+                    /*
                     Y_COL: global_milk_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_milk_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk - Funnel Plot (12 mo.)" },
+                    titles: { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk - Funnel Plot" },
                     //width: width / 2 + margin.left,
                     //height: (3 * height) / 4 - margin.top - margin.bottom,
                     //width: 450 + margin.left,
@@ -1036,12 +1102,17 @@
                     //Y_COL: 78,              // Validate 78 = index of 'Patients discharged with meds' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
+                    /*
                     Y_COL: global_discharge_meds_col,
                     X_COL: global_date_col,
                     HID_COL: global_hid_col,
+                    */
+                    Y_COL: global_cols["global_dischargemeds_col"].val,
+                    X_COL: global_cols["global_date_col"].val,
+                    HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Patients Discharged with Meds (%)", xAxis: "Population", chartTitle: "% Patients Discharged with Medication - Funnel Plot (12 mo.)" },
+                    titles: { yAxis: "Patients Discharged with Meds (%)", xAxis: "Population", chartTitle: "% Patients Discharged with Medication - Funnel Plot" },
                     //width: width / 2 + margin.left,
                     //height: (3 * height) / 4 - margin.top - margin.bottom,
                     //width: 450 + margin.left,
@@ -1249,7 +1320,7 @@
             });
                           
 	        // Customize CSV Submit Button Handler
-	        $("#submitBtn").click(function (e) {
+	        $("#advSubmitBtn").click(function (e) {
 	            e.preventDefault();
                                   
                 var byMonth = true;
@@ -1262,7 +1333,8 @@
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
                                   
-	                var HID_COL = global_hid_col;
+	                //var HID_COL = global_hid_col;
+	                var HID_COL = global_cols["global_hid_col"].val;
                                   
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
@@ -1271,29 +1343,70 @@
                     $("#hidChecks input:checked").each(function () {
                          hids.push($(this).val());
                     });
-                    if (hids.length > 1) HID_COL = [global_hid_col];
+                    if (hids.length > 1) HID_COL = [global_cols["global_hid_col"].val];
                                   
                     function isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
                     
                     var indicatorVal = $("#indicatorText").val();
-                    if (isNumeric(indicatorVal)) indicatorVal = parseInt(indicatorVal);
+                    if (isNumeric(indicatorVal)) indicatorVal = parseFloat(indicatorVal);
                                   
                     //console.log("hids = ", hids);
                                   
+                                  /*
                     // Local Report - Draw % Receiving Pharm Treatment Over Time - Run Chart
                     drawRunChart(customizeCSVData({ chartType: chartType, byMonth: byMonth, indicator: indicatorVal, hids: hids }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE),
                                     { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                                     width - margin.left - margin.right,
                                     height - margin.top - margin.bottom,
                                     "div#custChartDiv");
+                                    */
+                    var runChartOptions = {
+                        options: { chartType: chartType, byMonth: byMonth, indicator: indicatorVal, hids: hids },
+                        Y_COL: Y_COL,
+                        X_COL: X_COL,
+                        HID_COL: HID_COL,
+                        START_DATE: START_DATE,
+                        END_DATE: END_DATE,
+                        titles: { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
+                        width: width - margin.left - margin.right,
+                        height: height - margin.top - margin.bottom,
+                        selector: "div#custChartDiv"
+                                  };
+                    
+                    drawChart(runChartOptions);
+                    
+                    /*
+                // Store all data to redraw chart if date is changed.
+                chartOptions.push({
+                    options: { chartType: 1, byMonth: true, indicator: 0, hids: [global_hid] },
+                    //Y_COL: 77,              // Validate 77 = index of 'Length of Stay' column of CSV
+                    //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
+                    //HID_COL: HID_COL,
+                    Y_COL: global_los_end_col,
+                    X_COL: global_date_col,
+                    HID_COL: global_hid_col,
+                    START_DATE: START_DATE,
+                    END_DATE: END_DATE,
+                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time - (12 mo.)" },
+                    width: width / 2 - margin.left - margin.right,
+                    height: height / 2 - margin.top - margin.bottom,
+                    selector: "div#localChartDiv1"
+                });
+                
+                
+	            // Draw Local Report - Avg Length of Stay vs Time - Run Control Chart
+                var opts = chartOptions[0];
+                drawChart(opts);
+                    */
                                   
 	            } else if (chartType == 2) {    // Draw Box Plot
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL_MULT = $xDataDrop2.val();
-	                var HID_COL = global_hid_col;
+	                //var HID_COL = global_hid_col;
+	                var HID_COL = global_cols["global_hid_col"].val;
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
-
+                    
 	                // Customize Report - Box and Whisker Plot
                     drawBoxPlot(customizeCSVData({ chartType: chartType, byMonth: true }, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
@@ -1304,7 +1417,8 @@
 	            } else if (chartType == 3) {	// Draw Funnel Plot 
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
-	                var HID_COL = global_hid_col;
+	                //var HID_COL = global_hid_col;
+	                var HID_COL = global_cols["global_hid_col"].val;
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
                     var indicatorVal = $("#indicatorText").val();
@@ -1319,7 +1433,8 @@
 	            } else if (chartType == 4) {    // Draw Bar Chart
 	                var Y_COL = $yDataDrop.val();
 	                var X_COL = $xDataDrop.val();
-	                var HID_COL = global_hid_col;
+	                //var HID_COL = global_hid_col;
+	                var HID_COL = global_cols["global_hid_col"].val;
 	                var START_DATE = new Date($("#startDateText").val());
 	                var END_DATE = new Date($("#endDateText").val());
 
@@ -1372,7 +1487,7 @@
                     $('#hidChecks input[value="' + global_hid + '"]').prop('checked', true);
                     $('#hidChecks input[value="0"]').prop('checked', true);
                                         
-                    $("#submitBtn").click();
+                    $("#advSubmitBtn").click();
                 } else if (chartType == 2) {            // Draw Box Plot
                     var y = $("#simpleYDataDrop").val();
                     var x = $("#simpleXDataDrop").val();
@@ -1399,7 +1514,7 @@
                         $xDataDrop2.val([79, 80, 81, 82, 83]);
                     }
                     
-                    $("#submitBtn").click();
+                    $("#advSubmitBtn").click();
                 } else if (chartType == 3) {        // Draw Funnel Plot
                     var y = $("#simpleYDataDrop").val();
                                         
@@ -1422,7 +1537,7 @@
                         $("#indicatorText").val("Yes");
                     }
                     
-                    $("#submitBtn").click();
+                    $("#advSubmitBtn").click();
                 }
             });
 
