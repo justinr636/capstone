@@ -79,388 +79,6 @@
         </nav>
 <!-- Nav Bar End -->
 
-<!-- Home Tab Start -->
-        <div id="home-tab" class="container tab">
-			<div class="row">
-			    <div class="col-md-12">
-                    <h3>Upload a CSV file to begin:</h3>
-			    </div>
-            </div>
-            <div class="row">
-			    <div class="col-md-4">
-                    &emsp; &emsp;
-                    <input type="file" id="csvfile" />
-			    </div>
-			    <div class="col-md-6">
-                    <div id="csvfile-error" class="alert alert-danger">
-                        <strong>Error reading CSV File!</strong>
-                         <br />Please Refresh the Page.
-                    </div>
-                    <div id="global-date-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Date of Audit" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-losstart-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Date of Admission" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-losend-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Date of Discharge" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-milk-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "If infant received mother's breast milk" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-pharm-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "If infant received pharmacology" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-dischargemeds-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "If infant received medications at discharge" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-hid-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Hospital ID" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-			    </div>
-			</div>
-			<div class="row">
-                <br />
-                <br /><br />
-			</div>
-			<div id="select-hid-row" class="row" style="display:none;">
-                <div class="col-md-3">
-                    <h4>Select Your Hospital ID:</h4>
-                    <br /> <br />
-                    <select id="hidSelect"></select>
-			    </div>
-                <div class="col-md-3">
-                    <h4>Select A Date Range:</h4>
-                    <div class="date-toggle">
-                        <br />
-                        Start:&emsp;<input class="date-toggle-start" type="text" />
-                        <br /><br />
-                        End: &emsp;<input class="date-toggle-end" type="text" />
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <h4>Create Reports:</h4>
-                    <br /> <br />
-                    <input id="create-submit" class="btn btn-default" type="submit" value="Submit" />
-                </div>
-                <div class="col-md-4">
-                </div>
-			</div>
-    	        <!--
-
-    	    After uploading a file, 
-            if creating Local and Regional Dashboards fails (check if values are of right type)
-    	    ask the user to clarify certain columns.
-
-    	        -->
-            <div class="bottom-div"></div>
-    	</div>
-<!-- Home Tab End -->
-
-<!-- Local Tab Start -->
-        <div id="local-tab" class="container print-container tab print-report">
-            <div class="only-print">
-                <h5 style="text-align: center">My Hospital Report</h5>
-            </div>
-            <table class="print-area">
-                <tr>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="0" />
-    					    <div id="localChartDiv1" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                Start: <input class="date-toggle-start" type="text" />
-                                &emsp;
-                                End: <input class="date-toggle-end" type="text" />
-                                &emsp;
-                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="1" />
-    					    <div id="localChartDiv2" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                Start: <input class="date-toggle-start" type="text" />
-                                &emsp;
-                                End: <input class="date-toggle-end" type="text" />
-                                &emsp;
-                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="2" />
-    					    <div id="localChartDiv3" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                Start: <input class="date-toggle-start" type="text" />
-                                &emsp;
-                                End: <input class="date-toggle-end" type="text" />
-                                &emsp;
-                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="3" />
-    					    <div id="localChartDiv4" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                Start: <input class="date-toggle-start" type="text" />
-                                &emsp;
-                                End: <input class="date-toggle-end" type="text" />
-                                &emsp;
-                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-            <div class="bottom-div"></div>
-    	</div>
-<!-- Local Tab End -->
-
-<!-- Regional Tab Start -->
-        <div id="regional-tab" class="container print-container tab print-report">
-            <div class="only-print">
-                <h5 style="text-align: center">State Report</h5>
-            </div>
-            <table class="print-area">
-                <tr>
-                    <td>
-                        <div class="chart-container" style="margin-left: 20px">
-                            <input class="chart-options-index" type="hidden" value="4" />
-    		               	<div id="regionChartDiv1" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print" style="margin-left: -24px">
-                                  Start: <input class="date-toggle-start" type="text" />
-                                  &emsp;
-                                  End: <input class="date-toggle-end" type="text" />
-                                  &emsp;
-                                  <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="5" />
-    		               	<div id="regionChartDiv2" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                  Start: <input class="date-toggle-start" type="text" />
-                                  &emsp;
-                                  End: <input class="date-toggle-end" type="text" />
-                                  &emsp;
-                                  <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="6" />
-    		                <div id="regionChartDiv3" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                  Start: <input class="date-toggle-start" type="text" />
-                                  &emsp;
-                                  End: <input class="date-toggle-end" type="text" />
-                                  &emsp;
-                                  <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="chart-container">
-                            <input class="chart-options-index" type="hidden" value="7" />
-    		                <div id="regionChartDiv4" class="chartDiv"></div>
-                            <br /><br />
-                            <div class="date-toggle no-print">
-                                Start: <input class="date-toggle-start" type="text" />
-                                &emsp;
-                                End: <input class="date-toggle-end" type="text" />
-                                &emsp;
-                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-            <div class="bottom-div"></div>
-    	</div>
-<!-- Regional Tab End -->
-
-<!-- Customize Tab Start -->
-        <div id="customize-tab" class="container tab" style="margin-bottom: 10px;">
-		    <div class="row">
-		        <div class="col-md-12">
-		            <br />
-		            <input id="simpleRadio" type="radio" name="menu-radio" value="simple" checked="checked" /> Simple
-		            <input id="advancedRadio" type="radio" name="menu-radio" value="advanced" /> Advanced
-		            <br />
-		            <br />
-		        </div>
-		    </div>
-		    <div class="row">
-		        <div class="col-md-3">
-		            Select Chart Type:
-		        </div>
-		        <div class="col-md-3">
-		            Select Variable 1 (Y-Axis)
-		        </div>
-		        <div class="col-md-3">
-		            Select Variable 2 (X-Axis)
-		        </div>
-		        <div class="col-md-3">
-		        </div>
-		    </div>
-            <!-- Simple Menu -->
-            <div id="simpleRow">
-		         <div class="row">
-		             <div class="col-md-3">
-		                 <select id="simpleChartTypeDrop" class="form-control">
-		                     <option value="0">Select One</option>
-		                     <option value="1">Control Chart</option>
-		                     <option value="2">Box Plot</option>
-		                     <option value="3">Funnel Plot</option>
-		                     <option value="4">Bar Chart</option>
-		                 </select>
-		             </div>
-		             <div class="col-md-3">
-		                 <select id="simpleYDataDrop" class="form-control">
-		                     <option value="0">Select One</option>
-		                 </select>
-		             </div>
-		             <div class="col-md-3">
-		                 <select id="simpleXDataDrop" class="form-control">
-		                     <option value="0">Select One</option>
-		                 </select>
-		                 <div id="simpleDateXData">
-		                     Start:&emsp;<input id="simpleStartDateText" type="text" class="date-text" /><br />
-		                     End:&emsp;&nbsp;<input id="simpleEndDateText" type="text" class="date-text" /><br />
-		                 </div>
-		             </div>
-		             <div class="col-md-3">
-		                 <input type="submit" id="simpleSubmitBtn" />
-		             </div>
-		         </div>
-		    </div>
-            <!-- Advanced Menu -->
-            <div id="advancedRow">
-                <!-- Select Chart Attributes Row -->
-		              <div class="row">
-		                  <div class="col-md-3">
-		                      <select id="chartTypeDrop" class="form-control">
-		                          <option value="0">Select One</option>
-		                          <option value="1">Run Chart</option>
-		                          <option value="2">Box Plot</option>
-		                          <option value="3">Funnel Plot</option>
-		                          <option value="4">Bar Chart</option>
-		                      </select>
-                              <div id="hidChecks">
-                              </div>
-		                  </div>
-		                  <div class="col-md-3">
-		                      <select id="yDataDrop" class="form-control dataDrop">
-		                          <option value="0">Select One</option>
-		                      </select>
-                              <div id="indicatorDiv">
-                                  Indicator Value:&emsp;<input id="indicatorText" type="text" />
-                              </div>
-		                  </div>
-		                  <div class="col-md-3">
-		                      <select id="xDataDrop" class="form-control dataDrop">
-		                          <option value="0">Select One</option>
-		                      </select>
-		                      <div id="multipleXData">
-		                          <select id="xDataDrop2" class="form-control dataDrop" multiple>
-		                      	</select>
-		                      </div>
-		                      <div id="dateXData">
-		                          Start:&emsp;<input id="startDateText" type="text" class="date-text" /><br />
-		                          End:&emsp;&nbsp;<input id="endDateText" type="text" class="date-text" /><br />
-		                          &emsp;&emsp;&emsp;
-		                          <input id="monthRadio" type="radio" name="date-radio" value="month" /> Month 
-		                          &emsp;
-		                          <input id="yearRadio" type="radio" name="date-radio" value="year" /> Year 
-		                      </div>
-		                  </div>
-		                  <div class="col-md-3">
-		                      <input type="submit" id="advSubmitBtn" />
-		                  </div>
-		              </div>
-		    </div>
-    		<div class="row">
-    		    <br /><br />
-    		    <br /><br />
-    		</div>
-		    <!-- Enter Chart Labels Row -->
-		    <div class="row">
-		        <div class="col-md-3">
-		            <input id="chartTitleText" placeholder="Chart Title" class="form-control" />
-		        </div>
-		        <div class="col-md-3">
-		            <input id="yAxisTitleText" placeholder="Y-Axis Title" class="form-control" />
-		        </div>
-		        <div class="col-md-3">
-		            <input id="xAxisTitleText" placeholder="X-Axis Title" class="form-control" />
-		        </div>
-		    </div>
-    		<div class="row">
-    		    <br /><br />
-    		    <br /><br />
-    		</div>
-		    <!-- Chart Row -->
-		    <div class="row print-container">
-		        <div class="col-md-12">
-		            <div id="custChartDiv"></div>
-		        </div>
-		    </div>
-    		<div class="row">
-    		    <br /><br />
-    		    <br /><br />
-    		</div>
-            <div class="bottom-div"></div>
-		</div>
-<!-- Customize Tab End -->
-
 <!-- Help Tab Start -->
         <div id="help-tab" class="container tab" style="margin-bottom: 10px;">
             <div class="row">
@@ -581,7 +199,7 @@
                         <div class="col-md-6">
                             <h4 id="h4-control-chart">Control Charts</h4>
                             <p>The <strong>mean</strong> is the green center line.</p>
-                            <p>The <strong>control limits</strong> are the dashed lines at the top and bottom of the chart.</p>
+                            <p>The <strong>control limits</strong> (dashed lines) are 3&sigma; away from the mean.</p>
                             <p>Data points that fall outside the control limits are colored red.</p>
                             <br />
                             <p>Placing your cursor over any data point or center line will reveal a <a onclick="$(document).scrollTop($('#h4-tooltip').offset().top - 75); return false;" class="a-tooltip" href="#">tooltip</a></p>
@@ -634,6 +252,447 @@
             </div>
 		</div>
 <!-- Help Tab End -->
+
+<!-- Home Tab Start -->
+        <div id="home-tab" class="container tab">
+			<div class="row">
+			    <div class="col-md-12">
+                    <h3>Upload a CSV file to begin:</h3>
+			    </div>
+            </div>
+            <div class="row">
+			    <div class="col-md-4">
+                    &emsp; &emsp;
+                    <input type="file" id="csvfile" />
+			    </div>
+			    <div class="col-md-6">
+                    <div id="csvfile-error" class="alert alert-danger">
+                        <strong>Error reading CSV File!</strong>
+                         <br />Please Refresh the Page.
+                    </div>
+                    <div id="global-date-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "Date of Audit" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+                    <div id="global-losstart-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "Date of Admission" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+                    <div id="global-losend-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "Date of Discharge" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+                    <div id="global-milk-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "If infant received mother's breast milk" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+                    <div id="global-pharm-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "If infant received pharmacology" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+                    <div id="global-dischargemeds-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "If infant received medications at discharge" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+                    <div id="global-hid-error" class="alert alert-warning global-var-error">
+                        <strong>Error finding "Hospital ID" column</strong>
+                        <br />Please select the correct column from the drop-down menu:
+                        <select class="dataDrop csvfile-error-select"></select>
+                        <br />
+                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    </div>
+			    </div>
+			</div>
+			<div class="row">
+                <br />
+                <br /><br />
+			</div>
+			<div id="select-hid-row" class="row" style="display:none;">
+                <div class="col-md-3">
+                    <h4>Select Your Hospital ID:</h4>
+                    <br /> <br />
+                    <select id="hidSelect"></select>
+			    </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Select A Date Range:</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="date-toggle">
+                                <br />
+                                Start:&emsp;<input class="date-toggle-start" type="text" />
+                                <br /><br />
+                                End: &emsp;<input class="date-toggle-end" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="date-toggle">
+                                <br><input id="month-toggle" type="radio" value="month" name="interval" checked="checked"> Monthly
+                                <br><input id="quarter-toggle" type="radio" value="quarter" name="interval"> Quarterly
+                                <br><input id="year-toggle" type="radio" value="year" name="interval"> Annualy
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <h4>Create Reports:</h4>
+                    <br /> <br />
+                    <input id="create-submit" class="btn btn-default" type="submit" value="Submit" />
+                </div>
+                <div class="col-md-4">
+                </div>
+			</div>
+    	        <!--
+
+    	    After uploading a file, 
+            if creating Local and Regional Dashboards fails (check if values are of right type)
+    	    ask the user to clarify certain columns.
+
+    	        -->
+            <div class="bottom-div"></div>
+    	</div>
+<!-- Home Tab End -->
+
+<!-- Local Tab Start -->
+        <div id="local-tab" class="container print-container tab print-report">
+            <div class="only-print">
+                <h5 style="text-align: center">My Hospital Report</h5>
+            </div>
+            <table class="print-area">
+                <tr>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="0" />
+    					    <div id="localChartDiv1" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                <div class="date-toggle-range">
+                                    Start: <input class="date-toggle-start" type="text" />
+                                    &emsp;
+                                    End: <input class="date-toggle-end" type="text" />
+                                    &emsp;
+                                </div>
+                                <div class="date-toggle-interval">
+                                    <input value="month" class="interval-radio" name="refresh-interval-1" type="radio" /> Monthly
+                                    <br />
+                                    <input value="quarter" class="interval-radio"  name="refresh-interval-1" type="radio" /> Quarterly
+                                </div>
+                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="1" />
+    					    <div id="localChartDiv2" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                <div class="date-toggle-range">
+                                    Start: <input class="date-toggle-start" type="text" />
+                                    &emsp;
+                                    End: <input class="date-toggle-end" type="text" />
+                                    &emsp;
+                                </div>
+                                <div class="date-toggle-interval">
+                                    <input value="month" class="interval-radio" name="refresh-interval-2" type="radio" /> Monthly
+                                    <br />
+                                    <input value="quarter" class="interval-radio"  name="refresh-interval-2" type="radio" /> Quarterly
+                                </div>
+                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="2" />
+    					    <div id="localChartDiv3" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                <div class="date-toggle-range">
+                                    Start: <input class="date-toggle-start" type="text" />
+                                    &emsp;
+                                    End: <input class="date-toggle-end" type="text" />
+                                    &emsp;
+                                </div>
+                                <div class="date-toggle-interval">
+                                    <input value="month" class="interval-radio" name="refresh-interval-3" type="radio" /> Monthly
+                                    <br />
+                                    <input value="quarter" class="interval-radio"  name="refresh-interval-3" type="radio" /> Quarterly
+                                </div>
+                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="3" />
+    					    <div id="localChartDiv4" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                <div class="date-toggle-range">
+                                    Start: <input class="date-toggle-start" type="text" />
+                                    &emsp;
+                                    End: <input class="date-toggle-end" type="text" />
+                                    &emsp;
+                                </div>
+                                <div class="date-toggle-interval">
+                                    <input value="month" class="interval-radio" name="refresh-interval-4" type="radio" /> Monthly
+                                    <br />
+                                    <input value="quarter" class="interval-radio"  name="refresh-interval-4" type="radio" /> Quarterly
+                                </div>
+                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="bottom-div"></div>
+    	</div>
+<!-- Local Tab End -->
+
+<!-- Regional Tab Start -->
+        <div id="regional-tab" class="container print-container tab print-report">
+            <div class="only-print">
+                <h5 style="text-align: center">State Report</h5>
+            </div>
+            <table class="print-area">
+                <tr>
+                    <td>
+                        <div class="chart-container" style="margin-left: 20px;">
+                            <input class="chart-options-index" type="hidden" value="4" />
+    		               	<div id="regionChartDiv1" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print" style="margin-left: -30px;">
+                                <div class="date-toggle-range">
+                                    Start: <input class="date-toggle-start" type="text" />
+                                    &emsp;
+                                    End: <input class="date-toggle-end" type="text" />
+                                    &emsp;
+                                </div>
+                                <div class="date-toggle-interval">
+                                    <input value="month" class="interval-radio" name="refresh-interval-5" type="radio" /> Monthly
+                                    <br />
+                                    <input value="quarter" class="interval-radio"  name="refresh-interval-5" type="radio" /> Quarterly
+                                </div>
+                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                            <!--
+                            <div class="date-toggle no-print" style="margin-left: -24px">
+                                  Start: <input class="date-toggle-start" type="text" />
+                                  &emsp;
+                                  End: <input class="date-toggle-end" type="text" />
+                                  &emsp;
+                                  <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                            -->
+                        </div>
+                    </td>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="5" />
+    		               	<div id="regionChartDiv2" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                  Start: <input class="date-toggle-start" type="text" />
+                                  &emsp;
+                                  End: <input class="date-toggle-end" type="text" />
+                                  &emsp;
+                                  <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="6" />
+    		                <div id="regionChartDiv3" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                  Start: <input class="date-toggle-start" type="text" />
+                                  &emsp;
+                                  End: <input class="date-toggle-end" type="text" />
+                                  &emsp;
+                                  <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="chart-container">
+                            <input class="chart-options-index" type="hidden" value="7" />
+    		                <div id="regionChartDiv4" class="chartDiv"></div>
+                            <br /><br />
+                            <div class="date-toggle no-print">
+                                Start: <input class="date-toggle-start" type="text" />
+                                &emsp;
+                                End: <input class="date-toggle-end" type="text" />
+                                &emsp;
+                                <input value="Refresh" class="refresh-data-btn btn btn-default" type="submit" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div class="bottom-div"></div>
+    	</div>
+<!-- Regional Tab End -->
+
+<!-- Customize Tab Start -->
+        <div id="customize-tab" class="container tab" style="margin-bottom: 10px;">
+		    <div class="row">
+		        <div class="col-md-12">
+		            <br />
+		            <input id="simpleRadio" type="radio" name="menu-radio" value="simple" checked="checked" /> Simple
+		            <input id="advancedRadio" type="radio" name="menu-radio" value="advanced" /> Advanced
+		            <br />
+		            <br />
+		        </div>
+		    </div>
+		    <div class="row">
+		        <div class="col-md-3">
+		            Select Chart Type:
+		        </div>
+		        <div class="col-md-3">
+		            Select Variable 1 (Y-Axis)
+		        </div>
+		        <div class="col-md-3">
+		            Select Variable 2 (X-Axis)
+		        </div>
+		        <div class="col-md-3">
+		        </div>
+		    </div>
+            <!-- Simple Menu -->
+            <div id="simpleRow">
+		         <div class="row">
+		             <div class="col-md-3">
+		                 <select id="simpleChartTypeDrop" class="form-control">
+		                     <option value="0">Select One</option>
+		                     <option value="1">Control Chart</option>
+		                     <option value="2">Box Plot</option>
+		                     <option value="3">Funnel Plot</option>
+		                     <!-- <option value="4">Bar Chart</option> -->
+		                 </select>
+		             </div>
+		             <div class="col-md-3">
+		                 <select id="simpleYDataDrop" class="form-control">
+		                     <option value="0">Select One</option>
+		                 </select>
+		             </div>
+		             <div class="col-md-3">
+		                 <select id="simpleXDataDrop" class="form-control">
+		                     <option value="0">Select One</option>
+		                 </select>
+		                 <div id="simpleDateXData">
+		                     Start:&emsp;<input id="simpleStartDateText" type="text" class="date-text" /><br />
+		                     End:&emsp;&nbsp;<input id="simpleEndDateText" type="text" class="date-text" /><br />
+		                 </div>
+		             </div>
+		             <div class="col-md-3">
+		                 <input type="submit" id="simpleSubmitBtn" />
+		             </div>
+		         </div>
+		    </div>
+            <!-- Advanced Menu -->
+            <div id="advancedRow">
+                <!-- Select Chart Attributes Row -->
+		              <div class="row">
+		                  <div class="col-md-3">
+		                      <select id="chartTypeDrop" class="form-control">
+		                          <option value="0">Select One</option>
+		                          <option value="1">Run Chart</option>
+		                          <option value="2">Box Plot</option>
+		                          <option value="3">Funnel Plot</option>
+		                          <!-- <option value="4">Bar Chart</option> -->
+		                      </select>
+                              <div id="hidChecks">
+                              </div>
+		                  </div>
+		                  <div class="col-md-3">
+		                      <select id="yDataDrop" class="form-control dataDrop">
+		                          <option value="0">Select One</option>
+		                      </select>
+                              <div id="indicatorDiv">
+                                  Indicator Value:&emsp;<input id="indicatorText" type="text" />
+                              </div>
+		                  </div>
+		                  <div class="col-md-3">
+		                      <select id="xDataDrop" class="form-control dataDrop">
+		                          <option value="0">Select One</option>
+		                      </select>
+		                      <div id="multipleXData">
+		                          <select id="xDataDrop2" class="form-control dataDrop" multiple>
+		                      	</select>
+		                      </div>
+		                      <div id="dateXData">
+		                          Start:&emsp;<input id="startDateText" type="text" class="date-text" /><br />
+		                          End:&emsp;&nbsp;<input id="endDateText" type="text" class="date-text" /><br />
+		                          &emsp;&emsp;&emsp;
+		                          <input id="monthRadio" type="radio" name="date-radio" value="month" /> Month 
+		                          &emsp;
+		                          <input id="yearRadio" type="radio" name="date-radio" value="year" /> Year 
+		                      </div>
+		                  </div>
+		                  <div class="col-md-3">
+		                      <input type="submit" id="advSubmitBtn" />
+		                  </div>
+		              </div>
+		    </div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
+		    <!-- Enter Chart Labels Row -->
+		    <div class="row">
+		        <div class="col-md-3">
+		            <input id="chartTitleText" placeholder="Chart Title" class="form-control" />
+		        </div>
+		        <div class="col-md-3">
+		            <input id="yAxisTitleText" placeholder="Y-Axis Title" class="form-control" />
+		        </div>
+		        <div class="col-md-3">
+		            <input id="xAxisTitleText" placeholder="X-Axis Title" class="form-control" />
+		        </div>
+		    </div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
+		    <!-- Chart Row -->
+		    <div class="row print-container">
+		        <div class="col-md-12">
+		            <div id="custChartDiv"></div>
+		        </div>
+		    </div>
+    		<div class="row">
+    		    <br /><br />
+    		    <br /><br />
+    		</div>
+            <div class="bottom-div"></div>
+		</div>
+<!-- Customize Tab End -->
 
 <!-- Footer Start -->
         <footer class="footer">
@@ -865,9 +924,8 @@
             $(".chart-container .date-toggle").hide();
 
 	        $("#create-submit").click(function (e) {
-	            // hospitalID Select Change Handler --- (Possibly Create submit button to prevent accidental change)
-	            // -    Set Global Hospital ID  
 	            // -	Create Local and Regional Charts
+                
                 e.preventDefault();
 	            //global_hid = parseInt($("#hidSelect").val());
 	            global_hid = $("#hidSelect").val();
@@ -875,6 +933,8 @@
                 START_DATE.setHours(0, 0, 0, 0);
                 END_DATE = new Date($homeTab.find(".date-toggle-end").val());
                 END_DATE.setHours(23, 59, 59, 999);
+                
+                var interval = $homeTab.find("input[name=interval]:checked").val();
                 
 	            $(".chartDiv").empty();
                 $(".chart-container .date-toggle").show();
@@ -893,7 +953,7 @@
 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
-                    options: { chartType: 1, byMonth: true, indicator: 0, hids: [global_hid] },
+                    options: { chartType: 1, byMonth: true, indicator: 0, hids: [global_hid], interval: interval },
                     //Y_COL: 77,              // Validate 77 = index of 'Length of Stay' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
@@ -920,7 +980,7 @@
                 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
-                    options: { chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid] },
+                    options: { chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid], interval: interval },
                     //Y_COL: 63,              // Validate 63 = index of 'Receiving Pharmacology Treatment' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
@@ -947,7 +1007,7 @@
                 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
-                    options: { chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid] },
+                    options: { chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid], interval: interval },
                     //Y_COL: 49,              // Validate 49 = index of 'Receive mothers own milk' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
@@ -974,7 +1034,7 @@
                 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
-                    options: { chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid] },
+                    options: { chartType: 1, byMonth: true, indicator: "Yes", hids: [global_hid], interval: interval },
                     //Y_COL: 78,              // Validate 78 = index of 'Patients discharged with meds' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: HID_COL,
@@ -1006,7 +1066,7 @@
                 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
-                    options: { chartType: 1, byMonth: true, indicator: 0, hids: hids },
+                    options: { chartType: 1, byMonth: true, indicator: 0, hids: hids, interval: interval },
                     //Y_COL: 77,              // Validate 77 = index of 'Length of Stay' column of CSV
                     //X_COL: 1,               // Validate 1 = index of 'Date of Audit' column of CSV
                     //HID_COL: [HID_COL],
@@ -1136,6 +1196,7 @@
                     //console.log("string, END_DATE = ",   DateToString3(END_DATE));
                     $date.find('.date-toggle-start').val(DateToString3(chartOptions[index].START_DATE));
                     $date.find('.date-toggle-end').val(DateToString3(chartOptions[index].END_DATE));
+                    $date.find('input.interval-radio[value=' + interval + ']').prop("checked", true);
                 });
                 
 
@@ -1309,6 +1370,9 @@
                 var chartType = chartOptions[chartIndex].options.chartType;
                 
                 if (chartType == 1) {           // Draw Run Chart
+                    var interval = $chartContainer.find("input.interval-radio:checked").val();
+                    opts.options["interval"] = interval;
+                    
                     drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
                              opts.titles, opts.width, opts.height, opts.selector);
                 } else if (chartType == 2) {    // Draw Box Plot
@@ -1317,6 +1381,8 @@
                                opts.titles, opts.width, opts.height, opts.selector);
                 } else if (chartType == 4) {    // Draw Bar Chart
                 }
+                
+                return false;
             });
                           
 	        // Customize CSV Submit Button Handler

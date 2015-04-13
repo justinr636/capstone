@@ -171,6 +171,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var avg = dataObj.avg;
     var min = dataObj.min;
     var max = dataObj.max;
+    var interval = dataObj.interval;
     var print_percent = max == -Infinity ? true : false;
     var avg_line_bool = dataObj.avg_line;
     var avg_single_data = [];
@@ -186,11 +187,32 @@ function drawRunChart(dataObj, label, width, height, selector) {
     //var X_DATA_PARSE = d3.time.format("%B/%Y").parse;
     var X_DATA_PARSE = d3.time.format("%m/%d/%Y").parse;
     
-    _.each(data, function (item) {
-           _.each(item, function (o) {
-                 o.date = X_DATA_PARSE(o.date);
-           });
-    });
+    if (interval !== "quarter") {
+        //console.log("d3 time format parse");
+        _.each(data, function (item) {
+               _.each(item, function (o) {
+                     o.date = X_DATA_PARSE(o.date);
+               });
+        });
+        //console.log("d3 time format parse");
+    } else {
+        var quarterTicks = function (date, i) {
+            if (i >= 0) {
+                i++;
+                var date2 = new Date();
+                date2.setMonth(date.getMonth() - 1);
+                var q = Math.ceil((date2.getMonth()) / 3);
+                //console.log("date2 = ", date2);
+                //console.log("Q + q = ", "Q" + q);
+                
+                if (q == 4) q = 1;
+                else q++;
+
+                
+                return "Q" + q + " - " + date.getFullYear();
+            }
+        };
+    }
 
     //var Y_DATA_PARSE = 0;
 
@@ -209,6 +231,14 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var xAxis = d3.svg.axis()
 	     	                 .scale(x)
 	     	   			     .orient("bottom");
+    
+    if (interval == "quarter") {
+        //xAxis = d3.svg.axis().scale(x).ordinal().domain(["Q1", "Q2", "Q3", "Q4"]).orient("bottom");
+        //xAxis = d3.svg.axis().scale(x).tickValues([]).orient("bottom");
+        
+        //x = d3.time.scale().nice(d3.time.month).range([0,width]);
+        xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(d3.time.months, 3).tickFormat(quarterTicks);
+    }
 
     var yAxis = d3.svg.axis()
 	     	                 .scale(y)
@@ -391,7 +421,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
           .text("No Data Available");
        
        $(selector + " svg g :not(.no-data)").hide();
-       $(selector).closest('.chart-container').find('.date-toggle').hide();
+       //$(selector).closest('.chart-container').find('.date-toggle').hide();
    }
     
     if (data.length >= 2) {
@@ -825,6 +855,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
     //
     var chartType = chartData.chartType;
     var byMonth = chartData.byMonth;
+    var interval = chartData.interval;
     var indicatorVal = chartData.indicator;
 
     // Handle Run Chart with multiple lines
@@ -853,9 +884,90 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         var endYear = END_DATE.getFullYear();
         var dateLabels = [];
         var jsDateLabels = [];
+        var qCount = 0;
         
 
         for (startYear; startYear <= endYear; startYear++) {
+            if (interval == "month") {
+                if (startYear < endYear) {
+                    for (startMonth; startMonth <= 12; startMonth++) {
+                        //var dateStr = startMonth + "/" + startYear;
+                        var dateStr = startMonth + "/1/" + startYear;
+                        dateLabels.push(dateStr);
+                        var dateJs = new Date(startMonth + "/1/" + startYear);
+                        jsDateLabels.push(dateJs);
+                    }
+                    startMonth = 1;
+                } else if (startYear == endYear) {
+                    for (startMonth; startMonth <= endMonth; startMonth++) {
+                        //var dateStr = startMonth + "/" + startYear;
+                        var dateStr = startMonth + "/1/" + startYear;
+                        dateLabels.push(dateStr);
+                        var dateJs = new Date(startMonth + "/1/" + startYear);
+                        jsDateLabels.push(dateJs);
+                    }
+                } else { }
+            } else if (interval == "year") {
+                var dateStr = "1/1/" + startYear;
+                dateLabels.push(dateStr);
+                var dateJs = new Date("1/1/" + startYear);
+                jsDateLabels.push(dateJs);
+            } else if (interval == "quarter") {
+                if (startYear < endYear) {
+                    for (startMonth; startMonth <= 12; startMonth++) {
+                        /*
+                        if (qCount == 4) qCount = 0;
+                        qCount++;
+                        //var dateStr = startMonth + "/" + startYear;
+                        if (qCount == 1) {
+                            var dateStr = startMonth + "/1/" + startYear;
+                            var dateJs = new Date(startMonth + "/1/" + startYear);
+                            jsDateLabels.push(dateJs);
+                            
+                            dateStr = startMonth + " - " + (startMonth+2) + " " + startYear;
+                            //dateStr = "Q" + ((startMonth % 3)+1) + " " + startYear;
+                            dateLabels.push(dateStr);
+                        }
+                        */
+                        if (startMonth == 1 || startMonth == 4 || startMonth == 7 || startMonth == 10) {
+                            var dateStr = startMonth + "/1/" + startYear;
+                            var dateJs = new Date(startMonth + "/1/" + startYear);
+                            jsDateLabels.push(dateJs);
+                            
+                            dateStr = "Q" + ((startMonth % 3)+1) + " " + startYear;
+                            dateLabels.push(dateStr);
+                        }
+                    }
+                    startMonth = 1;
+                } else if (startYear == endYear) {
+                    for (startMonth; startMonth <= endMonth; startMonth++) {
+                        /*
+                        if (qCount == 4) qCount = 0;
+                        qCount++;
+                        
+                        if (qCount == 1) {
+                            var dateStr = startMonth + "/1/" + startYear;
+                            var dateJs = new Date(startMonth + "/1/" + startYear);
+                            jsDateLabels.push(dateJs);
+                            
+                            dateStr = startMonth + " - " + (startMonth+2) + " " + startYear;
+                            //dateStr = "Q" + ((startMonth % 3)+1) + " " + startYear;
+                            dateLabels.push(dateStr);
+                        }
+                        */
+                        if (startMonth == 1 || startMonth == 4 || startMonth == 7 || startMonth == 10) {
+                            //var dateStr = startMonth + "/" + startYear;
+                            var dateStr = startMonth + "/1/" + startYear;
+                            var dateJs = new Date(startMonth + "/1/" + startYear);
+                            jsDateLabels.push(dateJs);
+                            
+                            dateLabels.push(dateStr);
+                        }
+                    }
+                } else { }
+            }
+            
+            /*
             if (byMonth) {
                 if (startYear < endYear) {
                     for (startMonth; startMonth <= 12; startMonth++) {
@@ -882,14 +994,30 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 var dateJs = new Date("1/1/" + startYear);
                 jsDateLabels.push(dateJs);
             }
+            */
         }
         
         _.each(hids, function (hid) {
+               /*
                var arr = [];
                _.each(dateLabels, function (date) {
                     arr.push({ date: date, hid: hid, sample_size: 0, indicator: 0, ratio: 0, vals: [] });
                });
                dataset.push(arr);
+               */
+               if (interval !== "quarter") {
+                    var arr = [];
+                    _.each(dateLabels, function (date) {
+                         arr.push({ date: date, hid: hid, sample_size: 0, indicator: 0, ratio: 0, vals: [] });
+                    });
+                    dataset.push(arr);
+               } else {
+                    var arr = [];
+                    _.each(jsDateLabels, function (date) {
+                         arr.push({ date: date, hid: hid, sample_size: 0, indicator: 0, ratio: 0, vals: [] });
+                    });
+                    dataset.push(arr);
+               }
         });
         
         //console.log("dataset = ", dataset);
@@ -899,8 +1027,10 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             // Get Y-Axis indicator
             //var val = parseInt(item[Y_COL]);  -This assumes item[Y_COL] (y-axis) = number (not "Yes" or "Checked")
             var val = 0;
-            if (Y_COL == 77) {
-               val = parseInt(item[Y_COL]) - parseInt(item[7]);     // Assumes item[77] = Day of Life at discharge, item[7] = Day of Life at admission
+            //if (Y_COL == 77) { }
+            if (Y_COL == global_cols["global_losend_col"].val) {
+               //val = parseInt(item[Y_COL]) - parseInt(item[7]);     // Assumes item[77] = Day of Life at discharge, item[7] = Day of Life at admission
+               val = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);     // Assumes item[77] = Day of Life at discharge, item[7] = Day of Life at admission
             } else {
                val = item[Y_COL];
             }
@@ -916,7 +1046,29 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             //dateIndex = $.map(dataset, function (obj, index) { if (obj.date == dteStr) return index; });
             //dateIndex = _.each(dataset, function (item, i) { if (item.date == dteStr) return i; });
                //console.log("dateIndex = ", dateIndex);
-
+               
+            if (interval == "quarter") {
+               //console.log("interval = quarter");
+               //console.log("jsDte = X_COL = ", jsDte);
+               //console.log("jsDteLabels = ", jsDateLabels);
+               var END = new Date("12/31/" + jsDateLabels[jsDateLabels.length-1].getFullYear());
+               END.setHours(23, 59, 59, 999);
+               
+               for (var i = 0; i < jsDateLabels.length-1; i++) {
+                    //console.log("if jsDte = ", jsDte);
+                    //console.log(" >= jsDateLabels[i]", jsDateLabels[i]);
+                    //console.log(" && < jsDateLabels[i+1]", jsDateLabels[i+1]);
+                    var start = jsDateLabels[i];
+                    if ((jsDte >= jsDateLabels[i]) && (jsDte < jsDateLabels[i+1])) {
+                        dateIndex = i;
+                        break;
+                    }
+               }
+               if ((jsDte >= jsDateLabels[jsDateLabels.length-1]) && (jsDte <= END)) {
+                   dateIndex = jsDateLabels.length-1;
+               }
+            }
+            
             // Get Hospital ID
             var hid = item[HID_COL];
             var hospIndex = $.inArray(hid, hids);
@@ -927,11 +1079,15 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
             // if jsDte is between START_DATE and END_DATE
             //    AND ((hid matches Global Hospital ID) OR (drawing avg line))
-            if ((dateIndex !== -1) && (jsDte > START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (val !== '') && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
+            if ((dateIndex !== -1) && (jsDte >= START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (val !== '') && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
                
+               //console.log("indicatorVal = ", indicatorVal);
+               //console.log("typeof indicatorVal = ", typeof indicatorVal);
                if (typeof indicatorVal === "number") {
                     var num = parseInt(val);
                     //console.log("num = ", num);
+                    //console.log("dateIndex = ", dateIndex);
+                    //console.log("dateLabels = ", dateLabels);
                
                     if (hospIndex !== -1) {
                         dataset[hospIndex][dateIndex].vals.push(num);
@@ -970,6 +1126,9 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         });
 
         var avg = avg_sum / avg_count;
+        //console.log("avg = ", avg);
+        //console.log("avg_sum = ", avg_sum);
+        //console.log("avg_count = ", avg_count);
 
         if (typeof indicatorVal === "number") {
             _.each(dataset, function (hidData) {
@@ -1003,6 +1162,8 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                   }
                    */
             });
+            //console.log("variance_sum = ", variance_sum);
+            //console.log("avg_count = ", avg_count);
         } else {
             avg = avg * 100;
             
@@ -1025,9 +1186,12 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
            });
         }
 
-        var variance = variance_sum / avg_count;
+        //var variance = variance_sum / avg_count;          // Population Statistics
+        var variance = variance_sum / (avg_count - 1);      // Sample Statistics
+        //console.log("variance = ", variance);
 
         var stdev = Math.sqrt(variance);
+        //console.log("stdev = ", stdev);
 
         var ucl = avg + (3 * stdev);
         if (typeof indicatorVal !== "number" && ucl > 100) ucl = 100;   // assumes ucl is a percentage
@@ -1038,7 +1202,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //console.log("run chart dataset = ", dataset);
         //dataset = _.sortBy(dataset, function (o) { var dt = new Date(o.date); return dt; });
 
-        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids, stdev: stdev };
+        return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids, stdev: stdev, interval: interval };
 
     } else if (chartType == 2) {    // Draw Box Plot 
         var dataset = [];
@@ -1061,6 +1225,9 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         // format data
         _.each(csvArray, function (item, i) {
             var num = parseInt(item[Y_COL]);
+            if (Y_COL == global_cols["global_losend_col"].val) {
+               num = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);
+            }
             var hid = item[HID_COL];
 
             if ((num !== '') && (typeof num !== "undefined") && (hid == global_hid)) {
@@ -1073,7 +1240,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 });
             }
         });
-        console.log("dataset = ", dataset);
+        //console.log("dataset = ", dataset);
 
         return { data: dataset, min: min, max: max };
     } else if (chartType == 3) {	// Draw Funnel Plot 

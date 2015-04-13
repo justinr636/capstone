@@ -59,8 +59,12 @@ nav { background-image: #fff !important; }
 
 #help-tab img { width: 100%; height: 100%; margin: 10px; border: 1px solid black; border-radius: 5px; }
 
-.date-toggle-start { width: 82px; }
-.date-toggle-end { width: 82px; }
+.date-toggle { position: relative; }
+    .date-toggle-range { display: inline-block; position: absolute; left: 15px; top: 10px; }
+    .date-toggle-interval { display: inline-block; position: absolute; left: 300px; }
+        .date-toggle-start { width: 82px; }
+        .date-toggle-end { width: 82px; }
+        .refresh-data-btn { float: right; }
 
 #csvfile-error { text-align: center; }
     .csvfile-error-select { width: 100%; }
