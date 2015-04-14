@@ -63,7 +63,6 @@
              
              ga('create', 'UA-61853517-1', 'auto');
              ga('send', 'pageview');
-             
       </script>
       <div id="#main">
         <span id="hidden-span" style="display:none;"></span>
@@ -348,21 +347,16 @@
                             <h4>Select A Date Range:</h4>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row date-toggle">
                         <div class="col-md-6">
-                            <div class="date-toggle">
-                                <br />
-                                Start:&emsp;<input class="date-toggle-start" type="text" />
-                                <br /><br />
-                                End: &emsp;<input class="date-toggle-end" type="text" />
-                            </div>
+                            <br />
+                            Start:&emsp;<input class="date-toggle-start" type="text" />
+                            <br /><br />
+                            End: &emsp;<input class="date-toggle-end" type="text" />
                         </div>
                         <div class="col-md-6">
-                            <div class="date-toggle">
-                                <br><input id="month-toggle" type="radio" value="month" name="interval" checked="checked"> Monthly
-                                <br><input id="quarter-toggle" type="radio" value="quarter" name="interval"> Quarterly
-                                <br><input id="year-toggle" type="radio" value="year" name="interval"> Annualy
-                            </div>
+                            <br><input class="interval-radio" id="month-toggle" type="radio" value="month" name="interval" checked="checked"> Monthly
+                            <br><input class="interval-radio" id="quarter-toggle" type="radio" value="quarter" name="interval"> Quarterly
                         </div>
                     </div>
                 </div>
@@ -810,7 +804,8 @@
                        }
 	                }
 	            });
-	            title_html = '<option value="0">I Do Not Know</option>' + title_html;
+	            //title_html = '<option value="0">I Do Not Know</option>' + title_html;
+	            title_html += '<option value="0">I Do Not Know</option>';
                 hid_check_html += '<input type="checkbox" value="0"/> AVG &emsp;';
 
 	            $("#hidSelect").html(title_html);
@@ -929,8 +924,10 @@
             START_DATE.setHours(0, 0, 0, 0);
 	        START_DATE.setMonth(START_DATE.getMonth() - 12);
             
-            $homeTab.find(".date-toggle-start").val(DateToString3(START_DATE));
-            $homeTab.find(".date-toggle-end").val(DateToString3(END_DATE));
+            //$homeTab.find(".date-toggle-start").val(DateToString3(START_DATE));
+            //$homeTab.find(".date-toggle-end").val(DateToString3(END_DATE));
+            $homeTab.find(".date-toggle-start").val(DateToString(START_DATE));
+            $homeTab.find(".date-toggle-end").val(DateToString(END_DATE));
 
             $(".chart-container .date-toggle").hide();
 
@@ -940,10 +937,18 @@
                 e.preventDefault();
 	            //global_hid = parseInt($("#hidSelect").val());
 	            global_hid = $("#hidSelect").val();
-                START_DATE = new Date($homeTab.find(".date-toggle-start").val());
+                //START_DATE = new Date($homeTab.find(".date-toggle-start").val());
+                START_DATE = StringToDate($homeTab.find(".date-toggle-start").val());
+                START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
                 START_DATE.setHours(0, 0, 0, 0);
-                END_DATE = new Date($homeTab.find(".date-toggle-end").val());
+                //END_DATE = new Date($homeTab.find(".date-toggle-end").val());
+                END_DATE = StringToDate($homeTab.find(".date-toggle-end").val());
+                //END_DATE.setMonth(END_DATE.getMonth() + 1);
+                //END_DATE.setHours(0, 0, 0, 0);
                 END_DATE.setHours(23, 59, 59, 999);
+                
+                console.log("START_DATE = ", START_DATE);
+                console.log("END_DATE = ", END_DATE);
                 
                 var interval = $homeTab.find("input[name=interval]:checked").val();
                 
@@ -1205,8 +1210,10 @@
                     //console.log("END_DATE = ", END_DATE);
                     //console.log("string, START_DATE = ", DateToString3(START_DATE));
                     //console.log("string, END_DATE = ",   DateToString3(END_DATE));
-                    $date.find('.date-toggle-start').val(DateToString3(chartOptions[index].START_DATE));
-                    $date.find('.date-toggle-end').val(DateToString3(chartOptions[index].END_DATE));
+                    //$date.find('.date-toggle-start').val(DateToString3(chartOptions[index].START_DATE));
+                    //$date.find('.date-toggle-end').val(DateToString3(chartOptions[index].END_DATE));
+                    $date.find('.date-toggle-start').val(DateToString(chartOptions[index].START_DATE));
+                    $date.find('.date-toggle-end').val(DateToString(chartOptions[index].END_DATE));
                     $date.find('input.interval-radio[value=' + interval + ']').prop("checked", true);
                 });
                 
@@ -1360,17 +1367,124 @@
 
 	        $("#startDateText, #endDateText").datepicker();
 	        $("#simpleStartDateText, #simpleEndDateText").datepicker();
-	        $(".date-toggle-start, .date-toggle-end").datepicker();
+            
+            $(".interval-radio").click(function() {
+                if ($(this).val() == "quarter") {
+                    $(this).closest(".date-toggle").find(".date-toggle-start, .date-toggle-end").addClass("only-year");
+                    //$(this).closest(".date-toggle").find(".date-toggle-start").addClass("only-year-start");
+                    //$(this).closest(".date-toggle").find(".date-toggle-end").addClass("only-year-end");
+                    //$(this).parent().parent().parent().find(".date-toggle-year").show();
+                    //$(this).parent().parent().parent().find(".date-toggle-month").hide();
+                } else {
+                    $(this).closest(".date-toggle").find(".date-toggle-start, .date-toggle-end").removeClass("only-year");
+                    //$(this).closest(".date-toggle").find(".date-toggle-start").removeClass("only-year-start");
+                    //$(this).closest(".date-toggle").find(".date-toggle-end").removeClass("only-year-end");
+                    //$(this).parent().parent().parent().find(".date-toggle-year").hide();
+                    //$(this).parent().parent().parent().find(".date-toggle-month").show();
+                }
+            });
+            
+	        $(".date-toggle-start, .date-toggle-end").datepicker({
+                                                         dateFormat: "mm/yy",
+                                                         changeMonth: true,
+                                                         changeYear: true,
+                                                         showButtonPanel: true,
+                                                         onClose: function(dateText, inst) {
+                                                         
+                                                                 function isDonePressed(){
+                                                                         return ($('#ui-datepicker-div').html().indexOf('ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all ui-state-hover') > -1);
+                                                                 }
+                                                         
+                                                                 if (isDonePressed()){
+                                                                    var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                                                                    var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                                                                    if (inst.dpDiv.hasClass('only_year_start')) {
+                                                                        month = 0;
+                                                                        $(this).datepicker('setDate', new Date(year, month, 1)).trigger('change');
+                                                                    } else if (inst.dpDiv.hasClass('only_year_end')) {
+                                                                        month = 11;
+                                                                        $(this).datepicker('setDate', new Date(year, month, 31)).trigger('change');
+                                                                    } else {
+                                                                        $(this).datepicker('setDate', new Date(year, month, 1)).trigger('change');
+                                                                    }
+                                                                    
+                                                                    $('.date-picker').focusout()//Added to remove focus from datepicker input box on selecting date
+                                                                 }
+                                                         },
+                                                         //onSelect: function (dateText, inst)
+                                                         onChangeMonthYear: function (year, month, inst) {
+                                                            if (inst.dpDiv.hasClass('only_year_start') || inst.dpDiv.hasClass('only_year_end')) {
+                                                                setTimeout(function() {
+                                                                    $("a.ui-datepicker-prev").addClass("hidden");
+                                                                    $("a.ui-datepicker-next").addClass("hidden");
+                                                                    $(".ui-datepicker-month").addClass("hidden");
+                                                                }, 1);
+                                                            } else {
+                                                                setTimeout(function() {
+                                                                    $("a.ui-datepicker-prev").removeClass("hidden");
+                                                                    $("a.ui-datepicker-next").removeClass("hidden");
+                                                                    $(".ui-datepicker-month").removeClass("hidden");
+                                                                }, 1);
+                                                            }
+                                                         },
+                                                         beforeShow : function(input, inst) {
+                                                         
+                                                                 inst.dpDiv.addClass('month_year_datepicker')
+                                                                 
+                                                                 if ((datestr = $(this).val()).length > 0) {
+                                                                    year = datestr.substring(datestr.length-4, datestr.length);
+                                                                    month = datestr.substring(0, 2);
+                                                                    $(this).datepicker('option', 'defaultDate', new Date(year, month-1, 1));
+                                                                    $(this).datepicker('setDate', new Date(year, month-1, 1));
+                                                                 }
+                                                                 
+                                                                 if ($(input).hasClass("only-year")) {
+                                                                    if ($(input).hasClass("date-toggle-start")) {
+                                                                        inst.dpDiv.addClass('only_year_start');
+                                                                        //inst.dpDiv.removeClass('only_year_end');
+                                                                    } else {
+                                                                        inst.dpDiv.removeClass('only_year_start');
+                                                                    }
+                                                                    if ($(input).hasClass("date-toggle-end")) {
+                                                                        inst.dpDiv.addClass('only_year_end');
+                                                                        //inst.dpDiv.removeClass('only_year_start');
+                                                                    } else {
+                                                                        inst.dpDiv.removeClass('only_year_end');
+                                                                    }
+                                                                    setTimeout(function () {
+                                                                        $(this).datepicker("option", { changeMonth: false });
+                                                                        $(input).datepicker("widget").find("a.ui-datepicker-prev").addClass("hidden");
+                                                                        $(input).datepicker("widget").find("a.ui-datepicker-next").addClass("hidden");
+                                                                        $(input).datepicker("widget").find(".ui-datepicker-month").addClass("hidden");
+                                                                    }, 1);
+                                                                 } else {
+                                                                    inst.dpDiv.removeClass('only_year_start');
+                                                                    inst.dpDiv.removeClass('only_year_end');
+                                                                    setTimeout(function () {
+                                                                        $(this).datepicker("option", { changeMonth: true });
+                                                                        $(this).datepicker("widget").find("a.ui-datepicker-prev").removeClass("hidden");
+                                                                        $(this).datepicker("widget").find("a.ui-datepicker-next").removeClass("hidden");
+                                                                        $(this).datepicker("widget").find(".ui-datepicker-month").removeClass("hidden");
+                                                                    }, 1);
+                                                                 }
+                                                         }
+                                                         });
             
             $(".refresh-data-btn").click(function (e) {
                 e.preventDefault();
                 
                 var $chartContainer = $(this).closest('.chart-container');
                 var chartIndex = $chartContainer.find('.chart-options-index').val();
-                var START_DATE = new Date($chartContainer.find('.date-toggle-start').val());
+                //var START_DATE = new Date($chartContainer.find('.date-toggle-start').val());
+                var START_DATE = StringToDate($chartContainer.find('.date-toggle-start').val());
+                START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
                 START_DATE.setHours(0, 0, 0, 0);
-                var END_DATE = new Date($chartContainer.find('.date-toggle-end').val());
+                //var END_DATE = new Date($chartContainer.find('.date-toggle-end').val());
+                var END_DATE = StringToDate($chartContainer.find('.date-toggle-end').val());
                 END_DATE.setHours(23, 59, 59, 999);
+                
+                //console.log("START_DATE = ", START_DATE);
+                //console.log("END_DATE = ", END_DATE);
                 
                 chartOptions[chartIndex].START_DATE = START_DATE;
                 chartOptions[chartIndex].END_DATE = END_DATE;

@@ -21,6 +21,7 @@ a, p, div {
     font-family: 'Ubuntu', sans-serif;
 }
 
+.hidden { display: none !important; }
 .ib { width: 100%; }
     .ib, .ib > * { display: inline-block; }
         .logos { width: 50px !important; height 50px !important; }
@@ -62,9 +63,11 @@ nav { background-image: #fff !important; }
 .date-toggle { position: relative; }
     .date-toggle-range { display: inline-block; position: absolute; left: 15px; top: 10px; }
     .date-toggle-interval { display: inline-block; position: absolute; left: 300px; }
-        .date-toggle-start { width: 82px; }
-        .date-toggle-end { width: 82px; }
+        .date-toggle-start, .date-toggle-year-start { width: 82px; }
+        .date-toggle-end, .date-toggle-year-end { width: 82px; }
         .refresh-data-btn { float: right; }
 
 #csvfile-error { text-align: center; }
     .csvfile-error-select { width: 100%; }
+    
+.ui-datepicker-calendar { display: none; }

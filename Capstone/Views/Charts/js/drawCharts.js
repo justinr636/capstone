@@ -10,8 +10,9 @@
 //   Bar Chart Functions 
 // #######################
 
-function DateToString(d) {
-    return ((d.getMonth() + 1) + "/" + d.getFullYear());
+function DateToString(d) {      // JavaScript Date Object --> "MM/YYYY"
+    var m = d.getMonth()+1;
+    return ( (m < 10 ? "0"+m : m) + "/" + d.getFullYear());
 }
 
 function DateToString2(d) {
@@ -20,6 +21,12 @@ function DateToString2(d) {
 
 function DateToString3(d) {
     return ((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
+}
+
+function StringToDate(s) {      // MM/YYYY --> JavaScript Date Object
+    var a = s.split("/");
+    return new Date(a[1], a[0], 0);
+    //return new Date(a[0] + "/01/" + a[1]);
 }
 
 function drawBarChart(barData, titles, width, height, selector) {
@@ -427,7 +434,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
     if (data.length >= 2) {
         var legend = svg;
         
-        if (data.length > 2) {
+        if (data.length >= 2) {
             legend = svg.selectAll(".legend")
     	    		    .data(hids)
     	    		    .enter().append("g")
@@ -446,6 +453,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
         } else {
             legend = svg.selectAll(".legend")
     	    		    .data([global_hid, "AVG"])
+    	    		    //.data(["AVG", global_hid])
     	    		    .enter().append("g")
     	    		    .attr("class", "legend")
     	    		    .attr("transform", function (d, i) { return "translate(0," + i * 20 + ")"; });
