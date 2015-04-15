@@ -611,8 +611,18 @@
 		                     <option value="0">Select One</option>
 		                 </select>
 		                 <div id="simpleDateXData">
-		                     Start:&emsp;<input id="simpleStartDateText" type="text" class="date-text" /><br />
-		                     End:&emsp;&nbsp;<input id="simpleEndDateText" type="text" class="date-text" /><br />
+                             <br />
+                             <div class="date-toggle">
+                                 <div style="display: inline-block;">
+                                     Start:&emsp;<input id="simpleStartDateText"   class="date-toggle-start" type="text" /><br />
+		                             End:&emsp;&nbsp;&nbsp;<input id="simpleEndDateText" class="date-toggle-end" type="text" /><br />
+                                 </div>
+                                 <div style="display: inline-block; float: right;">
+                                    <input value="month" class="interval-radio" name="refresh-interval-cust" type="radio" checked="checked" /> Monthly
+                                    <br />
+                                    <input value="quarter" class="interval-radio"  name="refresh-interval-cust" type="radio" /> Quarterly
+                                 </div>
+                             </div>
 		                 </div>
 		             </div>
 		             <div class="col-md-3">
@@ -627,7 +637,7 @@
 		                  <div class="col-md-3">
 		                      <select id="chartTypeDrop" class="form-control">
 		                          <option value="0">Select One</option>
-		                          <option value="1">Run Chart</option>
+		                          <option value="1">Control Chart</option>
 		                          <option value="2">Box Plot</option>
 		                          <option value="3">Funnel Plot</option>
 		                          <!-- <option value="4">Bar Chart</option> -->
@@ -640,7 +650,9 @@
 		                          <option value="0">Select One</option>
 		                      </select>
                               <div id="indicatorDiv">
-                                  Indicator Value:&emsp;<input id="indicatorText" type="text" />
+                                  <br />
+                                  <h5>Indicator Value:</h5>
+                                  <input id="indicatorText" type="text" />
                               </div>
 		                  </div>
 		                  <div class="col-md-3">
@@ -652,12 +664,26 @@
 		                      	</select>
 		                      </div>
 		                      <div id="dateXData">
+                                  <br />
+                                  <div class="date-toggle">
+                                      <div style="display: inline-block;">
+                                          Start:&emsp;<input id="startDateText" class="date-toggle-start" type="text" /><br />
+		                                  End:&emsp;&nbsp;&nbsp;<input id="endDateText" class="date-toggle-end" type="text" /><br />
+                                      </div>
+                                      <div style="display: inline-block; float: right;">
+                                         <input value="month" class="interval-radio" name="refresh-interval-cust-adv" type="radio" checked="checked" /> Monthly
+                                         <br />
+                                         <input value="quarter" class="interval-radio"  name="refresh-interval-cust-adv" type="radio" /> Quarterly
+                                      </div>
+                                  </div>
+                                  <!--
 		                          Start:&emsp;<input id="startDateText" type="text" class="date-text" /><br />
 		                          End:&emsp;&nbsp;<input id="endDateText" type="text" class="date-text" /><br />
 		                          &emsp;&emsp;&emsp;
 		                          <input id="monthRadio" type="radio" name="date-radio" value="month" /> Month 
 		                          &emsp;
-		                          <input id="yearRadio" type="radio" name="date-radio" value="year" /> Year 
+		                          <input id="yearRadio" type="radio" name="date-radio" value="year" /> Year
+                                  -->
 		                      </div>
 		                  </div>
 		                  <div class="col-md-3">
@@ -806,7 +832,9 @@
 	            });
 	            //title_html = '<option value="0">I Do Not Know</option>' + title_html;
 	            title_html += '<option value="0">I Do Not Know</option>';
-                hid_check_html += '<input type="checkbox" value="0"/> AVG &emsp;';
+                //hid_check_html += '<input type="checkbox" value="0"/> AVG &emsp;';
+                hid_check_html += '<input type="checkbox" value="AVG"/> AVG &emsp;';
+                hid_check_html = '<br /><h5>Hospital IDs:</h5>' + hid_check_html;
 
 	            $("#hidSelect").html(title_html);
 	            $("#hidChecks").html(hid_check_html);
@@ -926,8 +954,10 @@
             
             //$homeTab.find(".date-toggle-start").val(DateToString3(START_DATE));
             //$homeTab.find(".date-toggle-end").val(DateToString3(END_DATE));
-            $homeTab.find(".date-toggle-start").val(DateToString(START_DATE));
-            $homeTab.find(".date-toggle-end").val(DateToString(END_DATE));
+            //$homeTab.find(".date-toggle-start").val(DateToString(START_DATE));
+            //$homeTab.find(".date-toggle-end").val(DateToString(END_DATE));
+            $(".date-toggle-start").val(DateToString(START_DATE));
+            $(".date-toggle-end").val(DateToString(END_DATE));
 
             $(".chart-container .date-toggle").hide();
 
@@ -1261,7 +1291,7 @@
 	            } else if (val == 2) {          // Box Plot
 	                $xDataDrop.hide();
 	                $("#multipleXData").show();
-	                $("#dateXData").hide();
+	                $("#dateXData").show();
                     $("#indicatorDiv").hide();
                     $("#hidChecks").hide();
 	            } else if (val == 3) {          // Funnel Plot
@@ -1289,6 +1319,7 @@
                 if ($("#advancedRadio").is(":checked")) {
                     $("#advancedRow").show();
                     $("#simpleRow").hide();
+                    $chartTypeDrop.trigger('change');
                 } else {
                     $("#advancedRow").hide();
                     $("#simpleRow").show();
@@ -1320,7 +1351,7 @@
                         + '<option value="weight">Body Weight</option>'
                         + '<option value="caloric">Maximum Caloric Density</option>'
                     );
-	                $("#simpleDateXData").hide();
+	                $("#simpleDateXData").show();
                     $("#simpleXDataDrop").show();
                     $("#simpleXDataDrop").html(
                         '<option value="0">Select One</option>'
@@ -1337,7 +1368,7 @@
                         + '<option value="bmilk">Infants Receiving Breast Milk</option>'
                         + '<option value="dismeds">Discharged with Medication</option>'
                     );
-	                $("#simpleDateXData").hide();
+	                $("#simpleDateXData").show();
                     $("#simpleXDataDrop").show();
                     $("#simpleXDataDrop").html(
                         '<option value="0">Select One</option>'
@@ -1365,8 +1396,8 @@
             $("#indicatorDiv").hide();
             $("#hidChecks").hide();
 
-	        $("#startDateText, #endDateText").datepicker();
-	        $("#simpleStartDateText, #simpleEndDateText").datepicker();
+	        //$("#startDateText, #endDateText").datepicker();
+	        //$("#simpleStartDateText, #simpleEndDateText").datepicker();
             
             $(".interval-radio").click(function() {
                 if ($(this).val() == "quarter") {
@@ -1516,6 +1547,12 @@
                                   
                 var byMonth = true;
                 if ($("#yearRadio:checked").length > 0) byMonth = false;
+                
+	            var START_DATE = StringToDate($("#startDateText").val());
+                START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
+                START_DATE.setHours(0, 0, 0, 0);
+	            var END_DATE = StringToDate($("#endDateText").val());
+                END_DATE.setHours(23, 59, 59, 999);
 
 	            var chartType = parseInt($chartTypeDrop.val());
 	            $("#custChartDiv").empty();
@@ -1527,8 +1564,16 @@
 	                //var HID_COL = global_hid_col;
 	                var HID_COL = global_cols["global_hid_col"].val;
                                   
-	                var START_DATE = new Date($("#startDateText").val());
-	                var END_DATE = new Date($("#endDateText").val());
+	                //var START_DATE = new Date($("#startDateText").val());
+	                //var END_DATE = new Date($("#endDateText").val());
+                    
+	                //var START_DATE = StringToDate($("#startDateText").val());
+                    //START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
+                    //START_DATE.setHours(0, 0, 0, 0);
+	                //var END_DATE = StringToDate($("#endDateText").val());
+                    //END_DATE.setHours(23, 59, 59, 999);
+                    
+                    var interval = $("#dateXData input.interval-radio:checked").val();
                                   
                     var hids = [];
                     $("#hidChecks input:checked").each(function () {
@@ -1536,8 +1581,6 @@
                     });
                     if (hids.length > 1) HID_COL = [global_cols["global_hid_col"].val];
                                   
-                    function isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
-                    
                     var indicatorVal = $("#indicatorText").val();
                     if (isNumeric(indicatorVal)) indicatorVal = parseFloat(indicatorVal);
                                   
@@ -1552,7 +1595,7 @@
                                     "div#custChartDiv");
                                     */
                     var runChartOptions = {
-                        options: { chartType: chartType, byMonth: byMonth, indicator: indicatorVal, hids: hids },
+                        options: { chartType: chartType, indicator: indicatorVal, hids: hids, interval: interval },
                         Y_COL: Y_COL,
                         X_COL: X_COL,
                         HID_COL: HID_COL,
@@ -1595,8 +1638,8 @@
 	                var X_COL_MULT = $xDataDrop2.val();
 	                //var HID_COL = global_hid_col;
 	                var HID_COL = global_cols["global_hid_col"].val;
-	                var START_DATE = new Date($("#startDateText").val());
-	                var END_DATE = new Date($("#endDateText").val());
+	                //var START_DATE = new Date($("#startDateText").val());
+	                //var END_DATE = new Date($("#endDateText").val());
                     
 	                // Customize Report - Box and Whisker Plot
                     drawBoxPlot(customizeCSVData({ chartType: chartType, byMonth: true }, Y_COL, X_COL_MULT, HID_COL, START_DATE, END_DATE, true),
@@ -1610,40 +1653,70 @@
 	                var X_COL = $xDataDrop.val();
 	                //var HID_COL = global_hid_col;
 	                var HID_COL = global_cols["global_hid_col"].val;
-	                var START_DATE = new Date($("#startDateText").val());
-	                var END_DATE = new Date($("#endDateText").val());
+	                //var START_DATE = new Date($("#startDateText").val());
+	                //var END_DATE = new Date($("#endDateText").val());
+                    
+	                //var START_DATE = StringToDate($("#startDateText").val());
+                    //START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
+                    //START_DATE.setHours(0, 0, 0, 0);
+	                //var END_DATE = StringToDate($("#endDateText").val());
+                    //END_DATE.setHours(23, 59, 59, 999);
+                    
                     var indicatorVal = $("#indicatorText").val();
+                    if (isNumeric(indicatorVal)) indicatorVal = parseFloat(indicatorVal);
                                   
                     // Customize Report - Draw % Patients Receiving Pharmacology Treatment - Funnel Plot
+                    var funnelPlotOpts = {
+                        options: { chartType: 3, indicator: indicatorVal },
+                        Y_COL: Y_COL,
+                        X_COL: X_COL,
+                        HID_COL: HID_COL,
+                        START_DATE: START_DATE,
+                        END_DATE: END_DATE,
+                        titles:{ yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
+                        width: width,
+                        height: height - margin.top - margin.bottom,
+                        selector: "div#custChartDiv"
+                    }
+                    
+                    drawChart(funnelPlotOpts);
+                    /*
                     drawFunnelPlot(customizeCSVData({ chartType: 3, byMonth: true, indicator: indicatorVal }, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, true),
                              { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                              width,
                              height - margin.top - margin.bottom,
                              "div#custChartDiv");
-
-	            } else if (chartType == 4) {    // Draw Bar Chart
-	                var Y_COL = $yDataDrop.val();
-	                var X_COL = $xDataDrop.val();
-	                //var HID_COL = global_hid_col;
-	                var HID_COL = global_cols["global_hid_col"].val;
-	                var START_DATE = new Date($("#startDateText").val());
-	                var END_DATE = new Date($("#endDateText").val());
-
-                    /*
-	                // Customize Report - Bar Chart 
-	                drawBarChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
-                	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
-                	             width - margin.left - margin.right,
-                	             height - margin.top - margin.bottom,
-                	             "div#custChartDiv");
                     */
+
 	            }
+                //else if (chartType == 4) {    // Draw Bar Chart
+	            //    var Y_COL = $yDataDrop.val();
+	            //    var X_COL = $xDataDrop.val();
+	            //    //var HID_COL = global_hid_col;
+	            //    var HID_COL = global_cols["global_hid_col"].val;
+	            //    var START_DATE = new Date($("#startDateText").val());
+	            //    var END_DATE = new Date($("#endDateText").val());
+
+                //    /*
+	            //    // Customize Report - Bar Chart 
+	            //    drawBarChart(customizeCSVData(chartType, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, byMonth),
+                //	             { yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
+                //	             width - margin.left - margin.right,
+                //	             height - margin.top - margin.bottom,
+                //	             "div#custChartDiv");
+                //    */
+	            //}
 	        });
                           
             $("#simpleSubmitBtn").click(function (e) {
                 e.preventDefault();
                 
                 var chartType = $("#simpleChartTypeDrop").val();
+                $("#startDateText").val($("#simpleStartDateText").val());
+                $("#endDateText").val($("#simpleEndDateText").val());
+                $("#dateXData").find("input.interval-radio[value=" + $("#simpleDateXData").find("input.interval-radio:checked").val() + "]").click();
+                //$("#dateXData").find("input.interval-radio[value=" + $("#simpleDateXData").find("input.interval-radio:checked").val() + "]").prop("checked", true);
+                //$("#monthRadio").click();
                                         
                 if (chartType == 0) {
                     console.log("error selecting chart type");
@@ -1652,10 +1725,6 @@
                     $xDataDrop.val(1);
                                         
                     $("#chartTypeDrop").val(chartType);
-                                        
-                    $("#startDateText").val($("#simpleStartDateText").val());
-                    $("#endDateText").val($("#simpleEndDateText").val());
-                    $("#monthRadio").click();
                                         
                     if ( y == "los") {
                         $yDataDrop.val("77");
@@ -1676,7 +1745,7 @@
                     
                     $('#hidChecks input[type="checkbox"]').prop('checked', false);
                     $('#hidChecks input[value="' + global_hid + '"]').prop('checked', true);
-                    $('#hidChecks input[value="0"]').prop('checked', true);
+                    //$('#hidChecks input[value="0"]').prop('checked', true);
                                         
                     $("#advSubmitBtn").click();
                 } else if (chartType == 2) {            // Draw Box Plot
@@ -1695,6 +1764,7 @@
                         $yDataDrop.val("59");
                     }
                                         
+                    $xDataDrop.val(1);
                     if (x == "locations") {
                         $xDataDrop2.val([9, 10, 11, 12, 13]);
                     } else if (x == "mfdrugs") {
@@ -1728,6 +1798,7 @@
                         $("#indicatorText").val("Yes");
                     }
                     
+                    $xDataDrop.val(1);
                     $("#advSubmitBtn").click();
                 }
             });

@@ -11,6 +11,8 @@ var titles = [];    // Stores CSV Column Headers
 var allHids = [];   // Stores Unique Hospital IDs
 var chartOptions = [];
 
+function isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
+
 function drawChart(opts) {
     var chartType = opts.options.chartType;
     

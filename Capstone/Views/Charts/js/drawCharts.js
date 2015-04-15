@@ -187,8 +187,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var hids = dataObj.hids;
     
    //console.log("data = ", data);
-   console.log("Chart Title = ", label.chartTitle);
-   console.log("Chart Data = ", dataObj);
+   //console.log("Chart Title = ", label.chartTitle);
+   //console.log("Chart Data = ", dataObj);
     
     //var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
     //var X_DATA_PARSE = d3.time.format("%B/%Y").parse;
@@ -515,6 +515,9 @@ function drawBoxPlot(boxData, title, width, height, selector) {
     var data = boxData.data;
     var min = boxData.min;
     var max = boxData.max;
+    
+    console.log("Box Plot Title = ", title);
+    console.log("Box Plot Data = ", data);
 
     var labels = true;
 
@@ -649,6 +652,8 @@ function drawFunnelPlot(data, title, width, height, selector) {
     var dataset = data.data;
     var sorted_names = data.names;
     var mean_incidence_rate = data.rate;
+    
+    console.log("Funnel Plot Data = ", data);
 
     var padding = 30;
 
@@ -862,7 +867,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
     //  4 = Bar Chart
     //
     var chartType = chartData.chartType;
-    var byMonth = chartData.byMonth;
+    //var byMonth = chartData.byMonth;
     var interval = chartData.interval;
     var indicatorVal = chartData.indicator;
 
@@ -1226,19 +1231,29 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             dataset[i][0] = labelText;
             dataset[i][1] = [];
         });
-
+        
         var max = -Infinity;
         var min = Infinity;
 
         // format data
         _.each(csvArray, function (item, i) {
-            var num = parseInt(item[Y_COL]);
+            var dte = item[global_cols["global_date_col"].val];
+            var jsDte = new Date(dte);
+            //console.log("dte = ", dte);
+            //console.log("jsDte = ", jsDte);
+            //console.log("START_DATE = ", START_DATE);
+            //console.log("END_DATE = ", END_DATE);
+            //console.log((jsDte >= START_DATE));
+
+            //var num = parseInt(item[Y_COL]);
+            var num = parseFloat(item[Y_COL]);
             if (Y_COL == global_cols["global_losend_col"].val) {
                num = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);
             }
             var hid = item[HID_COL];
 
-            if ((num !== '') && (typeof num !== "undefined") && (hid == global_hid)) {
+            // Checks if it is the right Hospital ID and within the Date Range
+            if ((num !== '') && (typeof num !== "undefined") && (hid == global_hid) && (jsDte >= START_DATE) && (jsDte <= END_DATE)) {
                 _.each(X_COL, function (header, i) {
                     if (item[header] == "Checked") {        // Assumes item[header] always = "Checked" / "Unchecked"
                         dataset[i][1].push(num);
@@ -1248,8 +1263,15 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                 });
             }
         });
+        
+        _.each(X_COL, function(item, i) {
+            var arr = dataset[i][1];
+            if (arr.length < 1) {
+               arr.push(0);
+            }
+        });
+        
         //console.log("dataset = ", dataset);
-
         return { data: dataset, min: min, max: max };
     } else if (chartType == 3) {	// Draw Funnel Plot 
         var funnelData = [];
@@ -1265,6 +1287,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
         //funnelData[0] = { sample_size: 0, indicator: 0, date: firstDate, ratio: 0 };
         
+        //console.log("allHids = ", allHids);
         _.each(allHids, function(item) {
                funnelData.push({ hid: item, sample_size: 0, indicator: 0, ratio: 0 });
         });
@@ -1277,6 +1300,8 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             var hid = item[HID_COL];
                
             var hidIndex = $.inArray(hid, allHids);
+            //console.log("hid = ", hid);
+            //console.log("hidIndex = ", hidIndex);
 
             // check if all items are defined, there is a valid hospital id, and date is within range
             if ((hidIndex !== -1) && (jsDate >= START_DATE) && (jsDate <= END_DATE) && (indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
