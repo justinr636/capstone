@@ -898,7 +898,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         var endYear = END_DATE.getFullYear();
         var dateLabels = [];
         var jsDateLabels = [];
-        var qCount = 0;
+        //var qCount = 0;
         
 
         for (startYear; startYear <= endYear; startYear++) {
@@ -1051,8 +1051,11 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
             // Get Date
             // This assumes item[X_COL] (x-axis) = datetime    (YYYY-MM-DD)
-            var dte = item[X_COL];
-            var jsDte = new Date(item[X_COL]);
+            //var dte = item[X_COL];
+            //var jsDte = new Date(item[X_COL]);
+            
+            var jsDte = StringToDate(item[global_cols["global_birthmonth_col"].val] + "/" + item[global_cols["global_birthyear_col"].val]);
+            
             var dteStr = DateToString2(jsDte);
             var dateIndex = $.inArray(dteStr, dateLabels);
             //var dateIndex = _.findIndex(dataset, { date: dteStr });
@@ -1241,8 +1244,11 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
         // format data
         _.each(csvArray, function (item, i) {
-            var dte = item[global_cols["global_date_col"].val];
-            var jsDte = new Date(dte);
+            //var dte = item[global_cols["global_date_col"].val];
+            //var jsDte = new Date(dte);
+            
+            var jsDte = StringToDate(item[global_cols["global_birthmonth_col"].val] + "/" + item[global_cols["global_birthyear_col"].val]);
+            
             //console.log("dte = ", dte);
             //console.log("jsDte = ", jsDte);
             //console.log("START_DATE = ", START_DATE);
@@ -1300,8 +1306,11 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //console.log("allHids = ", allHids);
 
         _.each(csvArray, function (item, i) {
-            var jsDate = new Date(item[X_COL]);
             //var dte = (jsDate.getMonth() + 1) + "/" + jsDate.getFullYear();
+            //var jsDate = new Date(item[X_COL]);
+            
+            var jsDate = StringToDate(item[global_cols["global_birthmonth_col"].val] + "/" + item[global_cols["global_birthyear_col"].val]);
+            
             var indicator = item[Y_COL];
             var size = funnelData.length;
             var hid = item[HID_COL];

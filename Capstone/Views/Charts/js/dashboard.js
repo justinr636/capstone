@@ -64,11 +64,13 @@ var global_hid = "AVG";
 //col_titles.push("global_losend_col");
 //col_titles.push("global_hid_col");
 
-var col_titles = [ "global_date_col", "global_losstart_col", "global_milk_col",
-                   "global_pharm_col", "global_dischargemeds_col", "global_losend_col",
-                   "global_hid_col", "global_weight_col", "global_maxcal_col",
-                   "global_locations_cols", "global_mfdrugs_cols", "global_formulas_cols",
-                   "global_dismeds_cols" ];
+var col_titles = [
+                   //"global_date_col",
+                   "global_birthmonth_col", "global_birthyear_col",
+                   "global_losstart_col", "global_milk_col", "global_pharm_col",
+                   "global_dischargemeds_col", "global_losend_col", "global_hid_col",
+                   "global_weight_col", "global_maxcal_col", "global_locations_cols",
+                   "global_mfdrugs_cols", "global_formulas_cols", "global_dismeds_cols" ];
 
 var global_cols = { };
 
@@ -78,7 +80,11 @@ for (var i = 0; i < col_titles.length; i++) {
     global_cols[str].val = -1;          // Index of CSV Column
     global_cols[str].name = [];         // CSV Header Text
 }
-global_cols["global_date_col"].name.push("Date of Audit");
+
+//global_cols["global_date_col"].name.push("Date of Audit");
+global_cols["global_birthmonth_col"].name.push("Birth Month (1-12)");
+global_cols["global_birthyear_col"].name.push("Birth Year");
+
 global_cols["global_losstart_col"].name.push("If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ");
 global_cols["global_milk_col"].name.push("Did infant receive any of his/her mother's own milk at any time during hospitalization?  ");
 global_cols["global_pharm_col"].name.push("Did infant receive pharmacologic agents for NAS?");
@@ -93,7 +99,12 @@ global_cols["global_mfdrugs_cols"].name.push("What were other maternal-fetal exp
 global_cols["global_formulas_cols"].name.push("What types of formula did infant receive during hospitalization?      Check all that apply.   (choice=");
 global_cols["global_dismeds_cols"].name.push("If yes, what medication was infant receiving at time of discharge or transfer?      Check all that apply.   (choice=");
 
+
+
 //global_cols["global_date_col"].name.push("");
+global_cols["global_birthmonth_col"].name.push("month_of_birth");
+global_cols["global_birthyear_col"].name.push("year_of_birth");
+
 global_cols["global_losstart_col"].name.push("outborn_day_of_admission");
 global_cols["global_milk_col"].name.push("hm_any");
 global_cols["global_pharm_col"].name.push("pharm_tx_any");
@@ -315,7 +326,7 @@ function validateCSVFile() {
         }
     }
     
-    console.log("global_cols = ", global_cols);
+    //console.log("global_cols = ", global_cols);
     //console.log("document.cookie = ", document.cookie);
 }
 

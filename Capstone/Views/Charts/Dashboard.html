@@ -1005,7 +1005,8 @@
 	            // Sort CSV by Date and Hospital ID
 	            //csvArray.sort(dynamicSortMultiple([X_COL, HID_COL]));
 	            //csvArray.sort(dynamicSortMultiple([global_date_col, global_hid_col]));
-	            csvArray.sort(dynamicSortMultiple([global_cols["global_date_col"].val, global_cols["global_hid_col"].val]));
+	            //csvArray.sort(dynamicSortMultiple([global_cols["global_date_col"].val, global_cols["global_hid_col"].val]));
+	            csvArray.sort(dynamicSortMultiple([global_cols["global_birthyear_col"].val, global_cols["global_birthmonth_col"].val, global_cols["global_hid_col"].val]));
 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
@@ -1019,7 +1020,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_losend_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1046,7 +1047,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_pharm_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1073,7 +1074,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_milk_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1100,7 +1101,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_dischargemeds_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1132,7 +1133,7 @@
                     HID_COL: [global_hid_col],
                     */
                     Y_COL: global_cols["global_losend_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: [global_cols["global_hid_col"].val],
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1162,7 +1163,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_pharm_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1193,7 +1194,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_milk_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1224,7 +1225,7 @@
                     HID_COL: global_hid_col,
                     */
                     Y_COL: global_cols["global_dischargemeds_col"].val,
-                    X_COL: global_cols["global_date_col"].val,
+                    //X_COL: global_cols["global_date_col"].val,
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
@@ -1384,7 +1385,7 @@
 	            } else if (val == 3) {          // Funnel Plot
                     $("#simpleYDataDrop").html(
                         '<option value="0">Select One</option>'
-                        + '<option value="los">Length of Stay</option>'
+                        //+ '<option value="los">Length of Stay</option>'
                         + '<option value="pharm">Pharmacology Treatment</option>'
                         + '<option value="bmilk">Infants Receiving Breast Milk</option>'
                         + '<option value="dismeds">Discharged with Medication</option>'
@@ -1618,7 +1619,7 @@
                     var runChartOptions = {
                         options: { chartType: chartType, indicator: indicatorVal, hids: hids, interval: interval },
                         Y_COL: Y_COL,
-                        X_COL: X_COL,
+                        //X_COL: X_COL,
                         HID_COL: HID_COL,
                         START_DATE: START_DATE,
                         END_DATE: END_DATE,
@@ -1671,7 +1672,7 @@
                                   
 	            } else if (chartType == 3) {	// Draw Funnel Plot 
 	                var Y_COL = $yDataDrop.val();
-	                var X_COL = $xDataDrop.val();
+	                //var X_COL = $xDataDrop.val();
 	                //var HID_COL = global_hid_col;
 	                var HID_COL = global_cols["global_hid_col"].val;
 	                //var START_DATE = new Date($("#startDateText").val());
@@ -1690,7 +1691,7 @@
                     var funnelPlotOpts = {
                         options: { chartType: 3, indicator: indicatorVal },
                         Y_COL: Y_COL,
-                        X_COL: X_COL,
+                        //X_COL: X_COL,
                         HID_COL: HID_COL,
                         START_DATE: START_DATE,
                         END_DATE: END_DATE,
@@ -1740,10 +1741,13 @@
                 //$("#monthRadio").click();
                                         
                 if (chartType == 0) {
+                
+                    // Display Error message to user
                     console.log("error selecting chart type");
+                    
                 } else if (chartType == 1) {                // Draw Run Chart
                     var y = $("#simpleYDataDrop").val();
-                    $xDataDrop.val(1);
+                    //$xDataDrop.val(1);
                                         
                     $("#chartTypeDrop").val(chartType);
                                         
@@ -1793,7 +1797,7 @@
                     }
                                         
                     //$xDataDrop.val(1);
-                    $xDataDrop.val(global_cols["global_date_col"].val);
+                    //$xDataDrop.val(global_cols["global_date_col"].val);
                     if (x == "locations") {
                         //$xDataDrop2.val([9, 10, 11, 12, 13]);
                         $xDataDrop2.val(global_cols["global_locations_cols"].val);
@@ -1836,7 +1840,7 @@
                     }
                     
                     //$xDataDrop.val(1);
-                    $xDataDrop.val(global_cols["global_date_col"].val);
+                    //$xDataDrop.val(global_cols["global_date_col"].val);
                     $("#advSubmitBtn").click();
                 }
             });
