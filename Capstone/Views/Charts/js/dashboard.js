@@ -39,29 +39,36 @@ var global_hid = "AVG";
 
 //var global_hid_col = 105;
 //var global_date_col = 1;
-var global_date_col = -1;
-var global_losstart_col = -1;
-var global_milk_col = -1;
-var global_pharm_col = -1;
-var global_dischargemeds_col = -1;
-var global_losend_col = -1;
-var global_hid_col = -1;
-var global_date_col_text = "";
-var global_losstart_col_text = "";
-var global_milk_col_text = "";
-var global_pharm_col_text = "";
-var global_dischargemeds_col_text = "";
-var global_losend_col_text = "";
-var global_hid_col_text = "";
 
-var col_titles = [];
-col_titles.push("global_date_col");
-col_titles.push("global_losstart_col");
-col_titles.push("global_milk_col");
-col_titles.push("global_pharm_col");
-col_titles.push("global_dischargemeds_col");
-col_titles.push("global_losend_col");
-col_titles.push("global_hid_col");
+//var global_date_col = -1;
+//var global_losstart_col = -1;
+//var global_milk_col = -1;
+//var global_pharm_col = -1;
+//var global_dischargemeds_col = -1;
+//var global_losend_col = -1;
+//var global_hid_col = -1;
+//var global_date_col_text = "";
+//var global_losstart_col_text = "";
+//var global_milk_col_text = "";
+//var global_pharm_col_text = "";
+//var global_dischargemeds_col_text = "";
+//var global_losend_col_text = "";
+//var global_hid_col_text = "";
+
+//var col_titles = [];
+//col_titles.push("global_date_col");
+//col_titles.push("global_losstart_col");
+//col_titles.push("global_milk_col");
+//col_titles.push("global_pharm_col");
+//col_titles.push("global_dischargemeds_col");
+//col_titles.push("global_losend_col");
+//col_titles.push("global_hid_col");
+
+var col_titles = [ "global_date_col", "global_losstart_col", "global_milk_col",
+                   "global_pharm_col", "global_dischargemeds_col", "global_losend_col",
+                   "global_hid_col", "global_weight_col", "global_maxcal_col",
+                   "global_locations_cols", "global_mfdrugs_cols", "global_formulas_cols",
+                   "global_dismeds_cols" ];
 
 var global_cols = { };
 
@@ -69,15 +76,36 @@ for (var i = 0; i < col_titles.length; i++) {
     var str = col_titles[i];
     global_cols[str] = {};
     global_cols[str].val = -1;          // Index of CSV Column
-    global_cols[str].name = "";         // CSV Header Text
+    global_cols[str].name = [];         // CSV Header Text
 }
-global_cols["global_date_col"].name = "Date of Audit";
-global_cols["global_losstart_col"].name = "If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ";
-global_cols["global_milk_col"].name = "Did infant receive any of his/her mother's own milk at any time during hospitalization?  ";
-global_cols["global_pharm_col"].name = "Did infant receive pharmacologic agents for NAS?";
-global_cols["global_dischargemeds_col"].name = "At time of discharge or transfer from  your hospital, was infant receiving medications for NAS?";
-global_cols["global_losend_col"].name = "What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ";
-global_cols["global_hid_col"].name = "Hospital.ID";
+global_cols["global_date_col"].name.push("Date of Audit");
+global_cols["global_losstart_col"].name.push("If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ");
+global_cols["global_milk_col"].name.push("Did infant receive any of his/her mother's own milk at any time during hospitalization?  ");
+global_cols["global_pharm_col"].name.push("Did infant receive pharmacologic agents for NAS?");
+global_cols["global_dischargemeds_col"].name.push("At time of discharge or transfer from  your hospital, was infant receiving medications for NAS?");
+global_cols["global_losend_col"].name.push("What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ");
+global_cols["global_hid_col"].name.push("Your Hospital ID");
+global_cols["global_weight_col"].name.push("Birth weight (Grams)");
+global_cols["global_maxcal_col"].name.push("What was the maximum caloric density of human milk or formula given to infant during hospitalization?");
+global_cols["global_locations_cols"].name.push("In what locations did the infant receive care during hospitalization?      Check all that apply. (choice=");
+global_cols["global_mfdrugs_cols"].name.push("What were the maternal-fetal opioid exposures?      Check all that apply.  Information can come from maternal self-report, maternal, or neonatal toxicology screen.   Do not include if exposure was clearly ONLY in first trimester.  Short-acting opioids include codeine, oxycodone, hydrocodone, morphine, and hydromorphine.  Buprenorphine includes Subutex and Suboxone.  (choice=");
+global_cols["global_mfdrugs_cols"].name.push("What were other maternal-fetal exposures of note?      Check all that apply.    Do not include if exposure was clearly only in first trimester.   (choice=");
+global_cols["global_formulas_cols"].name.push("What types of formula did infant receive during hospitalization?      Check all that apply.   (choice=");
+global_cols["global_dismeds_cols"].name.push("If yes, what medication was infant receiving at time of discharge or transfer?      Check all that apply.   (choice=");
+
+//global_cols["global_date_col"].name.push("");
+global_cols["global_losstart_col"].name.push("outborn_day_of_admission");
+global_cols["global_milk_col"].name.push("hm_any");
+global_cols["global_pharm_col"].name.push("pharm_tx_any");
+global_cols["global_dischargemeds_col"].name.push("discharge_med");
+global_cols["global_losend_col"].name.push("discharge_day");
+global_cols["global_hid_col"].name.push("hospital_id");
+global_cols["global_weight_col"].name.push("birth_weight");
+global_cols["global_maxcal_col"].name.push("caloric_maximum");
+global_cols["global_locations_cols"].name.push("care_locations_");
+global_cols["global_mfdrugs_cols"].name.push("maternal_opioid_exposure_");
+global_cols["global_formulas_cols"].name.push("formula_types_");
+global_cols["global_dismeds_cols"].name.push("discharge_med");
 
 function validateCSVFile() {
 // ensures hard-coded columns for Local and State Reports
@@ -85,10 +113,19 @@ function validateCSVFile() {
     for (var property in global_cols) {
         if (global_cols.hasOwnProperty(property)) {
             if ((document.cookie.indexOf(property) >= 0) && (document.cookie.indexOf(property + "_text") >= 0)) {
-                global_cols[property].val = getCookie(property);
-                global_cols[property].name = getCookie(property + "_text");
-                if (titles[global_cols[property].val] !== global_cols[property].name) {     // Checks if CSV column header == column header stored in user's cookie
-                    global_cols[property].val = -1;
+                var val = getCookie(property);
+                var name = getCookie(property+"_text");
+                global_cols[property].val = val;
+                global_cols[property].name = name;
+                //if (titles[global_cols[property].val] !== global_cols[property].name) {     // Checks if CSV column header == column header stored in user's cookie
+                //    global_cols[property].val = -1;
+                //}
+                var nameArr = global_cols[property].name;
+                
+                for (var i = 0; i < nameArr.length; i++) {      // Checks if CSV column header == column header stored in user's cookie
+                    if (titles[val].indexOf(nameArr[i]) < 0) {
+                        global_cols[property].val = -1;
+                    }
                 }
             }
         }
@@ -152,11 +189,32 @@ function validateCSVFile() {
     
         for (var property in global_cols) {
             if (global_cols.hasOwnProperty(property)) {
-                if (global_cols[property].val == -1) {
-                    if (titles[i] == global_cols[property].name) {
-                        global_cols[property].val = i;
-                        setCookie(property, i, 365);
-                        setCookie(property+"_text", titles[i], 365);
+                var propArr = property.split("_");
+                var mult_cols = (propArr[propArr.length-1] == "cols");
+                if (global_cols[property].val == -1 || mult_cols) {
+                    //if (titles[i] == global_cols[property].name) {
+                    //    global_cols[property].val = i;
+                    //    setCookie(property, i, 365);
+                    //    setCookie(property+"_text", titles[i], 365);
+                    //}
+                    var nameArr = global_cols[property].name;
+                    for (var j = 0; j < nameArr.length; j++)
+                    {
+                        if (titles[i].indexOf(nameArr[j]) >= 0) {      // If global_header matches csv_header, set the global_col index number
+                            if (mult_cols) {
+                                if (typeof global_cols[property].val !== "number") global_cols[property].val.push(i);
+                                else global_cols[property].val = [i];
+                                
+                                setCookie(property, global_cols[property].val, 365);
+                                setCookie(property+"_text", nameArr[j], 365);
+                            } else {
+                                global_cols[property].val = i;
+                                setCookie(property, i, 365);
+                                setCookie(property+"_text", nameArr[j], 365);
+                                break;
+                            }
+                            
+                        }
                     }
                 }
             }
@@ -257,7 +315,7 @@ function validateCSVFile() {
         }
     }
     
-    //console.log("global_cols = ", global_cols);
+    console.log("global_cols = ", global_cols);
     //console.log("document.cookie = ", document.cookie);
 }
 
@@ -306,6 +364,6 @@ function getCookie(cname) {
         //}
     }
     
-    console.log("got cookie, val = ", val);
+    //console.log("got cookie, val = ", val);
     return val;
 }

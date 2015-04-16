@@ -675,7 +675,8 @@ function drawFunnelPlot(data, title, width, height, selector) {
 
     // Create scale functions
     var xScale = d3.scale.linear()
-            	               .domain([0, max_x])
+            	               //.domain([0, max_x])
+            	               .domain([min_x, max_x])
             	               .range([padding, width - padding * 2]);
     var yScale = d3.scale.linear()
             	               .domain([0, d3.max(dataset, function (d) { return d3.max([d['ratio'], d['plus_3sd']]); })])
@@ -1223,8 +1224,11 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         _.each(X_COL, function (item, i) {
             // Create X-Axis Label
             var labelText = $("#xDataDrop2").find("option[value='" + item + "']").text();
+            
             var labelTextArr = labelText.split(/\(choice=(.*)\)/);
-            labelText = labelTextArr[1];
+            if (labelTextArr.length > 1) {
+               labelText = labelTextArr[1];
+            }
 
             // Format dataset
             dataset[i] = [];
@@ -1253,7 +1257,8 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             var hid = item[HID_COL];
 
             // Checks if it is the right Hospital ID and within the Date Range
-            if ((num !== '') && (typeof num !== "undefined") && (hid == global_hid) && (jsDte >= START_DATE) && (jsDte <= END_DATE)) {
+            if ((num !== '') && (!isNaN(num)) && (typeof num !== "undefined") && (hid == global_hid) && (jsDte >= START_DATE) && (jsDte <= END_DATE)) {
+               //console.log("num = ", num);
                 _.each(X_COL, function (header, i) {
                     if (item[header] == "Checked") {        // Assumes item[header] always = "Checked" / "Unchecked"
                         dataset[i][1].push(num);
@@ -1264,6 +1269,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             }
         });
         
+        // Adds a 0 item if there are no numbers in array to prevent NaN from showing in chart
         _.each(X_COL, function(item, i) {
             var arr = dataset[i][1];
             if (arr.length < 1) {
@@ -1291,6 +1297,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         _.each(allHids, function(item) {
                funnelData.push({ hid: item, sample_size: 0, indicator: 0, ratio: 0 });
         });
+        //console.log("allHids = ", allHids);
 
         _.each(csvArray, function (item, i) {
             var jsDate = new Date(item[X_COL]);
@@ -1307,7 +1314,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             if ((hidIndex !== -1) && (jsDate >= START_DATE) && (jsDate <= END_DATE) && (indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
                
                     funnelData[hidIndex].sample_size++;
-                    //if (indicator == "Yes") {       // Assumes Indicator is always Yes/No
+                    //if (indicator == "Yes")        // Assumes Indicator is always Yes/No
                     if (indicator == indicatorVal) {       // Assumes Indicator is always Yes/No
                         funnelData[hidIndex].indicator++;
                         incidence_population++;

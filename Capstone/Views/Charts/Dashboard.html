@@ -82,7 +82,13 @@
                         <li class="selected"><a href="#">Help</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
+                        <!--
                         <li id="printBtn"><a href="#">Print</a></li>
+                        -->
+                        <div class="btn-group">
+                            <button id="print-page" type="button" class="print-btn btn btn-primary" href="#">Print Page</button>
+                            <button id="print-report" type="button" class="print-btn btn btn-primary" href="#">Print Report</button>
+                        </div>
                     </ul>
                 </div> 
             </div>     
@@ -101,7 +107,7 @@
                     </ul>
                 </div>
             </div>
-            <div id="help-nav-tabs">
+            <div id="help-nav-tabs" class="print-container">
                 <div id="help-gstart-tab">
                     <div class="row">
                         <br />
@@ -264,7 +270,7 @@
 <!-- Help Tab End -->
 
 <!-- Home Tab Start -->
-        <div id="home-tab" class="container tab">
+        <div id="home-tab" class="print-container container tab">
 			<div class="row">
 			    <div class="col-md-12">
                     <h3>Upload a CSV file to begin:</h3>
@@ -807,28 +813,31 @@
 	        var $yAxisTitleText = $("#yAxisTitleText");
 
 	        function setHospitalId() {
-	            //var lastCol = 105;               // Validate and/or have Users validate this number
-	            //var lastCol = global_hid_col;
-	            var lastCol = global_cols["global_hid_col"].val;
+	            //var hid_col = 105;               // Validate and/or have Users validate this number
+	            //var hid_col = global_hid_col;
+	            var hid_col = global_cols["global_hid_col"].val;
 
 	            var title_html = '';
 	            var hid_check_html = '';
 
 	            _.each(csvArray, function (item) {
                 // num = hospital_id = hid
-	                var num = item[lastCol];
-	                var inList = $.inArray(num, allHids);
-	                if (inList == -1) {
-	                    allHids.push(num);
+	                var num = item[hid_col];
+                    if (typeof num === "undefined") {
+                    } else {
+                       var inList = $.inArray(num, allHids);
+	                      if (inList == -1) {
+	                          allHids.push(num);
 
-                       var hids = $("#hidChecks input:checked");
-                       if (num) {
-	                        title_html += '<option value="' + num + '">' + num + '</option>';
-                            hid_check_html += '<input type="checkbox" value="' + num + '"/>' + num + '&emsp;';
-                       } else {
-	                        console.log("ERROR! Data Missing Hospital ID");
-                       }
-	                }
+                             //var hids = $("#hidChecks input:checked");
+                             if (num) {
+	                              title_html += '<option value="' + num + '">' + num + '</option>';
+                                  hid_check_html += '<input type="checkbox" value="' + num + '"/>' + num + '&emsp;';
+                             } else {
+	                              console.log("ERROR! Data Missing Hospital ID");
+                             }
+	                      }
+                    }
 	            });
 	            //title_html = '<option value="0">I Do Not Know</option>' + title_html;
 	            title_html += '<option value="0">I Do Not Know</option>';
@@ -995,7 +1004,8 @@
 	            // After Confirming Hospital ID and Date Column
 	            // Sort CSV by Date and Hospital ID
 	            //csvArray.sort(dynamicSortMultiple([X_COL, HID_COL]));
-	            csvArray.sort(dynamicSortMultiple([global_date_col, global_hid_col]));
+	            //csvArray.sort(dynamicSortMultiple([global_date_col, global_hid_col]));
+	            csvArray.sort(dynamicSortMultiple([global_cols["global_date_col"].val, global_cols["global_hid_col"].val]));
 
                 // Store all data to redraw chart if date is changed.
                 chartOptions.push({
@@ -1256,26 +1266,37 @@
 	        });
 
 	        // Click Print Button to Print the Report
-	        $("#printBtn").click(function () {
+            $("#print-page").click(function () {
 	            var index = $("nav ul.nav > li.selected").index();
-                
-                if (index == 0) {
-                    $(".print-report").printArea();
-	            } else if (index == 1 || index == 2) {
+	            if (index == 1 || index == 2 || index == 0) {
                     $tabs[index].printArea();
                 } else {
 	                $tabs[index].find(".print-container").printArea();
                 }
-                /*
-	            if (index == 1 || index == 2) {
-                    $tabs[index].printArea();
-                } else {
-	                $tabs[index].find(".print-container").printArea();
-                }
-                */
+            })
+            $("#print-report").click(function () {
+                $(".print-report").printArea();
+            });
+	        //$("#printBtn").click(function () {
+	        //    var index = $("nav ul.nav > li.selected").index();
+            //    
+            //    if (index == 0) {
+            //        $(".print-report").printArea();
+	        //    } else if (index == 1 || index == 2) {
+            //        $tabs[index].printArea();
+            //    } else {
+	        //        $tabs[index].find(".print-container").printArea();
+            //    }
+            //    /*
+	        //    if (index == 1 || index == 2) {
+            //        $tabs[index].printArea();
+            //    } else {
+	        //        $tabs[index].find(".print-container").printArea();
+            //    }
+            //    */
 
-	            return false;
-	        });
+	        //    //return false;
+	        //});
 
             // Customize Tab - Chart Type Change event handler
 	        $chartTypeDrop.change(function () {
@@ -1545,8 +1566,8 @@
 	        $("#advSubmitBtn").click(function (e) {
 	            e.preventDefault();
                                   
-                var byMonth = true;
-                if ($("#yearRadio:checked").length > 0) byMonth = false;
+                //var byMonth = true;
+                //if ($("#yearRadio:checked").length > 0) byMonth = false;
                 
 	            var START_DATE = StringToDate($("#startDateText").val());
                 START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
@@ -1727,19 +1748,23 @@
                     $("#chartTypeDrop").val(chartType);
                                         
                     if ( y == "los") {
-                        $yDataDrop.val("77");
+                        //$yDataDrop.val("77");
+                        $yDataDrop.val(global_cols["global_losend_col"].val);
                         $("#indicatorText").val(0);
                     }
                     else if ( y == "pharm") {
-                        $yDataDrop.val("63");
+                        //$yDataDrop.val("63");
+                        $yDataDrop.val(global_cols["global_pharm_col"].val);
                         $("#indicatorText").val("Yes");
                     }
                     else if ( y == "bmilk") {
-                        $yDataDrop.val("49");
+                        //$yDataDrop.val("49");
+                        $yDataDrop.val(global_cols["global_milk_col"].val);
                         $("#indicatorText").val("Yes");
                     }
                     else if ( y == "dismeds") {
-                        $yDataDrop.val("78");
+                        //$yDataDrop.val("78");
+                        $yDataDrop.val(global_cols["global_dischargemeds_col"].val);
                         $("#indicatorText").val("Yes");
                     }
                     
@@ -1755,24 +1780,32 @@
                     $("#chartTypeDrop").val(chartType);
                                         
                     if (y == "los") {
-                        $yDataDrop.val("77");
+                        //$yDataDrop.val("77");
+                        $yDataDrop.val(global_cols["global_losend_col"].val);
                     }
                     else if (y == "weight") {
-                        $yDataDrop.val("3");
+                        //$yDataDrop.val("3");
+                        $yDataDrop.val(global_cols["global_weight_col"].val);
                     }
                     else if (y == "caloric") {
-                        $yDataDrop.val("59");
+                        //$yDataDrop.val("59");
+                        $yDataDrop.val(global_cols["global_maxcal_col"].val);
                     }
                                         
-                    $xDataDrop.val(1);
+                    //$xDataDrop.val(1);
+                    $xDataDrop.val(global_cols["global_date_col"].val);
                     if (x == "locations") {
-                        $xDataDrop2.val([9, 10, 11, 12, 13]);
+                        //$xDataDrop2.val([9, 10, 11, 12, 13]);
+                        $xDataDrop2.val(global_cols["global_locations_cols"].val);
                     } else if (x == "mfdrugs") {
-                        $xDataDrop2.val([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]);
+                        //$xDataDrop2.val([17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]);
+                        $xDataDrop2.val(global_cols["global_mfdrugs_cols"].val);
                     } else if (x == "formulas") {
-                        $xDataDrop2.val([51, 52, 53, 54, 55, 56, 57]);
+                        //$xDataDrop2.val([51, 52, 53, 54, 55, 56, 57]);
+                        $xDataDrop2.val(global_cols["global_formulas_cols"].val);
                     } else if (x == "dismeds") {
-                        $xDataDrop2.val([79, 80, 81, 82, 83]);
+                        //$xDataDrop2.val([79, 80, 81, 82, 83]);
+                        $xDataDrop2.val(global_cols["global_dismeds_cols"].val);
                     }
                     
                     $("#advSubmitBtn").click();
@@ -1782,23 +1815,28 @@
                     $("#chartTypeDrop").val(chartType);
                                         
                     if ( y == "los") {
-                        $yDataDrop.val("77");
+                        //$yDataDrop.val("77");
+                        $yDataDrop.val(global_cols["global_losend_col"].val);
                         $("#indicatorText").val(0);
                     }
                     else if ( y == "pharm") {
-                        $yDataDrop.val("63");
+                        //$yDataDrop.val("63");
+                        $yDataDrop.val(global_cols["global_pharm_col"].val);
                         $("#indicatorText").val("Yes");
                     }
                     else if ( y == "bmilk") {
-                        $yDataDrop.val("49");
+                        //$yDataDrop.val("49");
+                        $yDataDrop.val(global_cols["global_milk_col"].val);
                         $("#indicatorText").val("Yes");
                     }
                     else if ( y == "dismeds") {
-                        $yDataDrop.val("78");
+                        //$yDataDrop.val("78");
+                        $yDataDrop.val(global_cols["global_dischargemeds_col"].val);
                         $("#indicatorText").val("Yes");
                     }
                     
-                    $xDataDrop.val(1);
+                    //$xDataDrop.val(1);
+                    $xDataDrop.val(global_cols["global_date_col"].val);
                     $("#advSubmitBtn").click();
                 }
             });
