@@ -21,8 +21,8 @@ function drawChart(opts) {
                  opts.titles, opts.width, opts.height, opts.selector);
     } else if (chartType == 2) {    // Draw Box Plot
         // Customize Report - Box and Whisker Plot
-        drawBoxPlot(customizeCSVData({ chartType: chartType, byMonth: true }, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
-                    opts.titles, opts.width, opts.height, opts.selector);
+        drawBoxPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
+                    opts.titles, opts.width, opts.height, opts.selector, opts.boxLabels);
                              //{ yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                              //width - margin.left - margin.right,
                              //height - margin.top - margin.bottom,
@@ -116,7 +116,7 @@ global_cols["global_maxcal_col"].name.push("caloric_maximum");
 global_cols["global_locations_cols"].name.push("care_locations_");
 global_cols["global_mfdrugs_cols"].name.push("maternal_opioid_exposure_");
 global_cols["global_formulas_cols"].name.push("formula_types_");
-global_cols["global_dismeds_cols"].name.push("discharge_med");
+global_cols["global_dismeds_cols"].name.push("discharge_med_type_");
 
 function validateCSVFile() {
 // ensures hard-coded columns for Local and State Reports
@@ -143,48 +143,6 @@ function validateCSVFile() {
     }
 
     /*
-    if ((document.cookie.indexOf("global_date_col") >= 0) && (document.cookie.indexOf("global_date_col_text") >= 0)) {
-        global_date_col = getCookie("global_date_col");
-        global_date_col_text = getCookie("global_date_col_text");
-        if (titles[global_date_col] !== global_date_col_text) {
-            global_date_col = -1;
-        }
-    }
-    if ((document.cookie.indexOf("global_los_start_col") >= 0) && (document.cookie.indexOf("global_los_start_col_text") >= 0)) {
-        global_los_start_col = getCookie("global_los_start_col");
-        global_los_start_col_text = getCookie("global_los_start_col_text");
-        if (titles[global_los_start_col] !== global_los_start_col_text) {
-            global_los_start_col = -1;
-        }
-    }
-    if ((document.cookie.indexOf("global_milk_col") >= 0) && (document.cookie.indexOf("global_milk_col_text") >= 0)) {
-        global_milk_col = getCookie("global_milk_col");
-        global_milk_col_text = getCookie("global_milk_col_text");
-        if (titles[global_milk_col] !== global_milk_col_text) {
-            global_milk_col = -1;
-        }
-    }
-    if ((document.cookie.indexOf("global_pharm_col") >= 0) && (document.cookie.indexOf("global_pharm_col_text") >= 0)) {
-        global_pharm_col = getCookie("global_pharm_col");
-        global_pharm_col_text = getCookie("global_pharm_col_text");
-        if (titles[global_pharm_col] !== global_pharm_col_text) {
-            global_pharm_col = -1;
-        }
-    }
-    if ((document.cookie.indexOf("global_discharge_meds_col") >= 0) && (document.cookie.indexOf("global_discharge_meds_col_text") >= 0)) {
-        global_discharge_meds_col = getCookie("global_discharge_meds_col");
-        global_discharge_meds_col_text = getCookie("global_discharge_meds_col_text");
-        if (titles[global_discharge_meds_col] !== global_discharge_meds_col_text) {
-            global_discharge_meds_col = -1;
-        }
-    }
-    if ((document.cookie.indexOf("global_los_end_col") >= 0) && (document.cookie.indexOf("global_los_end_col_text") >= 0)) {
-        global_los_end_col = getCookie("global_los_end_col");
-        global_los_end_col_text = getCookie("global_los_end_col_text");
-        if (titles[global_los_end_col] !== global_los_end_col_text) {
-            global_los_end_col = -1;
-        }
-    }
     if ((document.cookie.indexOf("global_hid_col") >= 0) && (document.cookie.indexOf("global_hid_col_text") >= 0)) {
         global_hid_col = getCookie("global_hid_col");
         global_hid_col_text = getCookie("global_hid_col_text");
@@ -232,38 +190,7 @@ function validateCSVFile() {
         }
         
         /*
-        if (item == "Date of Audit") {
-            //global_date_col = i;
-            global_cols["global_date_col"].val = i;
-            setCookie("global_date_col", i, 365);
-            setCookie("global_date_col_text", "Date of Audit", 365);
-        }
-        else if (item == "If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ") {
-            global_los_start_col = i;
-            setCookie("global_los_start_col", i, 365);
-            setCookie("global_los_start_col_text", "If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ", 365);
-        }
-        else if (item == "Did infant receive any of his/her mother's own milk at any time during hospitalization?  ") {
-            global_milk_col = i;
-            setCookie("global_milk_col", i, 365);
-            setCookie("global_milk_col_text", "Did infant receive any of his/her mother's own milk at any time during hospitalization?  ", 365);
-        }
-        else if (item == "Did infant receive pharmacologic agents for NAS?") {
-            global_pharm_col = i;
-            setCookie("global_pharm_col", i, 365);
-            setCookie("global_pharm_col_text", "Did infant receive pharmacologic agents for NAS?", 365);
-        }
-        else if (item == "What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ") {
-            global_los_end_col = i;
-            setCookie("global_los_end_col", i, 365);
-            setCookie("global_los_end_col_text", "What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ", 365);
-        }
-        else if (item == "At time of discharge or transfer from  your hospital, was infant receiving medications for NAS?") {
-            global_discharge_meds_col = i;
-            setCookie("global_discharge_meds_col", i, 365);
-            setCookie("global_discharge_meds_col_text", "At time of discharge or transfer from  your hospital, was infant receiving medications for NAS?", 365);
-        }
-        else if (item == "Hospital.ID") {
+        if (item == "Hospital.ID") {
             global_hid_col = i;
             setCookie("global_hid_col", i, 365);
             setCookie("global_hid_col", "Hospital.ID", 365);
@@ -273,44 +200,8 @@ function validateCSVFile() {
     }
     
     /*
-    console.log(global_date_col);
-    console.log(global_los_start_col);
-    console.log(global_milk_col);
-    console.log(global_pharm_col);
-    console.log(global_discharge_meds_col);
-    console.log(global_los_end_col);
     console.log(global_hid_col);
     
-    if (global_date_col  == -1) {
-        //console.log("Date of Audit");
-        $("#global-date-error").show();
-    }
-        
-    if (global_los_start_col  == -1) {
-        //console.log("If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ");
-        $("#global-los-start-error").show();
-    }
-        
-    if (global_milk_col  == -1) {
-        //console.log("Did infant receive any of his/her mother's own milk at any time during hospitalization?  ");
-        $("#global-milk-error").show();
-    }
-        
-    if (global_pharm_col  == -1) {
-        //console.log("Did infant receive pharmacologic agents for NAS?");
-        $("#global-pharm-error").show();
-    }
-        
-    if (global_los_end_col  == -1) {
-        //console.log("What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ");
-        $("#global-los-end-error").show();
-    }
-        
-    if (global_discharge_meds_col  == -1) {
-        //console.log("At time of discharge or transfer from  your hospital, was infant receiving medications for NAS?");
-        $("#global-discharge-error").show();
-    }
-        
     if (global_hid_col  == -1) {
         //console.log("Hospital.ID");
         $("#global-hid-error").show();
@@ -326,7 +217,7 @@ function validateCSVFile() {
         }
     }
     
-    //console.log("global_cols = ", global_cols);
+    console.log("global_cols = ", global_cols);
     //console.log("document.cookie = ", document.cookie);
 }
 

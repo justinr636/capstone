@@ -233,6 +233,7 @@ d3.box = function() {
           .duration(duration)
           .attr("y", x1)
           .style("opacity", 1);
+          //.style("opacity", 1e-6);
 	}
       whiskerTick.transition()
           .duration(duration)

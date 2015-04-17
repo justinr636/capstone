@@ -187,8 +187,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
     var hids = dataObj.hids;
     
    //console.log("data = ", data);
-   //console.log("Chart Title = ", label.chartTitle);
-   //console.log("Chart Data = ", dataObj);
+   console.log("Run Chart Title = ", label.chartTitle);
+   console.log("Run Chart Data = ", dataObj);
     
     //var X_DATA_PARSE = d3.time.format("%Y-%m-%d").parse;
     //var X_DATA_PARSE = d3.time.format("%B/%Y").parse;
@@ -221,14 +221,6 @@ function drawRunChart(dataObj, label, width, height, selector) {
         };
     }
 
-    //var Y_DATA_PARSE = 0;
-
-    // This is the key in the data object passed to draw function
-    //var X_AXIS_COLUMN = "date";
-
-    // This is the key in the data object passed to draw function
-    //var Y_AXIS_COLUMN = "ratio";
-
     var x = d3.time.scale()
 	     	             .range([0, width]);
 
@@ -240,10 +232,6 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	     	   			     .orient("bottom");
     
     if (interval == "quarter") {
-        //xAxis = d3.svg.axis().scale(x).ordinal().domain(["Q1", "Q2", "Q3", "Q4"]).orient("bottom");
-        //xAxis = d3.svg.axis().scale(x).tickValues([]).orient("bottom");
-        
-        //x = d3.time.scale().nice(d3.time.month).range([0,width]);
         xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(d3.time.months, 3).tickFormat(quarterTicks);
     }
 
@@ -255,7 +243,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
 	//                      .range(randomColor({ count: data.length, hue: 'blue' }));
     var color = data.length;
     if (color == 1)
-        color = d3.scale.ordinal().range(randomColor({ count: data.length, hue: 'blue' }));
+        color = d3.scale.ordinal().range(randomColor({ count: data.length, hue: 'blue', luminosity: 'dark' }));
     else if (color == 2)
         color = d3.scale.ordinal().range(["#ec7a08", "#2b39b5"]);
     else
@@ -511,7 +499,7 @@ function iqr(k) {
     }
 }
 
-function drawBoxPlot(boxData, title, width, height, selector) {
+function drawBoxPlot(boxData, title, width, height, selector, boxLabels) {
     var data = boxData.data;
     var min = boxData.min;
     var max = boxData.max;
@@ -520,6 +508,7 @@ function drawBoxPlot(boxData, title, width, height, selector) {
     console.log("Box Plot Data = ", data);
 
     var labels = true;
+    //var labels = false;
 
     var chart = d3.box()
                   .whiskers(iqr(1.5))
@@ -530,7 +519,7 @@ function drawBoxPlot(boxData, title, width, height, selector) {
     var svg = d3.select(selector)
                 .append("svg")
                 .attr('width', width + margin.left + margin.right)
-                .attr('height', height + margin.top + margin.bottom)
+                .attr('height', height + margin.top + margin.bottom + 50)
 	     	   	.attr("viewBox", "0 0 " + (width+margin.left+margin.right) + " " + (height+margin.top+margin.bottom))
 	     	   	.attr("preserveAspectRatio", "xMidYMid")
                 .attr('class', 'box')
@@ -588,6 +577,14 @@ function drawBoxPlot(boxData, title, width, height, selector) {
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + (height + margin.top + 15) + ')')
             .call(xAxis)
+            .selectAll("text")
+                //.style("text-anchor", "end")
+                .style("text-anchor", "start")
+                //.attr("dx", "-.8em")
+                .attr("dx", ".8em")
+                .attr("dy", ".15em")
+                //.attr("transform", function (d) { return "rotate(-65)"; })
+                .attr("transform", "rotate(55)" )
             .append('text')
             .attr('x', width / 2)
             .attr('y', 85)
@@ -595,21 +592,35 @@ function drawBoxPlot(boxData, title, width, height, selector) {
             .style('text-anchor', 'middle')
             .style('font-size', '14px')
             .text(title.xAxis);
+    
+    
+    if (!boxLabels) {
+        $("text.whisker, text.box[text-anchor=end]").css("opacity", 1e-6);
+        $("text.box[text-anchor=start]").css("font-weight", "bold");
+        $("rect.box").closest("g").mouseover(function () {
+            $(this).find("text.whisker, text.box[text-anchor=end]")
+                    .css("opacity", 1);
+        });
+        $("rect.box").closest("g").mouseout(function () {
+            $(this).find("text.whisker, text.box[text-anchor=end]")
+                    .css("opacity", 1e-6);
+        });
+    }
 
 
     //$(selector + " g.x g.tick text").map(function () {
-    $("g.x g.tick text").map(function () {
-        // translation formula 1:
-        // y = 0.4932x + 11.422
-        // translation formula 2:
-        // y = 0.3961x + 14.865
-        var text = $("#hidden-span").text($(this).text());
+    //$("g.x g.tick text").map(function () {
+    //    // translation formula 1:
+    //    // y = 0.4932x + 11.422
+    //    // translation formula 2:
+    //    // y = 0.3961x + 14.865
+    //    var text = $("#hidden-span").text($(this).text());
 
-        //var translation = text.width() * 0.4932 + 11.422;
-        var translation = text.width() * 0.3961 + 14.865;
-        $(this).attr("transform", "rotate(90), translate(" + translation + ", -14)");
-        return;
-    });
+    //    //var translation = text.width() * 0.4932 + 11.422;
+    //    var translation = text.width() * 0.3961 + 14.865;
+    //    $(this).attr("transform", "rotate(90), translate(" + translation + ", -14)");
+    //    return;
+    //});
 
     //var chartHeight = $chartDiv.height();
     //$body.height(bodyHeight + (chartHeight / 2));
@@ -675,8 +686,8 @@ function drawFunnelPlot(data, title, width, height, selector) {
 
     // Create scale functions
     var xScale = d3.scale.linear()
-            	               //.domain([0, max_x])
-            	               .domain([min_x, max_x])
+            	               .domain([0, max_x])
+            	               //.domain([min_x, max_x])
             	               .range([padding, width - padding * 2]);
     var yScale = d3.scale.linear()
             	               .domain([0, d3.max(dataset, function (d) { return d3.max([d['ratio'], d['plus_3sd']]); })])
@@ -835,6 +846,9 @@ function drawFunnelPlot(data, title, width, height, selector) {
        .on("mouseover", function (d, i) {
            $("div.tooltip").show();
            tooltip.transition().duration(100).style("opacity", 1);
+           if (d['hid'] == global_hid) {
+                // Possibly highlight circle
+           }
        }).on("mousemove", function (d, i) {
            var divHtml = '<strong>Hospital ID: ' + d['hid'] + '</strong><br/>';
            //divHtml += '<strong>Incidences: </strong> ' + d['indicator'] + '<br/>';
@@ -1044,9 +1058,23 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             //if (Y_COL == 77) { }
             if (Y_COL == global_cols["global_losend_col"].val) {
                //val = parseInt(item[Y_COL]) - parseInt(item[7]);     // Assumes item[77] = Day of Life at discharge, item[7] = Day of Life at admission
-               val = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);     // Assumes item[77] = Day of Life at discharge, item[7] = Day of Life at admission
+               //console.log("= globallosend");
+               
+               //console.log("item[Y_COL] = ", item[Y_COL]);
+               //console.log("parseInt item[Y_COL] = ", parseInt(item[Y_COL]));
+               //console.log("item[global_cols['global_losstart_col'].val] = ", item[global_cols["global_losstart_col"].val]);
+               //console.log("parseInt item[global_cols['global_losstart_col'].val] = ", parseInt(item[global_cols["global_losstart_col"].val]));
+               
+               var dayOut = parseInt(item[Y_COL]);
+               var dayIn = parseInt(item[global_cols["global_losstart_col"].val]);
+               if (isNaN(dayIn)) dayIn = 1;
+               
+               //val = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);     // Assumes item[77] = Day of Life at discharge, item[7] = Day of Life at admission
+               //console.log("val = ", val);
+               val = dayOut - dayIn;
             } else {
                val = item[Y_COL];
+               //console.log("val = ", val);
             }
 
             // Get Date
@@ -1096,12 +1124,15 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
             // if jsDte is between START_DATE and END_DATE
             //    AND ((hid matches Global Hospital ID) OR (drawing avg line))
-            if ((dateIndex !== -1) && (jsDte >= START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (val !== '') && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
+            //if ((dateIndex !== -1) && (jsDte >= START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (val !== '') && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined"))
+            if ((dateIndex !== -1) && (jsDte >= START_DATE) && (jsDte < END_DATE) && (hid == global_hid || avg_line) && (typeof val !== "undefined") && (jsDte !== '') && (typeof jsDte !== "undefined")) {
                
                //console.log("indicatorVal = ", indicatorVal);
                //console.log("typeof indicatorVal = ", typeof indicatorVal);
                if (typeof indicatorVal === "number") {
-                    var num = parseInt(val);
+                    //var num = parseInt(val);
+                    var num = parseFloat(val);
+                    if (isNaN(num)) return;
                     //console.log("num = ", num);
                     //console.log("dateIndex = ", dateIndex);
                     //console.log("dateLabels = ", dateLabels);
@@ -1124,18 +1155,21 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                } else {
                     if (hospIndex !== -1) {
                         dataset[hospIndex][dateIndex].sample_size++;
+                        avg_count++;
                
                         if (val == indicatorVal) {
                             dataset[hospIndex][dateIndex].indicator++;
+                            avg_sum++;
                         }
-                    }
+                    } else {
                
-                    dataset[hids.length-1][dateIndex].sample_size++;
-                    avg_count++;
+                        dataset[hids.length-1][dateIndex].sample_size++;
+                        avg_count++;
                
-                    if (val == indicatorVal) {
-                        dataset[hids.length-1][dateIndex].indicator++;
-                        avg_sum++;
+                        if (val == indicatorVal) {
+                            dataset[hids.length-1][dateIndex].indicator++;
+                            avg_sum++;
+                        }
                     }
                }
 
@@ -1221,7 +1255,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
         return { data: dataset, avg: avg, ucl: ucl, lcl: lcl, avg_line: avg_line, max: max, min: min, hids: hids, stdev: stdev, interval: interval };
 
-    } else if (chartType == 2) {    // Draw Box Plot 
+    } else if (chartType == 2) {    // Draw Box and Whisker Plot
         var dataset = [];
 
         _.each(X_COL, function (item, i) {
@@ -1258,7 +1292,12 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             //var num = parseInt(item[Y_COL]);
             var num = parseFloat(item[Y_COL]);
             if (Y_COL == global_cols["global_losend_col"].val) {
-               num = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);
+               var dayOut = parseInt(item[Y_COL]);
+               var dayIn = parseInt(item[global_cols["global_losstart_col"].val]);
+               if (isNaN(dayIn)) dayIn = 1;
+               
+               //num = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);
+               num = dayOut - dayIn;
             }
             var hid = item[HID_COL];
 
@@ -1318,12 +1357,33 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             var hidIndex = $.inArray(hid, allHids);
             //console.log("hid = ", hid);
             //console.log("hidIndex = ", hidIndex);
+            
+            //if (hid == "10") {
+            //   console.log("START_DATE", START_DATE);
+            //   console.log("END_DATE", END_DATE);
+            //   console.log("indicator", indicator);
+            //   console.log("size", size);
+            //   console.log("hid", hid);
+            //   console.log("hidIndex", hidIndex);
+            //}
 
             // check if all items are defined, there is a valid hospital id, and date is within range
-            if ((hidIndex !== -1) && (jsDate >= START_DATE) && (jsDate <= END_DATE) && (indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
+            //if ((hidIndex !== -1) && (jsDate >= START_DATE) && (jsDate <= END_DATE) && (indicator !== '') && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) 
+            if ((hidIndex !== -1) && (jsDate >= START_DATE) && (jsDate <= END_DATE) && (typeof indicator !== "undefined") && (jsDate !== '') && (typeof jsDate !== "undefined")) {
+                    //if (hid == "10") {
+                    //    console.log("Date", item[global_cols["global_birthmonth_col"].val] + "/" + item[global_cols["global_birthyear_col"].val]);
+                    //    console.log("jsDate", jsDate);
+                    //    console.log("indicator = ", indicator);
+                    //    console.log("indicatorVal = ", indicatorVal);
+                    //    indicator == indicatorVal ? console.log("i = ival!") : console.log("===not equal.===");
+                    //    console.log("funnelData[hidIndex] = ", funnelData[hidIndex]);
+                    //}
                
                     funnelData[hidIndex].sample_size++;
                     //if (indicator == "Yes")        // Assumes Indicator is always Yes/No
+                    //console.log("indicator = ", indicator);
+                    //console.log("indicatorVal = ", indicatorVal);
+               
                     if (indicator == indicatorVal) {       // Assumes Indicator is always Yes/No
                         funnelData[hidIndex].indicator++;
                         incidence_population++;
