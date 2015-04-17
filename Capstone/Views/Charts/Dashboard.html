@@ -306,60 +306,35 @@
 			    <div class="col-md-4">
                     &emsp; &emsp;
                     <input type="file" id="csvfile" />
+                    <br />
+                    <br />
+                    <div id="complete-check-div">
+                        <input class="complete-check" type="checkbox" /> Only Use Data Rows That Are Complete
+                    </div>
 			    </div>
 			    <div class="col-md-6">
                     <div id="csvfile-error" class="alert alert-danger">
                         <strong>Error reading CSV File!</strong>
                          <br />Please Refresh the Page.
                     </div>
-                    <div id="global-date-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Date of Audit" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-losstart-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Date of Admission" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-losend-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Date of Discharge" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-milk-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "If infant received mother's breast milk" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-pharm-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "If infant received pharmacology" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-dischargemeds-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "If infant received medications at discharge" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
-                    </div>
-                    <div id="global-hid-error" class="alert alert-warning global-var-error">
-                        <strong>Error finding "Hospital ID" column</strong>
-                        <br />Please select the correct column from the drop-down menu:
-                        <select class="dataDrop csvfile-error-select"></select>
-                        <br />
-                        <input class="csvfile-error-btn btn btn-default" type="submit" value="Update" />
+                    <div id="global-var-error-wrapper">
+                        <div id="global-single-var-error-template" class="alert alert-warning global-var-error">
+                            <input class="global-prop-hidden" type="hidden" />
+                            <input class="global-col-hidden" type="hidden" />
+                            <strong>Error finding '<span class="colName"></span>' column</strong>
+                            <br />Please select the correct column from the drop-down menu:
+                            <select class="dataDrop csvfile-error-select form-control"></select>
+                            <br />
+                            <input class="csvfile-single-error-btn btn btn-default" type="submit" value="Update" />
+                        </div>
+                        <div id="global-mult-var-error-template" class="alert alert-warning global-var-error">
+                            <input class="global-prop-hidden" type="hidden" />
+                            <input class="global-col-hidden" type="hidden" />
+                            <strong>Error finding '<span class="colName"></span>' columns</strong>
+                            <br />Please select the correct columns from the following menu:
+                            <select class="dataDrop csvfile-mult-error-select form-control" multiple></select>
+                            <input class="csvfile-mult-error-btn btn btn-default" type="submit" value="Update" />
+                        </div>
                     </div>
 			    </div>
 			</div>
@@ -781,6 +756,10 @@
                 <a href="#">
                     <img id="footer-brand-image" src="./img/HSyE_icon_full.png" height="60" width="417" />
                 </a>
+                <h5 id="footer-brand-text">in partnership with</h5>
+                <a href="#">
+                    <img id="footer-sponsor-image" src="./img/NeoQIC_icon_126_59.gif" height="59" width="126" />
+                </a>
             </div>
         </footer>
 <!-- Footer End -->
@@ -935,12 +914,71 @@
                         validateCSVFile();
 
 	                    setHospitalId();
+                        
+                        validateComplete();
 	                };
 
 	                //reader.readAsText(e.target.files.item(0));
 	                reader.readAsText(e.target.files.item(0));
 	            }
 	        });
+            
+            $("body").on("click", ".csvfile-single-error-btn", function (e) {
+                e.preventDefault();
+                
+                var $errorDiv = $(this).closest(".global-var-error");
+                
+                var property = $errorDiv.find(".global-prop-hidden").val();
+                
+                var col = parseInt($errorDiv.find(".csvfile-error-select").val());
+                var header = $errorDiv.find(".csvfile-error-select option:selected").text();
+                
+                //console.log("col = ", col);
+                //console.log("header = ", header);
+                //console.log("property = ", property);
+                global_cols[property].val = col;
+                global_cols[property].name = header;
+                //setCookie(property, col, 365);
+                //setCookie(property + "_text", header, 365);
+                
+                if (property == "global_hid_col") {
+                    setHospitalId();
+                }
+                if (property == "global_complete_col") {
+                    validateComplete();
+                }
+                
+                $errorDiv.hide();
+                
+                console.log("global_cols = ", global_cols);
+                
+                return false;
+            });
+            
+            $("body").on("click", ".csvfile-mult-error-btn", function (e) {
+                e.preventDefault();
+                
+                var $errorDiv = $(this).closest(".global-var-error");
+                
+                var property = $errorDiv.find(".global-prop-hidden").val();
+                
+                var col = $errorDiv.find(".csvfile-mult-error-select").val();
+                var header = [];
+                $errorDiv.find(".csvfile-mult-error-select option:selected").each(function () {
+                    header.push($(this).text());
+                });
+                
+                global_cols[property].val = col;
+                global_cols[property].name = header;
+                //setCookie(property, col, 365);
+                //setCookie(property + "_text", header, 365);
+                
+                $errorDiv.hide();
+                
+                console.log("global_cols = ", global_cols);
+                
+                return false;
+            });
             
             $(".csvfile-error-btn").click(function (e) {
                 e.preventDefault();
@@ -996,7 +1034,7 @@
                 $errorDiv.hide();
                 
                 return false;
-            })
+            });
 
 	        var END_DATE = new Date();
             END_DATE.setHours(23, 59, 59, 999);
@@ -1018,6 +1056,8 @@
 	            // -	Create Local and Regional Charts
                 e.preventDefault();
                 
+                validateComplete();
+                
 	            global_hid = $("#hidSelect").val();
                 $(".hid-select").val(global_hid);
                 
@@ -1031,7 +1071,7 @@
                 //console.log("END_DATE = ", END_DATE);
                 
                 var interval = $homeTab.find("input[name=interval]:checked").val();
-                console.log("interval = ", interval);
+                //console.log("interval = ", interval);
                 
 	            $(".chartDiv").empty();
                 $(".chart-container .date-toggle").show();
@@ -1470,6 +1510,10 @@
 	        $("#dateXData").hide();
             $("#indicatorDiv").hide();
             $("#hidChecks").hide();
+            
+            $("body").on("click", "#hidChecks input", function () {
+                if ($("#hidChecks input:checked").length > 1) $("#hidChecks input[value='AVG']").prop("checked", true);
+            });
 
 	        //$("#startDateText, #endDateText").datepicker();
 	        //$("#simpleStartDateText, #simpleEndDateText").datepicker();
@@ -1604,11 +1648,11 @@
                     var interval = $chartContainer.find("input.interval-radio:checked").val();
                     opts.options["interval"] = interval;
                     
-                    drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
+                    drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete_col),
                              opts.titles, opts.width, opts.height, opts.selector);
                 } else if (chartType == 2) {    // Draw Box Plot
                 } else if (chartType == 3) {    // Draw Funnel Plot
-                    drawFunnelPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
+                    drawFunnelPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete_col),
                                opts.titles, opts.width, opts.height, opts.selector);
                 } else if (chartType == 4) {    // Draw Bar Chart
                 }
@@ -1619,6 +1663,8 @@
 	        // Customize CSV Submit Button Handler
 	        $("#advSubmitBtn").click(function (e) {
 	            e.preventDefault();
+                
+                validateComplete();
                                   
                 //var byMonth = true;
                 //if ($("#yearRadio:checked").length > 0) byMonth = false;
@@ -1657,6 +1703,8 @@
                          hids.push($(this).val());
                     });
                     if (hids.length > 1) HID_COL = [global_cols["global_hid_col"].val];
+                    //if (hids.length == 1) $("#advHidSelect .hid-select option[value="+hids[0]+"], #simpleHidSelect .hid-select option[value="+hids[0]+"]").prop("checked", true);
+                    if (hids.length == 1) $("#advHidSelect .hid-select, #simpleHidSelect .hid-select").val(hids[0]);
                                   
                     var indicatorVal = $("#indicatorText").val();
                     if (isNumeric(indicatorVal)) indicatorVal = parseFloat(indicatorVal);

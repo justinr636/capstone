@@ -17,18 +17,18 @@ function drawChart(opts) {
     var chartType = opts.options.chartType;
     
     if (chartType == 1) {           // Draw Run Chart
-        drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
+        drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete),
                  opts.titles, opts.width, opts.height, opts.selector);
     } else if (chartType == 2) {    // Draw Box Plot
         // Customize Report - Box and Whisker Plot
-        drawBoxPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
+        drawBoxPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete),
                     opts.titles, opts.width, opts.height, opts.selector, opts.boxLabels);
                              //{ yAxis: $yAxisTitleText.val(), xAxis: $xAxisTitleText.val(), chartTitle: $chartTitleText.val() },
                              //width - margin.left - margin.right,
                              //height - margin.top - margin.bottom,
                              //"div#custChartDiv");
     } else if (chartType == 3) {    // Draw Funnel Plot
-        drawFunnelPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE),
+        drawFunnelPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete),
                    opts.titles, opts.width, opts.height, opts.selector);
     } else if (chartType == 4) {    // Draw Bar Chart
     }
@@ -36,33 +36,7 @@ function drawChart(opts) {
 }
 
 var global_hid = "AVG";
-
-//var global_hid_col = 105;
-//var global_date_col = 1;
-
-//var global_date_col = -1;
-//var global_losstart_col = -1;
-//var global_milk_col = -1;
-//var global_pharm_col = -1;
-//var global_dischargemeds_col = -1;
-//var global_losend_col = -1;
-//var global_hid_col = -1;
-//var global_date_col_text = "";
-//var global_losstart_col_text = "";
-//var global_milk_col_text = "";
-//var global_pharm_col_text = "";
-//var global_dischargemeds_col_text = "";
-//var global_losend_col_text = "";
-//var global_hid_col_text = "";
-
-//var col_titles = [];
-//col_titles.push("global_date_col");
-//col_titles.push("global_losstart_col");
-//col_titles.push("global_milk_col");
-//col_titles.push("global_pharm_col");
-//col_titles.push("global_dischargemeds_col");
-//col_titles.push("global_losend_col");
-//col_titles.push("global_hid_col");
+var global_complete = false;
 
 var col_titles = [
                    //"global_date_col",
@@ -70,7 +44,8 @@ var col_titles = [
                    "global_losstart_col", "global_milk_col", "global_pharm_col",
                    "global_dischargemeds_col", "global_losend_col", "global_hid_col",
                    "global_weight_col", "global_maxcal_col", "global_locations_cols",
-                   "global_mfdrugs_cols", "global_formulas_cols", "global_dismeds_cols" ];
+                   "global_mfdrugs_cols", "global_formulas_cols", "global_dismeds_cols",
+                   "global_complete_col" ];
 
 var global_cols = { };
 
@@ -99,6 +74,7 @@ global_cols["global_mfdrugs_cols"].name.push("What were other maternal-fetal exp
 global_cols["global_formulas_cols"].name.push("What types of formula did infant receive during hospitalization?      Check all that apply.   (choice=");
 global_cols["global_dismeds_cols"].name.push("If yes, what medication was infant receiving at time of discharge or transfer?      Check all that apply.   (choice=");
 
+global_cols["global_complete_col"].name.push("Complete?");
 
 
 //global_cols["global_date_col"].name.push("");
@@ -118,13 +94,19 @@ global_cols["global_mfdrugs_cols"].name.push("maternal_opioid_exposure_");
 global_cols["global_formulas_cols"].name.push("formula_types_");
 global_cols["global_dismeds_cols"].name.push("discharge_med_type_");
 
+global_cols["global_complete_col"].name.push("neoqicnnepqin_nas_data_form_complete");
+
 function validateCSVFile() {
 // ensures hard-coded columns for Local and State Reports
 // are in the proper location
+    //console.log("titles = ", titles);
+    
+    // Check for values in cookies
+    /*
     for (var property in global_cols) {
         if (global_cols.hasOwnProperty(property)) {
             if ((document.cookie.indexOf(property) >= 0) && (document.cookie.indexOf(property + "_text") >= 0)) {
-                var val = getCookie(property);
+                var val = parseInt(getCookie(property));
                 var name = getCookie(property+"_text");
                 global_cols[property].val = val;
                 global_cols[property].name = name;
@@ -132,6 +114,10 @@ function validateCSVFile() {
                 //    global_cols[property].val = -1;
                 //}
                 var nameArr = global_cols[property].name;
+                
+                //console.log("val = ", val);
+                //console.log("name = ", name);
+                //console.log("nameArr = ", nameArr);
                 
                 for (var i = 0; i < nameArr.length; i++) {      // Checks if CSV column header == column header stored in user's cookie
                     if (titles[val].indexOf(nameArr[i]) < 0) {
@@ -141,17 +127,9 @@ function validateCSVFile() {
             }
         }
     }
-
-    /*
-    if ((document.cookie.indexOf("global_hid_col") >= 0) && (document.cookie.indexOf("global_hid_col_text") >= 0)) {
-        global_hid_col = getCookie("global_hid_col");
-        global_hid_col_text = getCookie("global_hid_col_text");
-        if (titles[global_hid_col] !== global_hid_col_text) {
-            global_hid_col = -1;
-        }
-    }
     */
-    
+
+    // Check for specific CSV columns
     for (var i = 0; i < titles.length; i++) {
         
         var item = titles[i];
@@ -169,17 +147,17 @@ function validateCSVFile() {
                     var nameArr = global_cols[property].name;
                     for (var j = 0; j < nameArr.length; j++)
                     {
-                        if (titles[i].indexOf(nameArr[j]) >= 0) {      // If global_header matches csv_header, set the global_col index number
+                        if (titles[i].indexOf(nameArr[j]) >= 0) {      // If global_header matches csv_header, store its index and header name in global_cols and cookies
                             if (mult_cols) {
                                 if (typeof global_cols[property].val !== "number") global_cols[property].val.push(i);
                                 else global_cols[property].val = [i];
                                 
-                                setCookie(property, global_cols[property].val, 365);
-                                setCookie(property+"_text", nameArr[j], 365);
+                                //setCookie(property, global_cols[property].val, 365);
+                                //setCookie(property+"_text", nameArr[j], 365);
                             } else {
                                 global_cols[property].val = i;
-                                setCookie(property, i, 365);
-                                setCookie(property+"_text", nameArr[j], 365);
+                                //setCookie(property, i, 365);
+                                //setCookie(property+"_text", nameArr[j], 365);
                                 break;
                             }
                             
@@ -189,36 +167,60 @@ function validateCSVFile() {
             }
         }
         
-        /*
-        if (item == "Hospital.ID") {
-            global_hid_col = i;
-            setCookie("global_hid_col", i, 365);
-            setCookie("global_hid_col", "Hospital.ID", 365);
-        }
-        */
-        
     }
     
-    /*
-    console.log(global_hid_col);
-    
-    if (global_hid_col  == -1) {
-        //console.log("Hospital.ID");
-        $("#global-hid-error").show();
-    }
-    */
-    
+    // Display Error Messages
     for (var property in global_cols) {
         if (global_cols.hasOwnProperty(property)) {
             if (global_cols[property].val == -1) {
+                //var propArr = property.split('_');
+                //$('#' + propArr[0] + '-' + propArr[1] + '-error').show();
                 var propArr = property.split('_');
-                $('#' + propArr[0] + '-' + propArr[1] + '-error').show();
+                if (propArr[propArr.length-1] !== "cols") {
+                    var html =  '<div class="alert alert-warning global-var-error">' +
+                                    $("#global-single-var-error-template").html() +
+                                '</div>';
+                    
+                    var newDiv = $(html).appendTo("#global-var-error-wrapper");
+                    newDiv.find(".global-prop-hidden").val(property);
+                    newDiv.find("span.colName").text(global_cols[property].name[0]);
+                } else {
+                    var html =  '<div class="alert alert-warning global-var-error">' +
+                                    $("#global-mult-var-error-template").html() +
+                                '</div>';
+                    
+                    var newDiv = $(html).appendTo("#global-var-error-wrapper");
+                    newDiv.find(".global-prop-hidden").val(property);
+                    newDiv.find("span.colName").text(global_cols[property].name[0]);
+                }
             }
         }
     }
     
     console.log("global_cols = ", global_cols);
     //console.log("document.cookie = ", document.cookie);
+}
+
+function checkIfComplete(csv_item) {
+    //if (item[complete_col] == "0" || item[complete_col] == "1" || item[complete_col] == "Incomplete" || item[complete_col] == "Unverified")
+    //    return false;
+    //else
+    //    return true;
+    var index = global_cols["global_complete_col"].val;
+    
+    if (csv_item[index] == "2" || csv_item[index] == "Complete")
+        return true;
+    else
+        return false;
+}
+
+function validateComplete() {
+    if (global_cols["global_complete_col"].val !== -1) {
+        if ($(".complete-check:checked").length > 0) global_complete = true;
+        else global_complete = false;
+    } else {
+        global_complete = false;
+    }
 }
 
 function setCookie(cname, cval, cexdays) {

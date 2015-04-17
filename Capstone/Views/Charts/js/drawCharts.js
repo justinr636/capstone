@@ -176,6 +176,7 @@ function drawBarChart(barData, titles, width, height, selector) {
 function drawRunChart(dataObj, label, width, height, selector) {
     var data = dataObj.data;
     var avg = dataObj.avg;
+    var stdev = dataObj.stdev;
     var min = dataObj.min;
     var max = dataObj.max;
     var interval = dataObj.interval;
@@ -247,7 +248,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
     else if (color == 2)
         color = d3.scale.ordinal().range(["#ec7a08", "#2b39b5"]);
     else
-        color = d3.scale.ordinal().range(randomColor({ count: data.length }));
+        color = d3.scale.ordinal().range(randomColor({ count: data.length, luminosity: 'bright' }));
 
     
     var svg = d3.select(selector).append("svg")
@@ -329,9 +330,15 @@ function drawRunChart(dataObj, label, width, height, selector) {
            $('div.tooltip').show();
            tooltip.transition().duration(100).style("opacity", 1);
        }).on("mousemove", function () {
-           var divHtml = '<h4>Mean Value</h4>';
-               if (print_percent) divHtml += avg.toFixed(2) + " %";
+           //var divHtml = '<h4>Mean Value</h4>';
+           //    if (print_percent) divHtml += avg.toFixed(2) + " %";
+           //    else divHtml += avg.toFixed(2);
+           var divHtml = '<strong>Mean:</strong>&emsp;';
+               if (print_percent) divHtml += avg.toFixed(2) + ' %';
                else divHtml += avg.toFixed(2);
+             
+            divHtml += '<br /><strong>StDev:</strong>&emsp;' + stdev.toFixed(2) + '<br />';
+           
            var left_position = (d3.event.pageX - 2) + "px";
            tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
        }).on("mouseout", function (d, i) {
@@ -664,7 +671,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
     var sorted_names = data.names;
     var mean_incidence_rate = data.rate;
     
-    console.log("Funnel Plot Data = ", data);
+    //console.log("Funnel Plot Data = ", data);
 
     var padding = 30;
 
@@ -686,8 +693,8 @@ function drawFunnelPlot(data, title, width, height, selector) {
 
     // Create scale functions
     var xScale = d3.scale.linear()
-            	               .domain([0, max_x])
-            	               //.domain([min_x, max_x])
+            	               //.domain([0, max_x])
+            	               .domain([min_x, max_x])
             	               .range([padding, width - padding * 2]);
     var yScale = d3.scale.linear()
             	               .domain([0, d3.max(dataset, function (d) { return d3.max([d['ratio'], d['plus_3sd']]); })])
@@ -871,7 +878,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
        });
 }
 
-function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE) {
+function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, COMPLETE_BOOL) {
     // Returns data object formatted for SPC chart 
     //      depending on chartType value
     // 
@@ -1051,6 +1058,11 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //console.log("dataset = ", dataset);
 
         _.each(csvArray, function (item, i) {
+               // Check if Data Row is complete
+               if (COMPLETE_BOOL) {
+                    if (!checkIfComplete(item))
+                        return;
+               }
 
             // Get Y-Axis indicator
             //var val = parseInt(item[Y_COL]);  -This assumes item[Y_COL] (y-axis) = number (not "Yes" or "Checked")
@@ -1278,6 +1290,12 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
 
         // format data
         _.each(csvArray, function (item, i) {
+               // Check if Data Row is complete
+               if (COMPLETE_BOOL) {
+                    if (!checkIfComplete(item))
+                        return;
+               }
+               
             //var dte = item[global_cols["global_date_col"].val];
             //var jsDte = new Date(dte);
             
@@ -1298,6 +1316,8 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                
                //num = parseInt(item[Y_COL]) - parseInt(item[global_cols["global_losstart_col"].val]);
                num = dayOut - dayIn;
+               
+               if (num < 1 || isNaN(num)) return;
             }
             var hid = item[HID_COL];
 
@@ -1345,6 +1365,12 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         //console.log("allHids = ", allHids);
 
         _.each(csvArray, function (item, i) {
+               // Check if Data Row is complete
+               if (COMPLETE_BOOL) {
+                    if (!checkIfComplete(item))
+                        return;
+               }
+               
             //var dte = (jsDate.getMonth() + 1) + "/" + jsDate.getFullYear();
             //var jsDate = new Date(item[X_COL]);
             
@@ -1483,6 +1509,12 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         }
 
         _.each(csvArray, function (item, i) {
+               // Check if Data Row is complete
+               if (COMPLETE_BOOL) {
+                    if (!checkIfComplete(item))
+                        return;
+               }
+               
             var item_date = new Date(item[X_COL]);
             var item_id = item[HID_COL];
 
