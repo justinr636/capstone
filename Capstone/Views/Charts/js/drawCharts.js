@@ -336,9 +336,11 @@ function drawRunChart(dataObj, label, width, height, selector) {
            //    else divHtml += avg.toFixed(2);
            var divHtml = '<strong>Mean:</strong>&emsp;';
                if (print_percent) divHtml += avg.toFixed(2) + ' %';
-               else divHtml += avg.toFixed(2);
+               else {
+                 divHtml += avg.toFixed(2);
+                 divHtml += '<br /><strong>StDev:</strong>&emsp;' + stdev.toFixed(2) + '<br />';
+               }
              
-            divHtml += '<br /><strong>StDev:</strong>&emsp;' + stdev.toFixed(2) + '<br />';
            
            var left_position = (d3.event.pageX - 2) + "px";
            tooltip.html(divHtml).style("left", left_position).style('top', (d3.event.pageY - 80) + "px");
@@ -356,7 +358,15 @@ function drawRunChart(dataObj, label, width, height, selector) {
            .enter()
            .append("circle")
            //.attr("fill", function (d) { return ((d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
-           .attr("fill", function (d) { return ( print_percent ? (d.ratio > d.ucl || d.ratio < d.lcl) : (d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
+           //.attr("fill", function (d) { return ( print_percent ? (d.ratio > d.ucl || d.ratio < d.lcl) : (d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
+           .attr("fill", function (d) {
+                 if (print_percent) {
+                    if (d.ratio > d.ucl || d.ratio < d.lcl) return "rgba(220, 55, 41, 0.8";
+                 } else {
+                    if (d.ratio > ucl || d.ratio < lcl) return "rgba(220, 55, 41, 0.8)";
+                 }
+                 return color (i / (data.length-1));
+            })
            .attr("cx", function (d) { return x(d.date); })
            .attr("cy", function (d) { return y(d.ratio); })
            .attr("r", 3)

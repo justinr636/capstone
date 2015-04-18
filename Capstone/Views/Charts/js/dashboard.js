@@ -184,6 +184,11 @@ function validateCSVFile() {
                     var newDiv = $(html).appendTo("#global-var-error-wrapper");
                     newDiv.find(".global-prop-hidden").val(property);
                     newDiv.find("span.colName").text(global_cols[property].name[0]);
+                    
+                    if(property == "global_date_col" || property == "global_birthmonth_col" || property == "global_birthyear_col" || property == "global_hid_col") {
+                        newDiv.removeClass("alert-warning");
+                        newDiv.addClass("alert-danger");
+                    }
                 } else {
                     var html =  '<div class="alert alert-warning global-var-error">' +
                                     $("#global-mult-var-error-template").html() +

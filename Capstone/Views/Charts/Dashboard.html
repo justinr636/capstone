@@ -291,7 +291,7 @@
                             <div class="well well-sm">
                                 <a onclick="$(document).scrollTop($('#h4-chart-types').offset().top - 75); return false;" href="#">Chart Types</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-axes').offset().top - 75); return false;" href="#">X- and Y-Axis Variables</a> <br />
-                                <a onclick="$(document).scrollTop($('#h4-chart-labels').offset().top -75); return false;" href="#">Chart Labels</a>
+                                <a onclick="$(document).scrollTop($('#h4-chart-labels').offset().top -75); return false;" href="#">Chart Labels</a> <br />
                                 <a onclick="$(document).scrollTop($('#h4-chart-labels').offset().top -75); return false;" href="#">Create Charts</a>
                             </div>
                         </div>
@@ -303,9 +303,9 @@
                             <p>Selecting a chart type from the first drop down will populate the X and Y variable drop downs.</p>
                             <p>There are three types of charts:</p>
                             <ul>
-                                <li>Control Charts</li>
-                                <li>Box and Whisker Plots</li>
-                                <li>Funnel Plots</li>
+                                <li><p>Control Charts</p></li>
+                                <li><p>Box and Whisker Plots</p></li>
+                                <li><p>Funnel Plots</p></li>
                             </ul>
                         </div>
                         <div class="col-md-6">
@@ -327,9 +327,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h4 id="h4-chart-labels">Chart Labels</h4>
-                            <p>Fill in the leftmost text box to set the <stront>Chart Title</strong></p>
-                            <p>Fill in the center text box to set the <stront>Y-Axis Label</strong></p>
-                            <p>Fill in the rightmost text box to set the <stront>X-Axis Label</strong></p>
+                            <p>Fill in the leftmost text box to set the <strong>Chart Title</strong></p>
+                            <p>Fill in the center text box to set the <strong>Y-Axis Label</strong></p>
+                            <p>Fill in the rightmost text box to set the <strong>X-Axis Label</strong></p>
                         </div>
                         <div class="col-md-6">
                             <img src="./img/help_titles.png" />
@@ -356,11 +356,83 @@
                 </div>
                 <div id="help-faq-tab">
                     <div class="row">
+                        <br />
+                        <div class="col-md-12">
+                            <div class="well well-sm">
+                                <a onclick="$(document).scrollTop($('#h4-export-csv').offset().top - 75); return false;" href="#">Where do I get a CSV File to upload to the dashboard?</a> <br />
+                                <a onclick="$(document).scrollTop($('#h4-csv-errors').offset().top - 75); return false;" href="#">What do the error messages mean that pop up when I upload my CSV file?</a> <br />
+                                <a onclick="$(document).scrollTop($('#h4-print-pdf').offset().top - 75); return false;" href="#">How do I print a chart to a PDF?</a> <br />
+                                <a onclick="$(document).scrollTop($('#h4-complete-check').offset().top - 75); return false;" href="#">What does the 'Only Use Data Rows That Are Complete' checkbox do?</a> <br />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="help-header" id="h4-export-csv">Where do I get a CSV File to upload to the dashboard?</h4>
+                            <p>To use the dashboard, you must download an exported CSV file from RedCAP.</p>
+                            <p>Log into RedCAP.</p>
+                            <p>Click '<strong>My Projects</strong>' from the top menu.</p>
+                            <p>Select the '<strong>Statewide Neonatal Abstinence Syndrome Improvement Project</strong>' project.'</p>
+                            <p>Click '<strong>Data Exports, Reports, and Stats</strong>' (listed under Applications) on the left menu.</p>
+                            <p>Click '<strong>Export Data</strong>' (next to the All Data report).</p>
+                            <p>Choose the '<strong>CSV / Microsoft Excel (labels)</strong>' Export Format.</p>
+                            <p>Click '<strong>Export Data</strong>' on the bottom right.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_export_csv.png" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="help-header" id="h4-csv-errors">What do the error messages mean that pop up when I upload my CSV file?</h4>
+                            <p>These error messages occur when the application cannot find one or more columns of data in the CSV file to generate the reports.</p>
+                            <p>If the error box is red, this means you cannot generate any reports until this is resolved.</p>
+                            <p>If the error box is yellow, this means certain charts may not generate.</p>
+                            <br />
+                            <p>You can resolve the issue by selecting the item(s) from the drop down menu that represents the missing data.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_csv_errors.png" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="help-header" id="h4-print-pdf">How do I print a chart to a PDF?</h4>
+                            <p>Click one of the print buttons on the top right.</p>
+                            <p>In Google Chrome, change your Printer Destination to '<strong>Save as PDF</strong>'</p>
+                            <p>In Mozilla FireFox, click the PDF drop down on the bottom left, and then select '<strong>Save as PDF...</strong>'</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="col-md-6">
+                                <img src="./img/help_chrome_pdf.png" />
+                            </div>
+                            <div class="col-md-6">
+                                <img src="./img/help_firefox_pdf.png" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="help-header" id="h4-complete-check">What does the 'Only Use Data Rows That Are Complete' checkbox do?</h4>
+                            <p>These error messages occur when the application cannot find one or more columns of data in the CSV file to generate the reports.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_complete_check.png" />
+                        </div>
+                    </div>
+                    <hr />
+                    <!--
+                    <div class="row">
                         <div class="col-md-12">
                             <h1>Under Construction</h1>
                             <h3>E-mail <a href="mailto:ratra.j@husky.neu.edu">Ratra.J@husky.neu.edu</a> if you encounter any issues or have any questions</h3>
                         </div>
                     </div>
+                    -->
                 </div>
             </div>
 		</div>
@@ -885,6 +957,7 @@
             
             // Help Tab Navigation
             $("#help-charts-tab").hide();
+            $("#help-customize-tab").hide();
             $("#help-faq-tab").hide();
             $("#help-tab li").click(function() {
                 $(this).addClass('active').siblings().removeClass('active');
