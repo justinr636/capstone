@@ -61,10 +61,10 @@ global_cols["global_birthmonth_col"].name.push("Birth Month (1-12)");
 global_cols["global_birthyear_col"].name.push("Birth Year");
 
 global_cols["global_losstart_col"].name.push("If outborn, what day of life was admission to your hospital?     Date of birth is day of life ONE.  ");
+global_cols["global_losend_col"].name.push("What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ");
 global_cols["global_milk_col"].name.push("Did infant receive any of his/her mother's own milk at any time during hospitalization?  ");
 global_cols["global_pharm_col"].name.push("Did infant receive pharmacologic agents for NAS?");
 global_cols["global_dischargemeds_col"].name.push("At time of discharge or transfer from  your hospital, was infant receiving medications for NAS?");
-global_cols["global_losend_col"].name.push("What day of life was infant discharged from your hospital?    Day of birth is considered day of life ONE.  ");
 global_cols["global_hid_col"].name.push("Your Hospital ID");
 global_cols["global_weight_col"].name.push("Birth weight (Grams)");
 global_cols["global_maxcal_col"].name.push("What was the maximum caloric density of human milk or formula given to infant during hospitalization?");
@@ -82,10 +82,10 @@ global_cols["global_birthmonth_col"].name.push("month_of_birth");
 global_cols["global_birthyear_col"].name.push("year_of_birth");
 
 global_cols["global_losstart_col"].name.push("outborn_day_of_admission");
+global_cols["global_losend_col"].name.push("discharge_day");
 global_cols["global_milk_col"].name.push("hm_any");
 global_cols["global_pharm_col"].name.push("pharm_tx_any");
 global_cols["global_dischargemeds_col"].name.push("discharge_med");
-global_cols["global_losend_col"].name.push("discharge_day");
 global_cols["global_hid_col"].name.push("hospital_id");
 global_cols["global_weight_col"].name.push("birth_weight");
 global_cols["global_maxcal_col"].name.push("caloric_maximum");

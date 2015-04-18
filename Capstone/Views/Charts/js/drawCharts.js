@@ -274,6 +274,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
 
     // Set Y Domain (including Control Limits)
     var max = d3.max(data, function (d) { return (d3.max(d, function (d) { return d.ratio; })); });
+    if (print_percent) max = d3.max(data, function (d) { return (d3.max(d, function (d) { return d.ucl; })); });
     if (ucl > max) max = ucl;
     y.domain([0, max]);
     //y.domain(d3.extent(data, function (d) { return d.y_axis; }));     // Y-AXIS-Range = [Min, Max]
@@ -354,7 +355,8 @@ function drawRunChart(dataObj, label, width, height, selector) {
            .data(data[i])
            .enter()
            .append("circle")
-           .attr("fill", function (d) { return ((d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
+           //.attr("fill", function (d) { return ((d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
+           .attr("fill", function (d) { return ( print_percent ? (d.ratio > d.ucl || d.ratio < d.lcl) : (d.ratio > ucl || d.ratio < lcl) ? "rgba(220, 55, 41, 0.8)" : color (i / (data.length-1)) ); })
            .attr("cx", function (d) { return x(d.date); })
            .attr("cy", function (d) { return y(d.ratio); })
            .attr("r", 3)
@@ -386,22 +388,46 @@ function drawRunChart(dataObj, label, width, height, selector) {
            });
     }
 
-    // upper limit line
-    svg.append("line")
-	               .attr("class", "limit-line")
-	    		   .attr({ x1: 0, y1: y(ucl), x2: width, y2: y(ucl) });
-    svg.append("text")
-	               .attr({ x: width + 5, y: y(ucl) + 4 })
-	    		   .text("UCL: " + ucl.toFixed(2));
+    if (print_percent) {
+        // upper limit line
+        var upper_limit_line = d3.svg.line()
+                                     .x(function (d) { return x(d.date); })
+                                     .y(function (d) { return y(d.ucl); })
+                                     .interpolate("linear");
+                                     //.interpolate("step-before");
+        // lower limit line
+        var lower_limit_line = d3.svg.line()
+                                     .x(function (d) { return x(d.date); })
+                                     .y(function (d) { return y(d.lcl); })
+                                     .interpolate("linear");
+                                     //.interpolate("step-before");
+        svg.append("svg:path")
+            .attr("class", "limit-line")
+            .attr("fill", "none")
+            .attr("d", upper_limit_line(data[0]));
+        svg.append("svg:path")
+            .attr("class", "limit-line")
+            .attr("fill", "none")
+            .attr("d", lower_limit_line(data[0]));
+    } else {
+        // upper limit line
+        svg.append("line")
+	                   .attr("class", "limit-line")
+	        		   .attr({ x1: 0, y1: y(ucl), x2: width, y2: y(ucl) });
+        svg.append("text")
+	                   .attr({ x: width + 5, y: y(ucl) + 4 })
+	        		   .text("UCL: " + ucl.toFixed(2));
 
-    // lower limit line
-    svg.append("line")
-	               .attr("class", "limit-line")
-	    		   .attr({ x1: 0, y1: y(lcl), x2: width, y2: y(lcl) });
-    svg.append("text")
-	               .attr({ x: width + 5, y: y(lcl) + 4 })
-	    		   .text("LCL: " + lcl.toFixed(2));
-
+        // lower limit line
+        svg.append("line")
+	                   .attr("class", "limit-line")
+	        		   .attr({ x1: 0, y1: y(lcl), x2: width, y2: y(lcl) });
+        svg.append("text")
+	                   .attr({ x: width + 5, y: y(lcl) + 4 })
+	        		   .text("LCL: " + lcl.toFixed(2));
+    }
+    
+    
     // draw title
     svg.append('text')
 	                    .attr("x", width / 2)
@@ -671,7 +697,7 @@ function drawFunnelPlot(data, title, width, height, selector) {
     var sorted_names = data.names;
     var mean_incidence_rate = data.rate;
     
-    //console.log("Funnel Plot Data = ", data);
+    console.log("Funnel Plot Data = ", data);
 
     var padding = 30;
 
@@ -1174,7 +1200,6 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                             avg_sum++;
                         }
                     } else {
-               
                         dataset[hids.length-1][dateIndex].sample_size++;
                         avg_count++;
                
@@ -1189,6 +1214,7 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         });
 
         var avg = avg_sum / avg_count;
+        if (typeof indicatorVal !== "number") avg = avg_sum / (avg_count - avg_sum);
         //console.log("avg = ", avg);
         //console.log("avg_sum = ", avg_sum);
         //console.log("avg_count = ", avg_count);
@@ -1228,24 +1254,50 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             //console.log("variance_sum = ", variance_sum);
             //console.log("avg_count = ", avg_count);
         } else {
-            avg = avg * 100;
-            
             _.each(dataset, function (hidData) {
+            
                    _.each(hidData, function (o) {
                         if (o.hid !== "AVG") {
-                            if (o.sample_size == 0)
+                            if (o.sample_size == 0) {
                                 o.ratio = 0;
-                            else
+                                o.lcl = 0;
+                                o.ucl = 0;
+                            } else {
                                 o.ratio = (o.indicator / o.sample_size) * 100;
+                                //o.ucl = (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size))))).toFixed(2);
+                                //o.lcl = (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size))))).toFixed(2);
+                                var ucl = 100 * (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                                var lcl = 100 * (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                          
+                                if (ucl > 100) ucl = 100;
+                                if (lcl < 0) lcl = 0;
+                                o.ucl = ucl;
+                                o.lcl = lcl;
+                                //console.log("avg = ", avg);
+                                //console.log("o.ucl = ", o.ucl);
+                                //console.log("o.lcl = ", o.lcl);
+                            }
                    
                             variance_sum += ((o.ratio - avg) * (o.ratio - avg));
                         } else {
-                            if (o.sample_size == 0)
+                            if (o.sample_size == 0) {
                                 o.ratio = 0;
-                            else
-                                o.ratio = (o.indicator / o.sample_size) * 100;
+                                o.ucl = 0;
+                                o.lcl = 0;
+                            } else {
+                                o.ratio = (o.indicator / o.sample_size);
+                                var ucl = 100 * (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                                var lcl = 100 * (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                          
+                                if (ucl > 100) ucl = 100;
+                                if (lcl < 0) lcl = 0;
+                                o.ucl = ucl;
+                                o.lcl = lcl;
+                            }
                         }
                    });
+                   
+                   avg = avg * 100;
            });
         }
 

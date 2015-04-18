@@ -103,6 +103,7 @@
                     <ul id="help-nav" class="nav nav-tabs nav-justified">
                         <li class="active"><a href="#">Getting Started</a></li>
                         <li><a href="#">Charts and Graphs</a></li>
+                        <li><a href="#">Customize Page</a></li>
                         <li><a href="#">FAQs / Troubleshooting</a></li>
                     </ul>
                 </div>
@@ -280,6 +281,76 @@
                         </div>
                         <div class="col-md-6">
                             <img src="./img/help_charts_date.png" />
+                        </div>
+                    </div>
+                </div>
+                <div id="help-customize-tab">
+                    <div class="row">
+                        <br />
+                        <div class="col-md-12">
+                            <div class="well well-sm">
+                                <a onclick="$(document).scrollTop($('#h4-chart-types').offset().top - 75); return false;" href="#">Chart Types</a> <br />
+                                <a onclick="$(document).scrollTop($('#h4-axes').offset().top - 75); return false;" href="#">X- and Y-Axis Variables</a> <br />
+                                <a onclick="$(document).scrollTop($('#h4-chart-labels').offset().top -75); return false;" href="#">Chart Labels</a>
+                                <a onclick="$(document).scrollTop($('#h4-chart-labels').offset().top -75); return false;" href="#">Create Charts</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 id="h4-chart-types">Chart Types</h4>
+                            <p>Selecting a chart type from the first drop down will populate the X and Y variable drop downs.</p>
+                            <p>There are three types of charts:</p>
+                            <ul>
+                                <li>Control Charts</li>
+                                <li>Box and Whisker Plots</li>
+                                <li>Funnel Plots</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_chart_types.png" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 id="h4-axes">X- and Y-Axis Variables</h4>
+                            <p>The center drop down selects your Y-Axis variable.</p>
+                            <p>The right-most drop down selects your X-Axis variable.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_axes.png" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 id="h4-chart-labels">Chart Labels</h4>
+                            <p>Fill in the leftmost text box to set the <stront>Chart Title</strong></p>
+                            <p>Fill in the center text box to set the <stront>Y-Axis Label</strong></p>
+                            <p>Fill in the rightmost text box to set the <stront>X-Axis Label</strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_titles.png" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 id="h4-cust-create">Create Charts</h4>
+                            <p>
+                                After selecting a
+                                <strong>Chart Type</strong>,
+                                <strong>Hospital ID</strong>,
+                                <strong>Y Axis Variable</strong>,
+                                <strong>X Axis Variable</strong>, and
+                                <strong>Date Range</strong>,
+                                click 'Submit' to create the chart.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="./img/help_cust_create.png" />
                         </div>
                     </div>
                 </div>
@@ -672,7 +743,7 @@
                               <div id="indicatorDiv">
                                   <br />
                                   <h5>Indicator Value:</h5>
-                                  <input id="indicatorText" type="text" />
+                                  <input id="indicatorText" class="form-control" type="text" />
                               </div>
 		                  </div>
 		                  <div class="col-md-3">
@@ -823,6 +894,8 @@
                 } else if (i == 1) {
                     $("#help-charts-tab").show().siblings().hide();
                 } else if (i == 2) {
+                    $("#help-customize-tab").show().siblings().hide();
+                } else if (i == 3) {
                     $("#help-faq-tab").show().siblings().hide();
                 }
             });
@@ -840,28 +913,38 @@
 	            //var hid_col = global_hid_col;
 	            var hid_col = global_cols["global_hid_col"].val;
 
+                var hid_arr = [];
+                
 	            var title_html = '';
 	            var hid_check_html = '';
 
 	            _.each(csvArray, function (item) {
                 // num = hospital_id = hid
-	                var num = item[hid_col];
-                    if (typeof num === "undefined") {
+	                var hid = item[hid_col];
+                    if (typeof hid === "undefined") {
                     } else {
-                       var inList = $.inArray(num, allHids);
+                       var inList = $.inArray(hid, allHids);
 	                      if (inList == -1) {
-	                          allHids.push(num);
+	                          allHids.push(hid);
 
                              //var hids = $("#hidChecks input:checked");
-                             if (num) {
-	                              title_html += '<option value="' + num + '">' + num + '</option>';
-                                  hid_check_html += '<input type="checkbox" value="' + num + '"/>' + num + '&emsp;';
+                             if (hid) {
+                                hid_arr.push(hid);
+	                            //title_html += '<option value="' + hid + '">' + hid + '</option>';
+                                //hid_check_html += '<input type="checkbox" value="' + hid + '"/>' + hid + '&emsp;';
                              } else {
 	                              console.log("ERROR! Data Missing Hospital ID");
                              }
 	                      }
                     }
 	            });
+                
+                hid_arr.sort();
+                for (var i = 0; i < hid_arr.length; i++) {
+                    title_html += '<option value="' + hid_arr[i] + '">' + hid_arr[i] + '</option>';
+                    hid_check_html += '<input type="checkbox" value="' + hid_arr[i] + '"/>' + hid_arr[i] + '&emsp;';
+                }
+                
 	            //title_html = '<option value="0">I Do Not Know</option>' + title_html;
 	            title_html += '<option value="0">I Do Not Know</option>';
                 //hid_check_html += '<input type="checkbox" value="0"/> AVG &emsp;';
@@ -1250,7 +1333,7 @@
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Receiving Pharmacology Treatment (%)", xAxis: "Population", chartTitle: "% Patients That Receive Pharmacology Treatment - Funnel Plot" },
+                    titles: { yAxis: "Receiving Pharmacology Treatment (%)", xAxis: "Population", chartTitle: "% Patients That Receive Pharmacology Treatment" },
                     //width: width / 2 + margin.left,
                     //height: (3 * height) / 4 - margin.top - margin.bottom,
                     //width: 450 + margin.left,
@@ -1281,7 +1364,7 @@
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk - Funnel Plot" },
+                    titles: { yAxis: "Receiving Breast Milk (%)", xAxis: "Population", chartTitle: "% Patients That Receive Breast Milk" },
                     //width: width / 2 + margin.left,
                     //height: (3 * height) / 4 - margin.top - margin.bottom,
                     //width: 450 + margin.left,
@@ -1312,7 +1395,7 @@
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Patients Discharged with Meds (%)", xAxis: "Population", chartTitle: "% Patients Discharged with Medication - Funnel Plot" },
+                    titles: { yAxis: "Patients Discharged with Meds (%)", xAxis: "Population", chartTitle: "% Patients Discharged with Medication" },
                     //width: width / 2 + margin.left,
                     //height: (3 * height) / 4 - margin.top - margin.bottom,
                     //width: 450 + margin.left,
@@ -1439,15 +1522,25 @@
 	        $("#simpleChartTypeDrop").change(function () {
 	            // show proper drop downs for simple customize menu
 	            var val = parseInt($(this).val());
+                
+                var los = global_cols["global_losend_col"].val >= 0 && global_cols["global_losstart_col"].val >= 0 ? true : false;
+                var pharm = global_cols["global_pharm_col"].val >= 0 ? true : false;
+                var milk = global_cols["global_milk_col"].val >= 0 ? true : false;
+                var dischargemeds = global_cols["global_dischargemeds_col"].val >= 0 ? true : false;
+                var weight = global_cols["global_weight_col"].val >= 0 ? true : false;
+                var maxcal = global_cols["global_maxcal_col"].val >= 0 ? true : false;
+                var locations = typeof global_cols["global_locations_cols"].val !== "number" && global_cols["global_locations_cols"].val.length > 0 ? true : false;
+                var mfdrugs = typeof global_cols["global_mfdrugs_cols"].val !== "number" && global_cols["global_mfdrugs_cols"].val.length > 0 ? true : false;
+                var formulas = typeof global_cols["global_formulas_cols"].val !== "number" && global_cols["global_formulas_cols"].val.length > 0 ? true : false;
+                var dismeds = typeof global_cols["global_dismeds_cols"].val !== "number" && global_cols["global_dismeds_cols"].val.length > 0 ? true : false;
 
 	            if (val == 1) {                 // Run Chart
-                    $("#simpleYDataDrop").html(
-                        '<option value="0">Select One</option>'
-                        + '<option value="los">Length of Stay</option>'
-                        + '<option value="pharm">Pharmacology Treatment</option>'
-                        + '<option value="bmilk">Infants Receiving Breast Milk</option>'
-                        + '<option value="dismeds">Discharged with Medication</option>'
-                    );
+                    var html = '<option value="0">Select One</option>';
+                    if (los) html += '<option value="los">Length of Stay</option>';
+                    if (pharm) html += '<option value="pharm">Pharmacology Treatment</option>';
+                    if (milk) html += '<option value="bmilk">Infants Receiving Breast Milk</option>';
+                    if (dischargemeds) html += '<option value="dismeds">Discharged with Medication</option>';
+                    $("#simpleYDataDrop").html(html);
 	                $("#simpleDateXData").show();
                     $("#simpleXDataDrop").html(
                         '<option value="0">Select One</option>'
@@ -1456,42 +1549,29 @@
                     $("#simpleXDataDrop").hide();
                     $("#box-label-div").hide();
 	            } else if (val == 2) {          // Box and Whisker Plot
-                    $("#simpleYDataDrop").html(
-                        '<option value="0">Select One</option>'
-                        + '<option value="los">Length of Stay</option>'
-                        + '<option value="weight">Body Weight</option>'
-                        + '<option value="caloric">Maximum Caloric Density</option>'
-                    );
+                    var html = '<option value="0">Select One</option>'
+                    if (los) html += '<option value="los">Length of Stay</option>';
+                    if (weight) html += '<option value="weight">Body Weight</option>';
+                    if (maxcal) html += '<option value="caloric">Maximum Caloric Density</option>';
+                    $("#simpleYDataDrop").html(html);
 	                $("#simpleDateXData").show();
                     $("#simpleXDataDrop").show();
-                    $("#simpleXDataDrop").html(
-                        '<option value="0">Select One</option>'
-                        + '<option value="locations">Hospital Care Locations</option>'
-                        + '<option value="mfdrugs">Maternal-Fetal Substance Exposures</option>'
-                        + '<option value="formulas">Formulas</option>'
-                        + '<option value="dismeds">Infant Discharge Medications</option>'
-                    );
+                    html = '<option value="0">Select One</option>';
+                    if (locations) html += '<option value="locations">Hospital Care Locations</option>';
+                    if (mfdrugs) html += '<option value="mfdrugs">Maternal-Fetal Substance Exposures</option>';
+                    if (formulas) html += '<option value="formulas">Formulas</option>';
+                    if (dismeds) html += '<option value="dismeds">Infant Discharge Medications</option>';
+                    $("#simpleXDataDrop").html(html);
                     $("#box-label-div").show();
 	            } else if (val == 3) {          // Funnel Plot
-                    $("#simpleYDataDrop").html(
-                        '<option value="0">Select One</option>'
-                        //+ '<option value="los">Length of Stay</option>'
-                        + '<option value="pharm">Pharmacology Treatment</option>'
-                        + '<option value="bmilk">Infants Receiving Breast Milk</option>'
-                        + '<option value="dismeds">Discharged with Medication</option>'
-                    );
+                    var html = '<option value="0">Select One</option>';
+                    if (pharm) html += '<option value="pharm">Pharmacology Treatment</option>';
+                    if (milk) html += '<option value="bmilk">Infants Receiving Breast Milk</option>';
+                    if (dischargemeds) html += '<option value="dismeds">Discharged with Medication</option>';
+                    $("#simpleYDataDrop").html(html);
 	                $("#simpleDateXData").show();
                     $("#simpleXDataDrop").show();
-                    $("#simpleXDataDrop").html(
-                        '<option value="0">Select One</option>'
-                        + '<option value="time">Population</option>'
-                    );
-                    $("#box-label-div").hide();
-	            } else if (val == 4) {          // Bar Chart
-                    $("#simpleYDataDrop").html('');
-                    $("#simpleXDataDrop").html('');
-	                $("#simpleDateXData").hide();
-                    $("#simpleXDataDrop").show();
+                    $("#simpleXDataDrop").html('<option value="time">Population</option>');
                     $("#box-label-div").hide();
 	            } else {
                     $("#simpleYDataDrop").html('');
@@ -1648,11 +1728,11 @@
                     var interval = $chartContainer.find("input.interval-radio:checked").val();
                     opts.options["interval"] = interval;
                     
-                    drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete_col),
+                    drawRunChart(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete),
                              opts.titles, opts.width, opts.height, opts.selector);
                 } else if (chartType == 2) {    // Draw Box Plot
                 } else if (chartType == 3) {    // Draw Funnel Plot
-                    drawFunnelPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete_col),
+                    drawFunnelPlot(customizeCSVData(opts.options, opts.Y_COL, opts.X_COL, opts.HID_COL, opts.START_DATE, opts.END_DATE, global_complete),
                                opts.titles, opts.width, opts.height, opts.selector);
                 } else if (chartType == 4) {    // Draw Bar Chart
                 }
