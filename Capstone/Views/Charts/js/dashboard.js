@@ -100,29 +100,73 @@ function validateCSVFile() {
 // ensures hard-coded columns for Local and State Reports
 // are in the proper location
     //console.log("titles = ", titles);
+    //deleteAllCookies();
     
     // Check for values in cookies
     /*
     for (var property in global_cols) {
         if (global_cols.hasOwnProperty(property)) {
             if ((document.cookie.indexOf(property) >= 0) && (document.cookie.indexOf(property + "_text") >= 0)) {
-                var val = parseInt(getCookie(property));
-                var name = getCookie(property+"_text");
-                global_cols[property].val = val;
-                global_cols[property].name = name;
-                //if (titles[global_cols[property].val] !== global_cols[property].name) {     // Checks if CSV column header == column header stored in user's cookie
-                //    global_cols[property].val = -1;
-                //}
-                var nameArr = global_cols[property].name;
+            
+                var propArr = property.split('_');
                 
-                //console.log("val = ", val);
-                //console.log("name = ", name);
-                //console.log("nameArr = ", nameArr);
-                
-                for (var i = 0; i < nameArr.length; i++) {      // Checks if CSV column header == column header stored in user's cookie
-                    if (titles[val].indexOf(nameArr[i]) < 0) {
-                        global_cols[property].val = -1;
+                if (propArr[propArr.length-1] !== "cols") {
+                    //var val = parseInt(getCookie(property));
+                    //var name = getCookie(property+"_text");
+                    //var val = parseInt($.cookie(property));
+                    //var name = $.cookie(property+"_text");
+                    
+                    global_cols[property].val = val;
+                    global_cols[property].name = name;
+                    
+                    //var nameArr = global_cols[property].name;
+                    
+                    //console.log("val = ", val);
+                    //console.log("name = ", name);
+                    //console.log("nameArr = ", nameArr);
+                    
+                    if (val > 0 && !isNaN(val) && val < titles.length && name !== "") {
+                        if (titles[val].indexOf(name) < 0) {
+                            global_cols[property].val = -1;
+                        }
+                        //for (var i = 0; i < nameArr.length; i++) {      // Checks if CSV column header == column header stored in user's cookie
+                        //    if (titles[val].indexOf(nameArr[i]) < 0) {
+                        //        global_cols[property].val = -1;
+                        //    }
+                        //}
                     }
+                } else {
+                    //var val = parseInt(getCookie(property));
+                    //var name = getCookie(property+"_text");
+                    //var val = unescape($.cookie(property));
+                    //val = val.split(',');
+                    //var val = JSON.parse($.cookie(property));
+                    //var name = $.cookie(property+"_text");
+                    
+                    global_cols[property].val = val;
+                    global_cols[property].name = name;
+                    //if (titles[global_cols[property].val] !== global_cols[property].name) {     // Checks if CSV column header == column header stored in user's cookie
+                    //    global_cols[property].val = -1;
+                    //}
+                    //var nameArr = global_cols[property].name;
+                    
+                    //console.log("val = ", val);
+                    //console.log("name = ", name);
+                    //console.log("nameArr = ", nameArr);
+                    
+                    if (val.length > 0 && name !== "") {
+                        for (var i = 0; i < val.length; i++) {
+                            if (titles[val[i]].indexOf(name) < 0) {
+                                global_cols[property].val = -1;
+                            }
+                        }
+                    }
+                    //for (var i = 0; i < nameArr.length; i++) {      // Checks if CSV column header == column header stored in user's cookie
+                    //    if (titles[val].indexOf(nameArr[i]) < 0) {
+                    //        //global_cols[property].val = [];
+                    //        global_cols[property].val = -1;
+                    //    }
+                    //}
                 }
             }
         }
@@ -139,11 +183,6 @@ function validateCSVFile() {
                 var propArr = property.split("_");
                 var mult_cols = (propArr[propArr.length-1] == "cols");
                 if (global_cols[property].val == -1 || mult_cols) {
-                    //if (titles[i] == global_cols[property].name) {
-                    //    global_cols[property].val = i;
-                    //    setCookie(property, i, 365);
-                    //    setCookie(property+"_text", titles[i], 365);
-                    //}
                     var nameArr = global_cols[property].name;
                     for (var j = 0; j < nameArr.length; j++)
                     {
@@ -152,10 +191,15 @@ function validateCSVFile() {
                                 if (typeof global_cols[property].val !== "number") global_cols[property].val.push(i);
                                 else global_cols[property].val = [i];
                                 
+                                //$.cookie(property, escape(global_cols[property].val.join(',')), { expires: 365 });
+                                //$.cookie(property, JSON.stringify(global_cols[property].val), { expires: 365 });
+                                //$.cookie(property+"_text", nameArr[j], { expires: 365 });
                                 //setCookie(property, global_cols[property].val, 365);
                                 //setCookie(property+"_text", nameArr[j], 365);
                             } else {
                                 global_cols[property].val = i;
+                                //$.cookie(property, global_cols[property].val, { expires: 365 });
+                                //$.cookie(property+"_text", nameArr[j], { expires: 365 });
                                 //setCookie(property, i, 365);
                                 //setCookie(property+"_text", nameArr[j], 365);
                                 break;
@@ -225,6 +269,14 @@ function validateComplete() {
         else global_complete = false;
     } else {
         global_complete = false;
+    }
+}
+
+function deleteAllCookies() {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+        var spcook = cookies[i].split("=");
+        document.cookie = spcook[0] + "=;expires=Thu, 21 Sep 1979 00:00:01 UTC;";
     }
 }
 

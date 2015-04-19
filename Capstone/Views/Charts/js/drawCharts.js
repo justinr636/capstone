@@ -459,6 +459,7 @@ function drawRunChart(dataObj, label, width, height, selector) {
           .text("No Data Available");
        
        $(selector + " svg g :not(.no-data)").hide();
+       $(selector + " g.legend").hide();
        //$(selector).closest('.chart-container').find('.date-toggle').hide();
    }
     
@@ -912,6 +913,20 @@ function drawFunnelPlot(data, title, width, height, selector) {
        }).on("mouseout", function (d, i) {
            tooltip.transition().duration(100).style("opacity", 1e-6);
        });
+    
+       if (isNaN(mean_incidence_rate)) {
+            svg.append('text')
+               .attr("x", width / 2)
+               .attr("y", height / 2)
+               .attr("text-anchor", "middle")
+               .attr("class", "no-data")
+               .style("font-size", "20px")
+               .text("No Data Available");
+            
+            $(selector + " svg g :not(.no-data)").hide();
+            $(selector + " circle").hide();
+            //$(selector).closest('.chart-container').find('.date-toggle').hide();
+       }
 }
 
 function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE, COMPLETE_BOOL) {
