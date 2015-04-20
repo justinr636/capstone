@@ -399,26 +399,49 @@ function drawRunChart(dataObj, label, width, height, selector) {
     }
 
     if (print_percent) {
-        // upper limit line
-        var upper_limit_line = d3.svg.line()
-                                     .x(function (d) { return x(d.date); })
-                                     .y(function (d) { return y(d.ucl); })
-                                     .interpolate("linear");
-                                     //.interpolate("step-before");
-        // lower limit line
-        var lower_limit_line = d3.svg.line()
-                                     .x(function (d) { return x(d.date); })
-                                     .y(function (d) { return y(d.lcl); })
-                                     .interpolate("linear");
-                                     //.interpolate("step-before");
-        svg.append("svg:path")
-            .attr("class", "limit-line")
-            .attr("fill", "none")
-            .attr("d", upper_limit_line(data[0]));
-        svg.append("svg:path")
-            .attr("class", "limit-line")
-            .attr("fill", "none")
-            .attr("d", lower_limit_line(data[0]));
+        if (data.length == 1) {
+            // upper limit line
+            var upper_limit_line = d3.svg.line()
+                                         .x(function (d) { return x(d.date); })
+                                         .y(function (d) { return y(d.ucl); })
+                                         .interpolate("linear");
+                                         //.interpolate("step-before");
+            // lower limit line
+            var lower_limit_line = d3.svg.line()
+                                         .x(function (d) { return x(d.date); })
+                                         .y(function (d) { return y(d.lcl); })
+                                         .interpolate("linear");
+                                         //.interpolate("step-before");
+            svg.append("svg:path")
+                .attr("class", "limit-line")
+                .attr("fill", "none")
+                .attr("d", upper_limit_line(data[0]));
+            svg.append("svg:path")
+                .attr("class", "limit-line")
+                .attr("fill", "none")
+                .attr("d", lower_limit_line(data[0]));
+        } else {
+            // upper limit line
+            var upper_limit_line = d3.svg.line()
+                                         .x(function (d) { return x(d.date); })
+                                         .y(function (d) { return y(d.ucl); })
+                                         .interpolate("linear");
+                                         //.interpolate("step-before");
+            // lower limit line
+            var lower_limit_line = d3.svg.line()
+                                         .x(function (d) { return x(d.date); })
+                                         .y(function (d) { return y(d.lcl); })
+                                         .interpolate("linear");
+                                         //.interpolate("step-before");
+            svg.append("svg:path")
+                .attr("class", "limit-line")
+                .attr("fill", "none")
+                .attr("d", upper_limit_line(data[data.length-1]));
+            svg.append("svg:path")
+                .attr("class", "limit-line")
+                .attr("fill", "none")
+                .attr("d", lower_limit_line(data[data.length-1]));
+        }
     } else {
         // upper limit line
         svg.append("line")
@@ -960,6 +983,9 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
         var avg_sum = 0;
         var variance_sum = 0;
         
+        var sample_count = 0;
+        var incidence_count = 0;
+        
         var min = Infinity;
         var max = -Infinity;
         
@@ -1219,27 +1245,40 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                     if (hospIndex !== -1) {
                         dataset[hospIndex][dateIndex].sample_size++;
                         avg_count++;
+                        sample_count++;   // total sum of sample size
                
                         if (val == indicatorVal) {
                             dataset[hospIndex][dateIndex].indicator++;
                             avg_sum++;
+                            incidence_count++; // total sum of incidences
                         }
-                    } else {
-                        dataset[hids.length-1][dateIndex].sample_size++;
-                        avg_count++;
                
-                        if (val == indicatorVal) {
-                            dataset[hids.length-1][dateIndex].indicator++;
-                            avg_sum++;
+                        if (hids.length > 1) {
+                            dataset[hids.length-1][dateIndex].sample_size++;
+                            if (val == indicatorVal) dataset[hids.length-1][dateIndex].indicator++;
                         }
                     }
+                    //else {
+                    //    dataset[hids.length-1][dateIndex].sample_size++;
+                    //    avg_count++;
+               
+                    //    if (val == indicatorVal) {
+                    //        dataset[hids.length-1][dateIndex].indicator++;
+                    //        avg_sum++;
+                    //    }
+                    //}
                }
 
             }
         });
 
+        var global_lim = 0;
+        var global_ucl = 0;
+        var global_lcl = 0;
+        
         var avg = avg_sum / avg_count;
-        if (typeof indicatorVal !== "number") avg = avg_sum / (avg_count - avg_sum);
+        
+        //if (typeof indicatorVal !== "number") avg = avg_sum / (avg_count - avg_sum);
         //console.log("avg = ", avg);
         //console.log("avg_sum = ", avg_sum);
         //console.log("avg_count = ", avg_count);
@@ -1279,20 +1318,44 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
             //console.log("variance_sum = ", variance_sum);
             //console.log("avg_count = ", avg_count);
         } else {
+            if (sample_count !== 0) {
+                avg = incidence_count / sample_count;
+                global_lim = (3*(Math.sqrt((avg*(1-avg))/((sample_count)/(dataset.length-1)))));
+                global_ucl = 100 * (avg + global_lim);
+                global_lcl = 100 * (avg - global_lim);
+                
+                console.log("avg = ", avg);
+            } else {
+                avg = 0;
+                global_lcl = 0;
+                global_lcl = 0;
+            }
+            
             _.each(dataset, function (hidData) {
             
-                   _.each(hidData, function (o) {
-                        if (o.hid !== "AVG") {
+                   _.each(hidData, function (o, i) {
+                        //if (o.hid !== "AVG") {
                             if (o.sample_size == 0) {
                                 o.ratio = 0;
-                                o.lcl = 0;
-                                o.ucl = 0;
+                          
+                                if (i < 1) {
+                                    o.lcl = 0;
+                                    o.ucl = 0;
+                                } else {
+                                    o.ucl = hidData[i-1].ucl;
+                                    o.lcl = hidData[i-1].lcl;
+                                }
                             } else {
                                 o.ratio = (o.indicator / o.sample_size) * 100;
+                                //o.ratio = avg * 100;
+                          
                                 //o.ucl = (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size))))).toFixed(2);
                                 //o.lcl = (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size))))).toFixed(2);
-                                var ucl = 100 * (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
-                                var lcl = 100 * (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                                //var ucl = 100 * (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                                //var lcl = 100 * (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                                var lim = (3*(Math.sqrt((avg*(1-avg))/(o.sample_size))));
+                                var ucl = 100 * (avg + lim);
+                                var lcl = 100 * (avg - lim);
                           
                                 if (ucl > 100) ucl = 100;
                                 if (lcl < 0) lcl = 0;
@@ -1304,26 +1367,39 @@ function customizeCSVData(chartData, Y_COL, X_COL, HID_COL, START_DATE, END_DATE
                             }
                    
                             variance_sum += ((o.ratio - avg) * (o.ratio - avg));
-                        } else {
-                            if (o.sample_size == 0) {
-                                o.ratio = 0;
-                                o.ucl = 0;
-                                o.lcl = 0;
-                            } else {
-                                o.ratio = (o.indicator / o.sample_size);
-                                var ucl = 100 * (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
-                                var lcl = 100 * (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
-                          
-                                if (ucl > 100) ucl = 100;
-                                if (lcl < 0) lcl = 0;
-                                o.ucl = ucl;
-                                o.lcl = lcl;
-                            }
-                        }
+                        //} else {
+                        //    //if (o.sample_size == 0)
+                        //    if (sample_count == 0) {
+                        //        o.ratio = (100 * avg);
+                        //        if (i < 1) { o.lcl = 0; o.ucl = 0; }
+                        //        else {
+                        //            o.ucl = hidData[i-1].ucl;
+                        //            o.lcl = hidData[i-1].lcl;
+                        //        }
+                        //    } else {
+                        //        o.sample_size = sample_count;
+                        //        o.indicator = incidence_count;
+                        //        //o.ratio = (o.indicator / o.sample_size);
+                        //        o.ratio = (avg*100);
+                        //  
+                        //        //var ucl = 100 * (avg + (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                        //        //var lcl = 100 * (avg - (3 * (Math.sqrt(((avg * (1-avg))/o.sample_size)))));
+                        //        //var lim = (3*Math.sqrt((avg*(1-avg))/(sample_count/(dataset.length-1))));
+                        //        //var ucl = 100 * (avg + lim);
+                        //        //var lcl = 100 * (avg - lim);
+                        //        var ucl = global_ucl;
+                        //        var lcl = global_lcl;
+                        //  
+                        //        if (ucl > 100) ucl = 100;
+                        //        if (lcl < 0) lcl = 0;
+                        //        o.ucl = ucl;
+                        //        o.lcl = lcl;
+                        //    }
+                        //}
                    });
                    
-                   avg = avg * 100;
            });
+                   avg = avg * 100;
         }
 
         //var variance = variance_sum / avg_count;          // Population Statistics

@@ -165,6 +165,9 @@
                         <div class="col-md-6">
                             <h4 id="h4-data">Selecting a Data File</h4>
                             <p>Click on 'Choose File' and select a <strong>.CSV</strong> file from your computer.</p>
+                            <br />
+                            <br />
+                            <p><a href="./data/dummy_data.csv">Here's a link to a dummy data file you can download.</a></p>
                         </div>
                         <div class="col-md-6">
                             <img src="./img/help_csv.png" />
@@ -572,6 +575,16 @@
 
 <!-- Local Tab Start -->
         <div id="local-tab" class="container print-container tab print-report">
+            <div class="upload-file-message no-print row">
+                <div class="col-md-12">
+                    <div class="alert alert-info" role="alert">
+                        <h4>
+                        <strong>Not so fast!</strong> You must upload a CSV file and generate reports before you can view this page.
+                        <br /><a href="#" class="alert-link" onclick="$('#navbar-items li:nth-child(1) a').click();">Click Here to go to the upload file page.</a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
             <div class="only-print">
                 <h5 style="text-align: center">My Hospital Report</h5>
             </div>
@@ -671,6 +684,16 @@
 
 <!-- Regional Tab Start -->
         <div id="regional-tab" class="container print-container tab print-report">
+            <div class="upload-file-message no-print row">
+                <div class="col-md-12">
+                    <div class="alert alert-info" role="alert">
+                        <h4>
+                        <strong>Not so fast!</strong> You must upload a CSV file and generate reports before you can view this page.
+                        <br /><a href="#" class="alert-link">Click Here to go to the upload file page.</a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
             <div class="only-print">
                 <h5 style="text-align: center">State Report</h5>
             </div>
@@ -1071,6 +1094,7 @@
 	            $("#select-hid-row").show();
 	        }
             
+            $("table.print-area").hide();
             $("#csvfile-error").hide();
             var errorCount = 0;
             
@@ -1253,21 +1277,32 @@
 	            // -	Create Local and Regional Charts
                 e.preventDefault();
                 
+                // Hide Upload Messages and Show Reports
+                $(".upload-file-message").hide();
+                $("table.print-area").show();
+                
                 validateComplete();
                 
 	            global_hid = $("#hidSelect").val();
                 $(".hid-select").val(global_hid);
                 
-                START_DATE = StringToDate($homeTab.find(".date-toggle-start").val());
+                var startDateText = $homeTab.find(".date-toggle-start").val();
+                var endDateText = $homeTab.find(".date-toggle-end").val();
+                
+                $("#simpleStartDateText, #startDateText").val(startDateText);
+                $("#simpleEndDateText, #endDateText").val(endDateText);
+                
+                START_DATE = StringToDate(startDateText);
                 START_DATE = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), 1);
                 START_DATE.setHours(0, 0, 0, 0);
-                END_DATE = StringToDate($homeTab.find(".date-toggle-end").val());
+                END_DATE = StringToDate(endDateText);
                 END_DATE.setHours(23, 59, 59, 999);
                 
                 //console.log("START_DATE = ", START_DATE);
                 //console.log("END_DATE = ", END_DATE);
                 
                 var interval = $homeTab.find("input[name=interval]:checked").val();
+                $("#customize-tab .interval-radio[value=" + interval + "]").prop("checked", true);
                 //console.log("interval = ", interval);
                 
 	            $(".chartDiv").empty();
@@ -1304,7 +1339,7 @@
                     HID_COL: global_cols["global_hid_col"].val,
                     START_DATE: START_DATE,
                     END_DATE: END_DATE,
-                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Length of Stay over Time" },
+                    titles: { yAxis: "Length of Stay (# of days)", xAxis: "", chartTitle: "Average Length of Stay over Time" },
                     width: width / 2 - margin.left - margin.right,
                     height: height / 2 - margin.top - margin.bottom,
                     selector: "div#localChartDiv1"
